@@ -20,6 +20,7 @@ test_requires = [
     "pytest",
     "pytest-cov",
     "pytest-capturelog",
+    "yaml2json",
     ]
 
 setup(name='organicseeds_webshop_api',

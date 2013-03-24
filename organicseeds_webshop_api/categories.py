@@ -1,10 +1,5 @@
-import string
-from cornice.tests.support import CatchErrors
-from colander import MappingSchema, SchemaNode, String
-from pyramid.config import Configurator
-from pyramid.httpexceptions import HTTPNotFound
+import json
 from cornice import Service
-from cornice.schemas import CorniceSchema
 
 from organicseeds_webshop_api import schemata
 
@@ -13,9 +8,17 @@ Service to upload webshop categories.
 """
 
 categories = Service(name='categories', path='/categories', description=desc)
+items = Service(name='items', path='/items', description=desc)
 
 
 @categories.post(schema=schemata.CategoriesList)
 def categories_post(request):
-    import pdb; pdb.set_trace()
+    data = json.loads(request.body)
+    import ipdb; ipdb.set_trace()
+    return {"test": "succeeded"}
+
+@items.post(schema=schemata.ItemsList)
+def items_post(request):
+    data = json.loads(request.body)
+    import ipdb; ipdb.set_trace()
     return {"test": "succeeded"}
