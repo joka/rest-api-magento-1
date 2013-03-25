@@ -14,20 +14,6 @@ def yaml_to_json(yamlstring):
     return jsondata
 
 
-class TestServicesFunctional(unittest.TestCase):
-
-    def setUp(self):
-        self.app = TestApp(main({"zodbconn.uri": "memory://"}))
-
-    def test_categories_put(self):
-        jsondata = yaml_to_json(schemata.CATEGORIES_EXAMPLE_YAML)
-        self.app.post_json('/categories', jsondata)
-
-    def test_items_put(self):
-        jsondata = yaml_to_json(schemata.ITEMS_POST_EXAMPLE_YAML)
-        self.app.post_json('/items', jsondata)
-
-
 class TestServicesIntegration(unittest.TestCase):
 
     def setUp(self):
@@ -52,3 +38,18 @@ class TestServicesIntegration(unittest.TestCase):
         request.body = jsonstr
         response =  items_post(request)
         assert(response == {'test': 'succeeded'})
+
+
+class TestServicesFunctional(unittest.TestCase):
+
+    def setUp(self):
+        self.app = TestApp(main({"zodbconn.uri": "memory://"}))
+
+    def test_categories_put(self):
+        jsondata = yaml_to_json(schemata.CATEGORIES_EXAMPLE_YAML)
+        self.app.post_json('/categories', jsondata)
+
+    def test_items_put(self):
+        jsondata = yaml_to_json(schemata.ITEMS_POST_EXAMPLE_YAML)
+        self.app.post_json('/items', jsondata)
+

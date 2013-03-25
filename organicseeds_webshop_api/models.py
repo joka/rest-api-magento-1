@@ -56,7 +56,6 @@ def bootstrap(zodb_root, app_root_id, request):
     return Root(request, zodb_root[app_root_id], app_root_id)
 
 
-
 def includeme(config):
     """register limone content types"""
     # get content types registry
@@ -64,3 +63,19 @@ def includeme(config):
     # add content types
     item = limone_zodb.make_content_type(schemata.Item, 'Item')
     contentregistry.register_content_type(item)
+
+
+def transform_to_python_and_store(jsonlist, content_type, folder_id, request):
+    contentregistry = request.registry.getUtility(IContentRegistryUtility)
+    itemtype = contentregistry.get_content_type(content_type)
+    app_root = request.root.app_root
+    folder = app_root[folder_id]
+    catalog = app_root.catalog
+    document_map =  app_root.document_map
+    for i in jsonlist:
+        obj = itemtype.deserialize(i)
+        folder[obj.id] = "test"
+        path = "%s/%s" % (folder_id, obj.id)
+        catalog_id = document_map.add(path)
+        catalog.index_doc(catalog_id, obj)
+    transaction.commit()

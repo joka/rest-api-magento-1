@@ -3,10 +3,8 @@ import transaction
 from pyramid.security import Everyone, Authenticated, Allow
 from cornice import Service
 
-from organicseeds_webshop_api.utilities import IContentRegistryUtility
-
-
 from organicseeds_webshop_api import schemata
+from organicseeds_webshop_api import models
 
 
 categories = Service(name='categories',
@@ -31,18 +29,5 @@ def categories_post(request):
 @items.post(schema=schemata.ItemsList)
 def items_post(request):
     data = json.loads(request.body)
-    contentregistry = request.registry.getUtility(IContentRegistryUtility)
-    itemtype = contentregistry.get_content_type("Item")
-    app_root = request.root.app_root
-    items = app_root["items"]
-    catalog = app_root.catalog
-    document_map =  app_root.document_map
-    for i in data["items"]:
-        import ipdb; ipdb.set_trace()
-        item = itemtype.deserialize(i)
-        items[item.id] = "test"
-        path = "categories/" + item.id
-        catalog_id = document_map.add(path)
-        catalog.index_doc(catalog_id, item)
-    transaction.commit()
+    models.transform_to_python_and_store(data["items"], "Item", "items", request)
     return {"test": "succeeded"}
