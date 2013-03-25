@@ -29,5 +29,10 @@ def categories_post(request):
 @items.post(schema=schemata.ItemsList)
 def items_post(request):
     data = json.loads(request.body)
-    models.transform_to_python_and_store(data["items"], "Item", "items", request)
+    models.transform_to_python_and_store(data["items"],
+                                         "Item", "items", request)
+    models.transform_to_python_and_store(data["unit_of_measures"],
+                                         "UnitOfMeasure", "unit_of_measures", request)
+    models.transform_to_python_and_store(data["vpe_types"],
+                                         "VPEType", "vpe_types", request)
     return {"test": "succeeded"}
