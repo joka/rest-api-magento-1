@@ -12,6 +12,8 @@ from colander import (
     Integer,
     OneOf
 )
+import limone_zodb
+
 
 ##############################
 # Configuration Choices      #
@@ -88,7 +90,6 @@ class Category(MappingSchema):
 class Categories(SequenceSchema):
     category = Category()
 
-
 class CategoriesList(MappingSchema):
     categories = Categories()
 
@@ -113,7 +114,6 @@ class UnitOfMeasure(MappingSchema):
 class UnitOfMeasures():
     unit_of_measure = UnitOfMeasure()
 
-
 class VPEType(MappingSchema):
     id = SchemaNode(String())
     title = StringTranslation()
@@ -122,7 +122,6 @@ class VPEType(MappingSchema):
 
 class VPETypes(SequenceSchema):
     vpe_type = VPEType()
-
 
 class Item(MappingSchema):
     id = SchemaNode(String())  # TODO validate IDs

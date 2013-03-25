@@ -1,4 +1,5 @@
-from persistent.mapping import PersistentMapping
+#import limone
+#from persistent.mapping import PersistentMapping
 
 
 #class MyModel(PersistentMapping):
@@ -12,6 +13,5 @@ from persistent.mapping import PersistentMapping
         #import transaction
         #transaction.commit()
     #return zodb_root['app_root']
-
 
 
