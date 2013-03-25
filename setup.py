@@ -10,9 +10,11 @@ requires = [
     'cornice',
     'pyramid_whoauth', 'mozsvc', 'limone', 'limone_zodb',
     'transaction',
+    'pyramid_zodbconn',
     'pyramid_tm',
     'pyramid_debugtoolbar',
     'ZODB3',
+    'repoze.catalog',
     'waitress',
     ]
 test_requires = [
