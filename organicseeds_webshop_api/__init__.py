@@ -4,8 +4,8 @@ from pyramid.config import Configurator
 from pyramid_zodbconn import get_connection
 #from cornice.tests.support import CatchErrors
 
-from organicseeds_webshop_api.resources import bootstrap
-import organicseeds_webshop_api.resources
+import organicseeds_webshop_api.models
+from organicseeds_webshop_api.models import bootstrap
 
 
 ZODB_APP_ROOT_ID = "webshop_api"
@@ -20,7 +20,7 @@ def includeme(config):
     config.include("cornice")
     config.scan("organicseeds_webshop_api.services")
     config.include(organicseeds_webshop_api.utilities)
-    config.include(organicseeds_webshop_api.resources)
+    config.include(organicseeds_webshop_api.models)
 
 
 # pyramid application main

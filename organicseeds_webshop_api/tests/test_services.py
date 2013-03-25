@@ -36,7 +36,7 @@ class TestServicesIntegration(unittest.TestCase):
         self.config = testing.setUp(request=self.request, settings = {"zodbconn.uri": "memory://"})
         self.config.include("pyramid_zodbconn")
         self.config.include(organicseeds_webshop_api.utilities)
-        self.config.include(organicseeds_webshop_api.resources)
+        self.config.include(organicseeds_webshop_api.models)
         self.request.root = organicseeds_webshop_api.root_factory(self.request)
 
     def tearDown(self):
