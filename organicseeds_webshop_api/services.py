@@ -26,6 +26,7 @@ def categories_post(request):
     data = json.loads(request.body)
     return {"test": "succeeded"}
 
+
 @items.post(schema=schemata.ItemsList)
 def items_post(request):
     data = json.loads(request.body)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: set ts=4 sw=4:
 from decimal import Decimal as PyDec
+import json
 from colander import (
     MappingSchema,
     SequenceSchema,
@@ -10,7 +11,8 @@ from colander import (
     Decimal,
     Bool,
     Integer,
-    OneOf
+    OneOf,
+    deferred
 )
 import limone_zodb
 
@@ -106,6 +108,24 @@ categories:
 # Items (shop products) #
 #########################
 
+@deferred
+def deferred_validate_unit_of_measure_id(node, kw):
+    request = kw["request"]
+    data = json.loads(request.body)
+    measures = data.get('unit_of_measures')
+    measure_ids = [x["id"] for x in measures]
+    return OneOf(measure_ids)
+
+
+@deferred
+def deferred_validate_vpe_type_id(node, kw):
+    request = kw["request"]
+    data = json.loads(request.body)
+    measures = data.get('vpe_types')
+    measure_ids = [x["id"] for x in measures]
+    return OneOf(measure_ids)
+
+
 class UnitOfMeasure(MappingSchema):
     id = SchemaNode(String())
     title = StringTranslation()
@@ -135,10 +155,12 @@ class Item(MappingSchema):
                                                   "pflanzgut",
                                                   "sonstiges"]))
     vpe_default = SchemaNode(Bool())
-    vpe_type_id = SchemaNode(String())
+    vpe_type_id = SchemaNode(String(), validator=
+                             deferred_validate_vpe_type_id)
     weight_brutto = SchemaNode(Float())
     weight_netto = SchemaNode(Float())
-    unit_of_measure_id = SchemaNode(String())
+    unit_of_measure_id = SchemaNode(String(), validator=\
+                                    deferred_validate_unit_of_measure_id)
     price = DecimalWebsites()
     tierprices = TierPrices()
     tax_class = SchemaNode(Integer(), validator=OneOf([0,
