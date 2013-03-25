@@ -24,7 +24,7 @@ def find_element(path, context):
 @categories.post(schema=schemata.CategoriesList)
 def categories_post(request):
     data = json.loads(request.body)
-    return {"test": "succeeded"}
+    return {"status": "succeeded"}
 
 
 @items.post(schema=schemata.ItemsList)
@@ -36,4 +36,4 @@ def items_post(request):
                                          "UnitOfMeasure", "unit_of_measures", request)
     models.transform_to_python_and_store(data["vpe_types"],
                                          "VPEType", "vpe_types", request)
-    return {"test": "succeeded"}
+    return {"status": "succeeded"}
