@@ -104,6 +104,10 @@ categories:
     baz: teste
 """
 
+##############################################
+# ItemGroups (shop configuratable products)  #
+##############################################
+
 #########################
 # Items (shop products) #
 #########################
@@ -172,6 +176,7 @@ class Item(MappingSchema):
     quality_id = SchemaNode(String())
     min_sale_qty = SchemaNode(Integer(), default=1, missing=1, required=False) # TODO not <= 0 validation
     max_sale_qty = SchemaNode(Integer(), default=1000000, missing=1000000, required=False)
+    inventory_status = SchemaNode(Integer(), validator=OneOf([1,2,3,4,5,6,7,8]))
 
 
 class Items(SequenceSchema):
