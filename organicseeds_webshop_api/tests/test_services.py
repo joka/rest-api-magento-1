@@ -59,25 +59,59 @@ class TestServicesFunctional(unittest.TestCase):
         self.items_post_testfile.close()
 
 
-    def test_categories_put(self):
-        jsondata = self.items_post_testdata
-        self.app.post_json('/categories', jsondata)
+    #def test_categories_put(self):
+        #jsondata = self.items_post_testdata
+        #self.app.post_json('/categories', jsondata)
 
     def test_items_put(self):
         jsondata = self.items_post_testdata
         resp = self.app.post_json('/items', jsondata)
         assert resp.status_int == 200
 
-    def test_items_post_validate_vpe_type_id(self):
-        jsondata = self.items_post_testdata
-        self.app.post_json('/items', jsondata)
-        #jsondata["vpe_types"][0]["id"] = "wrongid"
-        import ipdb; ipdb.set_trace()
-        with  pytest.raises(AppError):
-            self.app.post_json('/items', jsondata)
 
-    def test_items_post_validate_unit_of_measure_id(self):
-        jsondata = self.items_post_testdata
-        jsondata["unit_of_measures"][0]["id"] = "wrongid"
-        with  pytest.raises(AppError):
-            self.app.post_json('/items', jsondata)
+class Test_Schemata_Validate_Identifier(unittest.TestCase):
+
+
+    def test_valid_values(self):
+        from organicseeds_webshop_api.schemata import validate_identifier
+        import colander
+        validator = validate_identifier
+        node = colander.SchemaNode(colander.String())
+        assert(validator(node, u"111") == None)
+        assert(validator(node, u"ddd") == None)
+        assert(validator(node, u"11_ddd") == None)
+
+    def test_invalid_values(self):
+        from organicseeds_webshop_api.schemata import validate_identifier
+        import colander
+        from colander import Invalid
+        validator = validate_identifier
+        node = colander.SchemaNode(colander.String())
+        with pytest.raises(Invalid):
+            validator(node, u"")
+        with pytest.raises(Invalid):
+            validator(node, u"d?")
+
+
+class Test_Schemata_Validate_references(unittest.TestCase):
+
+     def test_validate_vpe_type_id_valid(self):
+        from organicseeds_webshop_api.schemata import deferred_validate_vpe_type_id
+        import colander
+        validator = deferred_validate_vpe_type_id
+        node = colander.SchemaNode(colander.String())
+        request = testing.DummyRequest()
+        request.body = json.dumps(
+                       {"vpe_types": [{"id": "type1"},{"id": "type2"}],
+                        "items": [{"vpe_type_id": "type1"}]
+                       })
+        kw = {"request": request}
+        assert(validator(node, kw).choices == [u'type1', u'type2'])
+        request.body = json.dumps(
+                       {"vpe_types": [],
+                        "items": [{"vpe_type_id": "type1"}]
+                       })
+        assert(validator(node, kw).choices == [])
+
+
+

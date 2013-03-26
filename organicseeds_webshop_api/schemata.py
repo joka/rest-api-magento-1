@@ -12,29 +12,29 @@ from colander import (
     Bool,
     Integer,
     OneOf,
+    Range,
+    Regex,
     deferred
 )
-import limone_zodb
-
-
-##############################
-# Configuration Choices      #
-##############################
-
-
-website = SchemaNode(String(), validator=OneOf(["ch_website",
-                                                 "de_website",
-                                                 "fr_website",
-                                                 "it_website"
-                                                 ]))
-
-customer_group = SchemaNode(Integer(), validator=OneOf([0,1,2,3]))
-
 
 
 ##############
 # Attributes #
 ##############
+
+validate_identifier = Regex(u'^[a-zA-Z0-9_]+$')
+
+validate_gt_eq_null = Range(min=1)
+
+validate_gt_null =  Range(min=0)
+
+validate_website = validator=OneOf(["ch_website",
+                                    "de_website",
+                                    "fr_website",
+                                    "it_website"
+                                   ])
+
+validate_customer_group = OneOf([0,1,2,3])
 
 
 class Shops(MappingSchema):
@@ -59,6 +59,12 @@ class StringTranslation(MappingSchema):
     #TODO support generic websites/shops
 
 
+class IDTitle(MappingSchema):
+
+    id = SchemaNode(String(), validator=validate_identifier)
+    title = StringTranslation()
+
+
 class DecimalWebsites(MappingSchema):
     default = SchemaNode(Decimal())
     ch_website = SchemaNode(Decimal(), default=PyDec(), missing=PyDec(), required=False)
@@ -68,8 +74,8 @@ class DecimalWebsites(MappingSchema):
 
 
 class TierPrice(MappingSchema):
-    website = website
-    customer_group = customer_group
+    website = SchemaNode(String(), validate=validate_website)
+    customer_group = SchemaNode(Integer(), validator=validate_customer_group)
     min_sale_qty = SchemaNode(Integer())
     price = SchemaNode(Decimal())
 
@@ -96,17 +102,10 @@ class CategoriesList(MappingSchema):
     categories = Categories()
 
 
-CATEGORIES_EXAMPLE_YAML = """
-categories:
-  -
-    foo: libyaml
-    bar: test
-    baz: teste
-"""
-
 ##############################################
 # ItemGroups (shop configuratable products)  #
 ##############################################
+
 
 #########################
 # Items (shop products) #

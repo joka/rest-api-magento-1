@@ -10,6 +10,11 @@ from organicseeds_webshop_api import models
 categories = Service(name='categories',
                      path='/categories',
                      description="Service to upload webshop categories")
+
+item_groups = Service(name='items',
+                path='/item_groups',
+                description="Service to upload item groups (like Sortendetails)")
+
 items = Service(name='items',
                 path='/items',
                 description="Service to upload items")
@@ -25,6 +30,22 @@ def find_element(path, context):
 def categories_post(request):
     data = json.loads(request.body)
     return {"status": "succeeded"}
+
+#@item_groups.post(schema=schemata.ItemGroupsList)
+#def item_groups_post(request):
+    #"""method : POST
+
+       #path : item_groups
+
+       #body : json
+
+       #* item_groups : Sequence of ItemGroup
+
+       #return code: 200
+
+       #return error code: 400
+
+    #"""
 
 
 @items.post(schema=schemata.ItemsList)
