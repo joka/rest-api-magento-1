@@ -179,6 +179,7 @@ class Items(SequenceSchema):
 
 
 class ItemsList(MappingSchema):
+    """Test"""
     unit_of_measures = UnitOfMeasures()
     vpe_types = VPETypes()
     items =  Items()

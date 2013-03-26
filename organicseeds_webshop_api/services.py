@@ -29,6 +29,22 @@ def categories_post(request):
 
 @items.post(schema=schemata.ItemsList)
 def items_post(request):
+    """method : POST
+
+       path : items
+
+       body : json
+
+       * unit_of_measures : Sequence of UnitOfMeasure
+       * vpe_types : Sequence of VPEType
+       * items : Sequence of Item
+
+       return code: 200
+
+       return error code: 400
+
+    """
+
     data = json.loads(request.body)
     models.transform_to_python_and_store(data["items"],
                                          "Item", "items", request)
