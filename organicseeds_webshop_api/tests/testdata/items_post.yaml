@@ -1,0 +1,88 @@
+--- 
+unit_of_measures:
+  -
+    id: portion # id
+    title:
+      default: Portion # string translations
+      fr: Portiòn
+
+vpe_types:
+  -
+    id: saatscheibe # id
+    title:
+      default: Saatscheibe # string translations
+      ch: Saatscheibe
+    legend:
+        default: Kleine nützliche Scheiben..  # string translations
+        en: dolls..
+items:
+  -
+    id: itemka32  # id, alpha-numerisch ohne sonderzeichen
+    parent_id: 33333 # id, parent category reference (has to exists in all activated shops)
+    __type__: sortendetail_vpe # <item_type>, [ sortendetail_vpe | default_vpe]
+    shops:
+        ch_hobby: True   # optional, default False
+        ch_profi: True  # optional,
+        ch_resell: True  # optional,
+        ch_hobby: True   # optional,
+        ch_profi: True  # optional,
+        ch_resell: False # optional,
+        ch_hobby: True   # optional,
+        ch_profi: True  # optional,
+        ch_resell: True  # optional,
+    title:
+      default: title # string translation
+      de: titlede # optional,
+      fr: titlefr # optional
+      it: titleit # optional
+      en: titleen # optional
+    sku: itemka32 # id, == articelnumber in selctline
+    group: pflanzgut # <pflanzgut>,  [ saatgut | pflanzgut | sonstiges ]
+    vpe_default: True # Bool, default Verpackungseinheit
+    vpe_type_id: saatscheibe # id reference
+    weight_brutto: 0.25 # float, kg
+    weight_netto: 0.15 # float, kg
+    unit_of_measure_id: portion # id reference
+    price:
+      default: 4.30 # decimal, default price
+      ch_website: 3 # optional, ch price SFR
+      fr_website: 3 # optional, fr price EUR
+      de_website: 3 # optional, de price EUR
+      it_website: 3 # optional, it price EUR
+
+    tierprices: # Staffelpreise
+          -
+            website: de_website # <websites>
+            customer_group:  0 # <customergroups> 
+                               # 0 = Not logged in,
+                               # 1 = General,
+                               # 2 = Wholesale,
+                               # 3 = Reailer
+            min_sale_qty: 100 # integer ohne null
+            price: 4.20 # decimal
+
+
+    tax_class: 0 # integer <tax_group>, Magent berechnet Tax abhänging von tax_class, Kundengruppe, Lieferort, Website !!
+                # 0 = magento default tax group
+                # 2 = Taxable goods
+                # 4 = Shipping 
+                # 5 = Reduces Taxable goods
+
+    quality_id: sortenquality1 # id reference
+
+    min_sale_qty: 1 # integer ohne 0, optional, ==  mindestbestellmenge,
+                    # default 1
+    max_sale_qty: 100 # integer ohne 0, optional, ==  höchstbestellmenge,
+                      # default 1000000
+
+
+    # Braucht Überarbeitung...:
+
+    #vpe: 5 # integer ohne 0, optional == sale qty increments bei Magento
+    #vpe_enabled: True # Bool, optional, default False,  == enable qty increments
+                       # bei Magento, verkaufe nur Mengen die in Verpackunseinheiten abbildbar sind.
+     #custom_max_sale_qty: 300 # integer ohne 0, maximaler Wert in Gramm ohne
+                               # überprüfung bestellt werden kann # optional
+     #custom_min_sale_qty: 300 # int, maximaler Wert in Gramm der ohne
+                               # überprüfung bestellt werden kann  # optional
+
