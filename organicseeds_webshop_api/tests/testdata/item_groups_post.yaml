@@ -1,0 +1,121 @@
+---
+
+item_groups:
+
+  - 
+    # basic fields
+    id: 33333_karottensorte  # id
+    __type__: sortendetail # [sortendetail]
+    parent_id: 1003_karotten # id, parent category id reference (attribute inheritance)
+    order: 1 # integer_gt_null
+    shops:  # [(<shopid>, Bool)] # activate in shop
+        - [ch_hobby, True]  
+        - [ch_profi, True]  
+    title:      # StringTranslation
+      default: Aktuelle Aussaten # optional 
+      fr: actuelle # optional 
+    shortdescription:  # StringTranslation 
+      default: Karotten, Ruebli, Möhren  # optional
+      fr: carotte # optional 
+    
+    # Category fields
+    text_attributes:   # optional # wird vererbt 
+        -
+          id: reife  # id 
+          title:     # StringTranslation 
+            default: Reife
+          order: 1   # IntegerGtNull
+          group: attribute_group1 # id
+          value:
+             -
+              id: spaet # id 
+              text:     # StringTranslation
+                default: Spät 
+              url: # URL # optional
+                   # TODO muss das auch übersetzt werden??
+        -
+          id: vermehrer
+          title: 
+            default: Vermehrer
+          order: 2
+          group: attribute_group1 # id
+          value:
+            -
+              id: lebensgemeinschaft_bingenheim # id 
+              text: 
+                default: Lebensgemeinschaft Bingenheim
+              url: http://www.lebensgemeinschaftbingenheim.de
+            -
+              id: saatzucht_rose # id
+              text: 
+                default: Saatzucht Rose
+              url: http://www....
+
+    measure_attributes:  # optional # wird vererbt 
+        -
+          id: wuchsgroesse
+          title: 
+            default: Wuchsgröße (mm)
+          order: 3
+          group: attribute_group1 # id
+          value:
+              count: 22.0 # Float
+              unit: mm  # String
+
+    bool_attributes:  # optional # wird vererbt 
+        -
+          id: freuhblueher
+          title: 
+            default: Frühblüher
+          order: 4
+          group: attribute_group1 
+          value: True # Bool
+
+    weekmatrix_attributes:  # optional # wird vererbt 
+        -
+          id: aussaat
+          title: 
+            default: Aussaat Monate
+          order: 5
+          group: attribute_group1 # id
+          value: [True, True, False, False, False, False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True] # weekmatrix
+
+    file_attributes:  # optional # wird vererbt 
+      -
+        id: detailbeschreibung
+        title:               # StringTranslation 
+          default: Detailbschreibung
+        order: 1
+        group: documents # id
+        value: folder/document1.pdf # RelativeFilePathUnix 
+
+    link_attributes:  # optional # wird vererbt 
+      -
+        id: sortendatenbank
+        title:               # StringTranslation 
+          default: Sortendatenbankeintrag 
+        order: 1
+        group: links # id
+        value: http://soten.com     # URL # TODO muss das übersetzt werden?
+
+    # Group Item fields
+    category_ids :   # list of category id references, optional
+        - 1003        
+    description:      # StringTranslation
+      default: Ausführliche Beschreibung 
+    certificates:
+      - psr  # id 
+      - bioverita 
+    qualities:    # sortendetail_vpe qualities
+      -
+        id: 1   # id
+        title:  # StringTranslation 
+            default: Normalsaatgut
+        size: # String # optional
+        tkg: 4 # Float
+      -
+        id: 2
+        title: 
+            default: Kaliber
+        size: 1.75-2.25mm 
+        tkg: 4.8 

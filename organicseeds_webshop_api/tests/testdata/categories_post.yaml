@@ -1,0 +1,93 @@
+---
+
+categories:
+  -
+    id: 1000  # id, global unique
+    __type__: category # [category | sortenuebersicht] 
+    parent_id: # id  
+               # Hierarchie mus eingehalten werden:
+               # category -> [ category | Sortenübersicht ] -> [ Sortendetail ] -> Verpackungseinheit)
+               # root category hat leere parent_id
+    order: 1 # integer_gt_null
+    shops:    # [(<shopid>, Bool)] # activate in shop # 
+        - [ch_hobby, True]  # optional
+        - [ch_profi, True]  # optional
+    title:    # StringTranslation
+        default: Aktuelle Aussaten # optional
+        fr: actuelle # optional 
+    shortdescription:    # StringTranslation  
+        default: Karotten, Ruebli, Möhren # optional
+   
+    #synonyms: # optional
+
+  -
+    id: 1001
+    __type__: category
+    parent_id: 1000    
+    order: 1
+    shops: 
+        - [ch_hobby, True] 
+        - [ch_profi, True] 
+    title: 
+        default: Aktuelle Aussaten
+    shortdescription: 
+        default: 
+
+    # synonyms:  # optional 
+
+  -
+    id: 1002_gartenwerkzeuge
+    __type__: category
+    parent_id: 1001
+    order: 2
+    shops: 
+        - [ch_hobby, True] 
+        - [ch_profi, True] 
+    title: 
+        default: Gartenwerkzeuge
+    shortdescription:
+        default: nützliches
+
+    # synonyms:  # optional 
+
+  -
+    id: 1002_gemuese
+    __type__: category
+    parent_id: 1001
+    order: 1
+    shops: 
+        - [ch_hobby, True] 
+        - [ch_profi, True] 
+    title: 
+        default: Gemüse
+    shortdescription:
+        default:
+
+    # synonyms:  # optional 
+
+  -
+    id: 1003_karotten
+    __type__: sortenuebersicht
+    parent_id: 1002_gemuese
+    order: 1
+    shops: 
+        - [ch_hobby, True] 
+        - [ch_profi, True] 
+    title: 
+        default: Karotten
+    shortdescription:
+        default: 
+
+    synonyms:
+        de_ch: #optional
+          -
+            id: 2010a  # id
+            title: Ruebli  # String
+          -
+           id: 2010b
+           title: Möhren
+        #fr_ch: # optional
+        #it_ch: # optional
+        #de_de: # optional
+        #fr_fr: # optional
+        #it_it: # optional

@@ -5,7 +5,7 @@ unit_of_measures:
     title:
       default: Portion # string translations
       fr: Portiòn
-
+        #
 vpe_types:
   -
     id: saatscheibe # id
@@ -16,26 +16,41 @@ vpe_types:
         default: Kleine nützliche Scheiben..  # string translations
         en: dolls..
 items:
+
+  # sortendetail_vpe:
   -
+    # BasicNode attributes
     id: itemka32  # id, alpha-numerisch ohne sonderzeichen
-    parent_id: 33333 # id, parent category reference (has to exists in all activated shops)
-    __type__: sortendetail_vpe # <item_type>, [ sortendetail_vpe | default_vpe]
-    shops:
-        ch_hobby: True   # optional, default False
-        ch_profi: True  # optional,
-        ch_resell: True  # optional,
-        ch_hobby: True   # optional,
-        ch_profi: True  # optional,
-        ch_resell: False # optional,
-        ch_hobby: True   # optional,
-        ch_profi: True  # optional,
-        ch_resell: True  # optional,
-    title:
-      default: title # string translation
-      de: titlede # optional,
+    __type__: sortendetail_vpe # [ sortendetail_vpe | default_vpe]
+    parent_id: 33333_sortendetail # id, parent id reference (item_group/sortendetail) 
+    order: 3 # integer_gt_null
+    shops:    # [(<shopid>, Bool)] # activate in shop # 
+        - [ch_hobby, True]  # optional, default False
+        - [ch_profi, True]  # optional
+        - [ch_resell, True] # optional  
+        - [de_hobby, True]  # optional 
+        - [de_profi, True]  # optional 
+        - [de_resell, True] # optional  
+        - [fr_hobby, True]  # optional 
+        - [fr_profi, True]  # optional 
+        - [fr_resell, True] # optional  
+    title:  # StringTranslation
+      default: title   # optional 
+      de: titlede # optional
       fr: titlefr # optional
       it: titleit # optional
       en: titleen # optional
+    shortdescription: # StringTranslation 
+      default: kurzbeschreibung   # optional 
+      fr: dscription # optional
+
+    # Item attributes
+    description: # StringTranslation
+        default: Ausführliche Beschreibung
+    #category_ids :   # list of category id references, optional
+                      # unnötig wenn parent eine item_group ist.
+                      # optional
+
     sku: itemka32 # id, == articelnumber in selctline
     group: pflanzgut # <pflanzgut>,  [ saatgut | pflanzgut | sonstiges ]
     vpe_default: True # Bool, default Verpackungseinheit
@@ -44,12 +59,11 @@ items:
     weight_netto: 0.15 # float, kg
     unit_of_measure_id: portion # id reference
     price:
-      default: 4.30 # decimal, default price
-      ch_website: 3 # optional, ch price SFR
-      fr_website: 3 # optional, fr price EUR
-      de_website: 3 # optional, de price EUR
-      it_website: 3 # optional, it price EUR
-
+      default: 4.30 # decimal, default price SFR
+      websites:     # [(<websiteid>, Descimal)] # optional
+        - [ch_website, 3.00]  # optional, ch price SFR
+        - [fr_website, 3.00]  # optional, fr price EUR
+        - [de_website, 3.00]  # optional, de price EUR
     tierprices: # Staffelpreise
           -
             website: de_website # <websites>
@@ -100,3 +114,29 @@ items:
     #custom_min_sale_qty: 300 # int, maximaler Wert in Gramm der ohne
                               # überprüfung bestellt werden kann  # optional
 
+  # default_vpe:
+  #-
+    ## BasicNode attributes
+    #id: gartenschaufel32 
+    #__type__: default_vpe 
+    #parent_id: 1002_gartenwerkzeuge # id, parent id reference (category)
+    #order: 1 
+    #shops:
+        #- (ch_hobby, True)
+    #title:
+      #default: title 
+    #shortdescription: 
+      #default: kurzbeschreibung 
+
+    ## Item attributes
+    #description: 
+        #default: Ausführliche Beschreibung
+    #category_ids :   
+        #- 1002_gartenwerkzeuge
+    #sku: itemka32 
+    #group: sonstiges 
+    #price:
+      #default: 4.30 
+    #tierprices: 
+    #tax_class: 2 
+    #inventory_status: 2 

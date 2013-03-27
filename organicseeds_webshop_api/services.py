@@ -11,13 +11,14 @@ categories = Service(name='categories',
                      path='/categories',
                      description="Service to upload webshop categories")
 
-item_groups = Service(name='items',
-                path='/item_groups',
-                description="Service to upload item groups (like Sortendetails)")
+item_groups = Service(name='item_groups',
+                      path='/item_groups',
+                      description="Service to upload item groups (like Sortendetails)")
 
 items = Service(name='items',
                 path='/items',
                 description="Service to upload items")
+
 
 def find_element(path, context):
     subpaths = path.split("/")
@@ -26,26 +27,46 @@ def find_element(path, context):
         ob = ob[subpath]
     return ob
 
+
 @categories.post(schema=schemata.CategoriesList)
 def categories_post(request):
+    """method : POST
+
+       path : categories
+
+       body : json
+
+       * categories : Sequence of Category
+
+       return code: 200
+
+       return error code: 400
+
+    """
     data = json.loads(request.body)
+    models.transform_to_python_and_store(data["categories"],
+                                        "Category", "categories", request)
     return {"status": "succeeded"}
 
-#@item_groups.post(schema=schemata.ItemGroupsList)
-#def item_groups_post(request):
-    #"""method : POST
+@item_groups.post(schema=schemata.ItemGroupsList)
+def item_groups_post(request):
+    """method : POST
 
-       #path : item_groups
+       path : item_groups
 
-       #body : json
+       body : json
 
-       #* item_groups : Sequence of ItemGroup
+       * item_groups : Sequence of ItemGroup
 
-       #return code: 200
+       return code: 200
 
-       #return error code: 400
+       return error code: 400
 
-    #"""
+    """
+    data = json.loads(request.body)
+    models.transform_to_python_and_store(data["item_groups"],
+                                         "ItemGroup", "item_groups", request)
+    return {"status": "succeeded"}
 
 
 @items.post(schema=schemata.ItemsList)
