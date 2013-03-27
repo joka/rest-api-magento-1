@@ -28,7 +28,7 @@ def find_element(path, context):
     return ob
 
 
-@categories.post(schema=schemata.CategoriesList)
+@categories.post(schema=schemata.CategoriesList, accept="text/json")
 def categories_post(request):
     """method : POST
 
@@ -48,7 +48,7 @@ def categories_post(request):
                                         "Category", "categories", request)
     return {"status": "succeeded"}
 
-@item_groups.post(schema=schemata.ItemGroupsList)
+@item_groups.post(schema=schemata.ItemGroupsList, accept="text/json")
 def item_groups_post(request):
     """method : POST
 
@@ -69,7 +69,7 @@ def item_groups_post(request):
     return {"status": "succeeded"}
 
 
-@items.post(schema=schemata.ItemsList)
+@items.post(schema=schemata.ItemsList, accept="text/json")
 def items_post(request):
     """method : POST
 
