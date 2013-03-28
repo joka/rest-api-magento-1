@@ -28,6 +28,8 @@ class Root(object):
         self.unit_of_measures = app_root["unit_of_measures"]
         self.vpe_types = app_root["vpe_types"]
         self.items = app_root["items"]
+        self.catalog = app_root.catalog
+        self.document_map = app_root.document_map
 
 
 class WebshopAPI(PersistentMapping):
@@ -162,4 +164,20 @@ def transform_to_python_and_store(data, itemtype, data_key, request):
         catalog_id = document_map.add(obj_path)
         catalog.index_doc(catalog_id, obj)
     # link objects
+    transaction.commit()
+
+
+def delete(data, itemtype, data_key, request):
+    app_root = request.root.app_root
+    folder = app_root[data_key]
+    catalog = app_root.catalog
+    document_map = app_root.document_map
+    # delete objects
+    for i in folder.keys():
+        # get python object
+        del(folder[i])
+        # uncatalog
+        obj_path = "%s/%s" % (data_key, i)
+        catalog_id = document_map.docid_for_address(obj_path)
+        catalog.unindex_doc(catalog_id)
     transaction.commit()

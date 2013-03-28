@@ -271,6 +271,23 @@ def items_post(request):
     return {"status": "succeeded"}
 
 
+@items.delete(accept="text/json")
+def items_delete(request):
+    """method : DELETE
+
+       content_type: text/json
+
+       path : items
+
+       body :
+
+       return codes: 200, 400
+    """
+
+    models.delete(request.validated, models.Item, "items", request)
+    # TODO raise errors
+    return {"status": "succeeded"}
+
 
 def find_element(path, context):
     subpaths = path.split("/")

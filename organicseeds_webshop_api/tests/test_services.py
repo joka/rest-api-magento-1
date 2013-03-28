@@ -96,9 +96,28 @@ class TestServicesItemsIntegration(IntegrationTestCase):
 
     def test_post(self):
         from organicseeds_webshop_api.services import items_post
+        from repoze.catalog.query import Eq
+        catalog = self.request.root.catalog
         self.request.validated = self.testdata
         response = items_post(self.request)
         assert(response == {'status': 'succeeded'})
+        items = [x for x in self.request.root.items.items()]
+        assert(len(items) == 1)
+        search_results = catalog.query(Eq('id', 'itemka32'))[0]
+        assert(search_results == 1)
+
+
+    def test_delete(self):
+        from organicseeds_webshop_api.services import items_delete
+        from repoze.catalog.query import Eq
+        catalog = self.request.root.catalog
+        self.request.validated = {}
+        response = items_delete(self.request)
+        assert(response == {'status': 'succeeded'})
+        items = [x for x in self.request.root.items.items()]
+        assert(items == [])
+        search_results = catalog.query(Eq('id', 'itemka32'))[0]
+        assert(search_results == 0)
 
 
 class TestServicesFunctional(FunctionalTestCase):
