@@ -4,6 +4,7 @@ import yaml2json
 import os.path
 from webtest import TestApp
 from pyramid import testing
+from cornice.errors import Errors
 
 
 def yaml_to_json(yamlstring):
@@ -16,6 +17,7 @@ def setup_integration():
     import organicseeds_webshop_api
     request = testing.DummyRequest()
     request.context = testing.DummyResource()
+    request.errors = Errors(request)
     config = testing.setUp(request=request, settings = {"zodbconn.uri": "memory://"})
     config.include("pyramid_zodbconn")
     config.include(organicseeds_webshop_api.utilities)
@@ -58,6 +60,7 @@ class IntegrationTestCase(unittest.TestCase):
     def tearDown(self):
         testing.tearDown()
         self.testfile.close()
+        self.request = None
 
 
 class FunctionalTestCase(unittest.TestCase):

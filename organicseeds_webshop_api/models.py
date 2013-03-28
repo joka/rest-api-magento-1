@@ -20,10 +20,14 @@ class Root(object):
                (Allow, Authenticated, "authenticated"),
                ]
 
-    def __init__(self, request, app_root, app_root_id):
+    def __init__(self, request, app_root):
         self.request = request
         self.app_root = app_root
-        self.app_root_id = app_root_id
+        self.categories = app_root["categories"]
+        self.item_groups = app_root["item_groups"]
+        self.unit_of_measures = app_root["unit_of_measures"]
+        self.vpe_types = app_root["vpe_types"]
+        self.items = app_root["items"]
 
 
 class WebshopAPI(PersistentMapping):
@@ -130,7 +134,7 @@ def bootstrap(zodb_root, app_root_id, request):
         app_root.catalog['vpe_default'] = CatalogFieldIndex(get_vpe_default)
         app_root.document_map = DocumentMap()
         transaction.commit()
-    return Root(request, zodb_root[app_root_id], app_root_id)
+    return Root(request, zodb_root[app_root_id])
 
 
 def includeme(config):

@@ -5,7 +5,7 @@ items:
     # BasicNode attributes
     id: itemka32  # id, alpha-numerisch ohne sonderzeichen
     __type__: sortendetail_vpe # [ sortendetail_vpe | default_vpe]
-    parent_id: 33333_sortendetail # id, parent id reference (item_group/sortendetail) 
+    parent_id: 33333_karottensorte # id, parent id reference (item_group/sortendetail) 
     order: 3 # integer_gt_null
     shops:    # [(<shopid>, Bool)] # activate in shop # 
         - [ch_hobby, True]  # optional, default False
