@@ -82,10 +82,15 @@ def transform_to_python_and_store(jsonlist, content_type, folder_id, request):
     folder = app_root[folder_id]
     catalog = app_root.catalog
     document_map =  app_root.document_map
+    # create object
     for i in jsonlist:
+        # transform to python
         obj = itemtype.deserialize(i)
+        # store in folder
         folder[obj.id] = "test"
+        # catalog
         path = "%s/%s" % (folder_id, obj.id)
         catalog_id = document_map.add(path)
         catalog.index_doc(catalog_id, obj)
+    # link objects
     transaction.commit()

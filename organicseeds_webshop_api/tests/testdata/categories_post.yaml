@@ -1,13 +1,13 @@
----
-
 categories:
   -
     id: 1000  # id, global unique
     __type__: category # [category | sortenuebersicht] 
     parent_id: # id  
-               # Hierarchie mus eingehalten werden:
-               # category -> [ category | Sortenübersicht ] -> [ Sortendetail ] -> Verpackungseinheit)
                # root category hat leere parent_id
+               # Hierarchie muss eingehalten werden:
+               #    category -> [ category | Sortenübersicht ] -> [ Sortendetail ] -> Verpackungseinheit)
+               # Ordnung muss eingehalten werden:
+               #    first level categories, second level, third level ...
     order: 1 # integer_gt_null
     shops:    # [(<shopid>, Bool)] # activate in shop # 
         - [ch_hobby, True]  # optional

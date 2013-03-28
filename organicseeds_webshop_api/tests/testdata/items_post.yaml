@@ -1,20 +1,3 @@
---- 
-unit_of_measures:
-  -
-    id: portion # id
-    title:
-      default: Portion # string translations
-      fr: Portiòn
-        #
-vpe_types:
-  -
-    id: saatscheibe # id
-    title:
-      default: Saatscheibe # string translations
-      ch: Saatscheibe
-    legend:
-        default: Kleine nützliche Scheiben..  # string translations
-        en: dolls..
 items:
 
   # sortendetail_vpe:
@@ -114,8 +97,8 @@ items:
     #custom_min_sale_qty: 300 # int, maximaler Wert in Gramm der ohne
                               # überprüfung bestellt werden kann  # optional
 
-  # default_vpe:
-  #-
+# default_vpe:
+#-
     ## BasicNode attributes
     #id: gartenschaufel32 
     #__type__: default_vpe 

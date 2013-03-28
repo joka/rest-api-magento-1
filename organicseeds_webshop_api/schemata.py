@@ -79,26 +79,6 @@ class WebsiteID(SchemaNode):
 validate_customer_group = OneOf([0,1,2,3])
 
 
-@deferred
-def deferred_validate_unit_of_measure_id(node, kw):
-    request = kw["request"]
-    data = json.loads(request.body)
-    measures = data.get('unit_of_measures')
-    measure_ids = [x["id"] for x in measures]
-    return OneOf(measure_ids)
-
-
-@deferred
-def deferred_validate_vpe_type_id(node, kw):
-    request = kw["request"]
-    data = json.loads(request.body)
-    vpe_types = data.get('vpe_types')
-    vpe_type_ids = [x["id"] for x in vpe_types]
-    return OneOf(vpe_type_ids)
-
-
-
-
 class StringTranslation(MappingSchema):
     default = SchemaNode(String(), missing=u"", default=u"", required=False )
     de = SchemaNode(String(), missing=u"", default=u"", required=False)
@@ -346,7 +326,6 @@ class ItemGroups(SequenceSchema):
 
 
 class ItemGroupsList(MappingSchema):
-
     item_groups = ItemGroups()
 
 
@@ -360,8 +339,12 @@ class UnitOfMeasure(MappingSchema):
     title = StringTranslation()
 
 
-class UnitOfMeasures():
+class UnitOfMeasures(SequenceSchema):
     unit_of_measure = UnitOfMeasure()
+
+
+class UnitOfMeasuresList(MappingSchema):
+    unit_of_measures = UnitOfMeasures()
 
 
 class VPEType(MappingSchema):
@@ -372,6 +355,10 @@ class VPEType(MappingSchema):
 
 class VPETypes(SequenceSchema):
     vpe_type = VPEType()
+
+
+class VPETypesList(MappingSchema):
+    vpe_types = VPETypes()
 
 
 class Item(BasicNode):
@@ -387,12 +374,10 @@ class Item(BasicNode):
                                                   "pflanzgut",
                                                   "sonstiges"]))
     vpe_default = SchemaNode(Bool())
-    vpe_type_id = SchemaNode(String(), validator=
-                             deferred_validate_vpe_type_id)
+    vpe_type_id = Identifier()
     weight_brutto = SchemaNode(Float())
     weight_netto = SchemaNode(Float())
-    unit_of_measure_id = SchemaNode(String(), validator=\
-                                    deferred_validate_unit_of_measure_id)
+    unit_of_measure_id = Identifier()
     price = Price()
     tierprices = TierPrices()
     tax_class = SchemaNode(Integer(), validator=OneOf([0,
@@ -410,10 +395,4 @@ class Items(SequenceSchema):
 
 
 class ItemsList(MappingSchema):
-    """Test"""
-    unit_of_measures = UnitOfMeasures()
-    vpe_types = VPETypes()
-    items =  Items()
-
-
-
+    items = Items()

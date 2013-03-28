@@ -1,0 +1,10 @@
+vpe_types:
+  -
+    id: saatscheibe # id
+    title:
+      default: Saatscheibe # StringTranslations
+      ch: Saatscheibe
+    legend:
+        default: Kleine nützliche Scheiben..  # StringTranslations
+        en: dolls..
+ 
