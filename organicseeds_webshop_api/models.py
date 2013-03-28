@@ -23,13 +23,6 @@ class Root(object):
     def __init__(self, request, app_root):
         self.request = request
         self.app_root = app_root
-        self.categories = app_root["categories"]
-        self.item_groups = app_root["item_groups"]
-        self.unit_of_measures = app_root["unit_of_measures"]
-        self.vpe_types = app_root["vpe_types"]
-        self.items = app_root["items"]
-        self.catalog = app_root.catalog
-        self.document_map = app_root.document_map
 
 
 class WebshopAPI(PersistentMapping):
@@ -125,16 +118,16 @@ def bootstrap(zodb_root, app_root_id, request):
         zodb_root[app_root_id]["unit_of_measures"] = Folder()
         zodb_root[app_root_id]["vpe_types"] = Folder()
         # add repoze.catalog for indexing
-        app_root.catalog = Catalog()
-        app_root.catalog['parent_id'] = CatalogFieldIndex(get_parent_id)
-        app_root.catalog['id'] = CatalogFieldIndex(get_id)
-        app_root.catalog['__type__'] = CatalogFieldIndex(get___type__)
-        app_root.catalog['group'] = CatalogFieldIndex(get_group)
-        app_root.catalog['vpe_type_id'] = CatalogFieldIndex(get_vpe_type_id)
-        app_root.catalog['unit_of_measure_id'] = CatalogFieldIndex(get_unit_of_measure_id)
-        app_root.catalog['quality_id'] = CatalogFieldIndex(get_quality_id)
-        app_root.catalog['vpe_default'] = CatalogFieldIndex(get_vpe_default)
-        app_root.document_map = DocumentMap()
+        app_root["catalog"] = Catalog()
+        app_root["catalog"]['parent_id'] = CatalogFieldIndex(get_parent_id)
+        app_root["catalog"]['id'] = CatalogFieldIndex(get_id)
+        app_root["catalog"]['__type__'] = CatalogFieldIndex(get___type__)
+        app_root["catalog"]['group'] = CatalogFieldIndex(get_group)
+        app_root["catalog"]['vpe_type_id'] = CatalogFieldIndex(get_vpe_type_id)
+        app_root["catalog"]['unit_of_measure_id'] = CatalogFieldIndex(get_unit_of_measure_id)
+        app_root["catalog"]['quality_id'] = CatalogFieldIndex(get_quality_id)
+        app_root["catalog"]['vpe_default'] = CatalogFieldIndex(get_vpe_default)
+        app_root["document_map"] = DocumentMap()
         transaction.commit()
     return Root(request, zodb_root[app_root_id])
 
@@ -148,8 +141,8 @@ def includeme(config):
 def transform_to_python_and_store(data, itemtype, data_key, request):
     app_root = request.root.app_root
     folder = app_root[data_key]
-    catalog = app_root.catalog
-    document_map = app_root.document_map
+    catalog = app_root["catalog"]
+    document_map = app_root["document_map"]
     appstructs = data[data_key]
     # create object
     for i in appstructs:
@@ -170,8 +163,8 @@ def transform_to_python_and_store(data, itemtype, data_key, request):
 def delete(data, itemtype, data_key, request):
     app_root = request.root.app_root
     folder = app_root[data_key]
-    catalog = app_root.catalog
-    document_map = app_root.document_map
+    catalog = app_root["catalog"]
+    document_map = app_root["document_map"]
     # delete objects
     for i in folder.keys():
         # get python object

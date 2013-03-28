@@ -24,7 +24,9 @@ def setup_integration():
     config.include(organicseeds_webshop_api.models)
     request.root = organicseeds_webshop_api.root_factory(request)
     return dict(request=request,
-                config=config)
+                config=config,
+                app_root=request.root.app_root)
+
 
 
 def setup_functional():
@@ -37,7 +39,8 @@ def setup_functional():
     config.include(organicseeds_webshop_api.models)
     request.root = organicseeds_webshop_api.root_factory(request)
     return dict(request=request,
-                config=config)
+                config=config,
+                app_root=request.root.app_root)
 
 
 def set_testfile(testfile):

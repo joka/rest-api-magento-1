@@ -18,7 +18,8 @@ from organicseeds_webshop_api import models
 def validate_id(data_key, request):
     entities =  request.validated[data_key]
     entity_ids = set([i["id"] for i in entities])
-    existing_folder = getattr(request.root, data_key)
+    app_root = request.root.app_root
+    existing_folder = app_root[data_key]
     existing = set(existing_folder.keys())
     already_exists = existing.intersection(entity_ids)
 
@@ -45,7 +46,8 @@ def validate_category_id(request):
 def validate_category_parent_id(request):
     categories =  request.validated["categories"]
     new_ids= [i["id"] for i in categories]
-    existing_ids = [x for x in request.root.categories.keys()]
+    app_root = request.root.app_root
+    existing_ids = [x for x in app_root["categories"].keys()]
     for i in categories:
         cid = i["id"]
         parent_id = i["parent_id"]
@@ -98,7 +100,8 @@ def validate_item_group_id(request):
 def validate_item_group_parent_id(request):
     item_groups =  request.validated["item_groups"]
     item_group_parent_ids = set([i["parent_id"] for i in item_groups])
-    existing = set(request.root.categories.keys())
+    app_root = request.root.app_root
+    existing = set(app_root["categories"].keys())
     non_existing = item_group_parent_ids.difference(existing)
 
     error = 'The following parent_ids do no exists in categories: %s'
@@ -214,8 +217,9 @@ def validate_item_id(request):
 def validate_item_parent_id(request):
     items =  request.validated["items"]
     item_parent_ids = set([i["parent_id"] for i in items])
-    categories = set(request.root.categories.keys())
-    item_groups = set(request.root.item_groups.keys())
+    app_root = request.root.app_root
+    categories = set(app_root["categories"].keys())
+    item_groups = set(app_root["item_groups"].keys())
     existing = set.union(categories, item_groups)
     non_existing = item_parent_ids.difference(existing)
 
@@ -228,7 +232,8 @@ def validate_item_parent_id(request):
 def validate_item_vpe_type_id(request):
     items =  request.validated["items"]
     item_vpe_type_ids = set([i["vpe_type_id"] for i in items])
-    existing = set(request.root.vpe_types.keys())
+    app_root = request.root.app_root
+    existing = set(app_root["vpe_types"].keys())
     non_existing = item_vpe_type_ids.difference(existing)
 
     error = 'The following vpe_type_ids do no exists in vpe_types: %s'
@@ -240,7 +245,8 @@ def validate_item_vpe_type_id(request):
 def validate_item_unit_of_measure_id(request):
     items =  request.validated["items"]
     item_unit_of_measure_ids = set([i["unit_of_measure_id"] for i in items])
-    existing = set(request.root.unit_of_measures.keys())
+    app_root = request.root.app_root
+    existing = set(app_root["unit_of_measures"].keys())
     non_existing = item_unit_of_measure_ids.difference(existing)
 
     error = 'The following unit_of_measure_ids do no exists in unit_of_measures: %s'

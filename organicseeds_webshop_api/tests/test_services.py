@@ -46,7 +46,7 @@ class TestServicesCategoriesIntegration(IntegrationTestCase):
     def test_validator_id_nonvalid_already_exists(self):
         from organicseeds_webshop_api.services import validate_category_id
         self.testdata["categories"][0]['id'] = u"1000"
-        existing = self.request.root.categories
+        existing = self.app_root["categories"]
         existing[u"1000"] = object()
         self.request.validated = self.testdata
         validate_category_id(self.request)
@@ -97,11 +97,11 @@ class TestServicesItemsIntegration(IntegrationTestCase):
     def test_post(self):
         from organicseeds_webshop_api.services import items_post
         from repoze.catalog.query import Eq
-        catalog = self.request.root.catalog
+        catalog = self.app_root["catalog"]
         self.request.validated = self.testdata
         response = items_post(self.request)
         assert(response == {'status': 'succeeded'})
-        items = [x for x in self.request.root.items.items()]
+        items = [x for x in self.app_root["items"].items()]
         assert(len(items) == 1)
         search_results = catalog.query(Eq('id', 'itemka32'))[0]
         assert(search_results == 1)
@@ -110,11 +110,11 @@ class TestServicesItemsIntegration(IntegrationTestCase):
     def test_delete(self):
         from organicseeds_webshop_api.services import items_delete
         from repoze.catalog.query import Eq
-        catalog = self.request.root.catalog
+        catalog = self.app_root["catalog"]
         self.request.validated = {}
         response = items_delete(self.request)
         assert(response == {'status': 'succeeded'})
-        items = [x for x in self.request.root.items.items()]
+        items = [x for x in self.app_root["items"].items()]
         assert(items == [])
         search_results = catalog.query(Eq('id', 'itemka32'))[0]
         assert(search_results == 0)
