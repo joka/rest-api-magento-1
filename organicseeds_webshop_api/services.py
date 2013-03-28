@@ -1,5 +1,4 @@
 import json
-import transaction
 from pyramid.security import Everyone, Authenticated, Allow
 from cornice import Service
 
@@ -49,8 +48,8 @@ def categories_post(request):
        return codes: 200, 400
     """
     data = json.loads(request.body)
-    models.transform_to_python_and_store(data["categories"],
-                                        "Category", "categories", request)
+    models.transform_to_python_and_store(data,
+                                        models.Category, "categories", request)
     return {"status": "succeeded"}
 
 
@@ -69,8 +68,8 @@ def item_groups_post(request):
        return codes: 200, 400
     """
     data = json.loads(request.body)
-    models.transform_to_python_and_store(data["item_groups"],
-                                         "ItemGroup", "item_groups", request)
+    models.transform_to_python_and_store(data,
+                                         models.ItemGroup, "item_groups", request)
     return {"status": "succeeded"}
 
 
@@ -88,8 +87,8 @@ def unit_of_measures_post(request):
     """
 
     data = json.loads(request.body)
-    models.transform_to_python_and_store(data["unit_of_measures"],
-                                         "UnitOfMeasure", "unit_of_measures", request)
+    models.transform_to_python_and_store(data,
+                                         models.EntityData, "unit_of_measures", request)
     return {"status": "succeeded"}
 
 
@@ -107,8 +106,8 @@ def vpe_types_post(request):
     """
 
     data = json.loads(request.body)
-    models.transform_to_python_and_store(data["vpe_types"],
-                                         "VPEType", "vpe_types", request)
+    models.transform_to_python_and_store(data,
+                                         models.EntityData, "vpe_types", request)
     return {"status": "succeeded"}
 
 
@@ -126,6 +125,6 @@ def items_post(request):
     """
 
     data = json.loads(request.body)
-    models.transform_to_python_and_store(data["items"],
-                                         "Item", "items", request)
+    models.transform_to_python_and_store(data,
+                                         models.Item, "items", request)
     return {"status": "succeeded"}

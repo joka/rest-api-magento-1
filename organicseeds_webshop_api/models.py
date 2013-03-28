@@ -1,6 +1,6 @@
+from copy import deepcopy
 from persistent.mapping import PersistentMapping
 from BTrees.OOBTree import OOBTree
-from zope import interface
 import transaction
 from pyramid.security import Everyone, Authenticated, Allow
 import limone_zodb
@@ -16,10 +16,9 @@ from organicseeds_webshop_api.utilities import IContentRegistryUtility
 class Root(object):
     """Pyramid traversal root object"""
 
-    __acl__ = [
-        (Allow, Everyone, "view"),
-        (Allow, Authenticated, "authenticated"),
-        ]
+    __acl__ = [(Allow, Everyone, "view"),
+               (Allow, Authenticated, "authenticated"),
+               ]
 
     def __init__(self, request, app_root, app_root_id):
         self.request = request
@@ -28,7 +27,83 @@ class Root(object):
 
 
 class WebshopAPI(PersistentMapping):
-    """ZODB database application root object"""
+    """Application root object"""
+
+
+class Folder(OOBTree):
+    """Folder to store Entities"""
+
+
+class Data(PersistentMapping):
+    """Dictionary to store colander appstruct data"""
+
+    def from_appstruct(self, appstruct):
+        """"
+        :param appstruct: Mapping to updated object data
+        :type appstruct: Dictionary, keys are string, (colander schema appsctruct)
+        """
+        self.update(appstruct)
+
+    def to_appstruct(self, appstruct):
+        """"
+        :rtype appstruct: Dictionary, keys are string, (colander schema appstruct)
+        """
+        appstruct = deepcopy(self.data)
+        return appstruct
+
+
+class Entity(Data):
+    """Webshop entity"""
+
+    __parent__ = None
+
+
+class Category(Entity):
+    """Webshop entity category"""
+
+
+class ItemGroup(Entity):
+    """Webshop entity item group"""
+
+
+class Item(Entity):
+    """Webshop entity item"""
+
+
+class EntityData(Data):
+    """Additional data for Entities"""
+
+
+def get_id(obj, default):
+    return obj.get("id", default)
+
+
+def get_parent_id(obj, default):
+    return obj.get("parent_id", default)
+
+
+def get___type__(obj, default):
+    return obj.get("__type__", default)
+
+
+def get_group(obj, default):
+    return obj.get("group", default)
+
+
+def get_vpe_type_id(obj, default):
+    return obj.get("vpe_type_id", default)
+
+
+def get_unit_of_measure_id(obj, default):
+    return obj.get("unit_of_measure_id", default)
+
+
+def get_vpe_default(obj, default):
+    return obj.get("vpe_default", default)
+
+
+def get_quality_id(obj, default):
+    return obj.get("vpe_default", default)
 
 
 def bootstrap(zodb_root, app_root_id, request):
@@ -38,21 +113,21 @@ def bootstrap(zodb_root, app_root_id, request):
         # add root folders
         app_root = WebshopAPI()
         zodb_root[app_root_id] = app_root
-        zodb_root[app_root_id]["categories"] = OOBTree()
-        zodb_root[app_root_id]["item_groups"] = OOBTree()
-        zodb_root[app_root_id]["items"] = OOBTree()
-        zodb_root[app_root_id]["unit_of_measures"] = OOBTree()
-        zodb_root[app_root_id]["vpe_types"] = OOBTree()
+        zodb_root[app_root_id]["categories"] = Folder()
+        zodb_root[app_root_id]["item_groups"] = Folder()
+        zodb_root[app_root_id]["items"] = Folder()
+        zodb_root[app_root_id]["unit_of_measures"] = Folder()
+        zodb_root[app_root_id]["vpe_types"] = Folder()
         # add repoze.catalog for indexing
         app_root.catalog = Catalog()
-        app_root.catalog['parent_id'] = CatalogFieldIndex('parent_id')
-        app_root.catalog['id'] = CatalogFieldIndex('id')
-        app_root.catalog['__type__'] = CatalogFieldIndex('__type__')
-        app_root.catalog['group'] = CatalogFieldIndex('group')
-        app_root.catalog['vpe_type_id'] = CatalogFieldIndex('vpe_type_id')
-        app_root.catalog['unit_of_measure_id'] = CatalogFieldIndex('unit_of_measure_id')
-        app_root.catalog['quality_id'] = CatalogFieldIndex('quality_id')
-        app_root.catalog['vpe_default'] = CatalogFieldIndex('vpe_default')
+        app_root.catalog['parent_id'] = CatalogFieldIndex(get_parent_id)
+        app_root.catalog['id'] = CatalogFieldIndex(get_id)
+        app_root.catalog['__type__'] = CatalogFieldIndex(get___type__)
+        app_root.catalog['group'] = CatalogFieldIndex(get_group)
+        app_root.catalog['vpe_type_id'] = CatalogFieldIndex(get_vpe_type_id)
+        app_root.catalog['unit_of_measure_id'] = CatalogFieldIndex(get_unit_of_measure_id)
+        app_root.catalog['quality_id'] = CatalogFieldIndex(get_quality_id)
+        app_root.catalog['vpe_default'] = CatalogFieldIndex(get_vpe_default)
         app_root.document_map = DocumentMap()
         transaction.commit()
     return Root(request, zodb_root[app_root_id], app_root_id)
@@ -61,36 +136,26 @@ def bootstrap(zodb_root, app_root_id, request):
 def includeme(config):
     """register limone content types"""
     # get content types registry
-    contentregistry = config.registry.getUtility(IContentRegistryUtility)
-    # add content types
-    item = limone_zodb.make_content_type(schemata.Item, 'Item')
-    contentregistry.register_content_type(item)
-    unitofmeasure = limone_zodb.make_content_type(schemata.UnitOfMeasure, 'UnitOfMeasure')
-    contentregistry.register_content_type(unitofmeasure)
-    vpetype = limone_zodb.make_content_type(schemata.VPEType, 'VPEType')
-    contentregistry.register_content_type(vpetype)
-    itemgroup = limone_zodb.make_content_type(schemata.ItemGroup, 'ItemGroup')
-    contentregistry.register_content_type(itemgroup)
-    category = limone_zodb.make_content_type(schemata.Category, 'Category')
-    contentregistry.register_content_type(category)
+    #contentregistry = config.registry.getUtility(IContentRegistryUtility)
 
 
-def transform_to_python_and_store(jsonlist, content_type, folder_id, request):
-    contentregistry = request.registry.getUtility(IContentRegistryUtility)
-    itemtype = contentregistry.get_content_type(content_type)
+def transform_to_python_and_store(data, itemtype, data_key, request):
     app_root = request.root.app_root
-    folder = app_root[folder_id]
+    folder = app_root[data_key]
     catalog = app_root.catalog
-    document_map =  app_root.document_map
+    document_map = app_root.document_map
+    appstructs = data[data_key]
     # create object
-    for i in jsonlist:
+    for i in appstructs:
         # transform to python
-        obj = itemtype.deserialize(i)
+        obj = itemtype()
+        obj.from_appstruct(i)
+        obj_id = obj["id"]
         # store in folder
-        folder[obj.id] = "test"
+        folder[obj_id] = obj
         # catalog
-        path = "%s/%s" % (folder_id, obj.id)
-        catalog_id = document_map.add(path)
+        obj_path = "%s/%s" % (data_key, obj_id)
+        catalog_id = document_map.add(obj_path)
         catalog.index_doc(catalog_id, obj)
     # link objects
     transaction.commit()
