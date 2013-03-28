@@ -29,6 +29,21 @@ def validate_id(data_key, request):
                             error  % (data_key, [x for x in already_exists].__str__()))
 
 
+def validate_no_reference_ids_exist(data_key, data_key_refs,
+                                    attr_ref_id, request):
+    app_root = request.root.app_root
+    entity_ids = app_root[data_key].keys()
+    entity_refs = app_root[data_key_refs].values()
+    entity_refs_ids = [x[attr_ref_id] for x in entity_refs]
+
+    existing_references = set(entity_refs_ids).intersection(set(entity_ids))
+
+    error = 'The following %s are still referenced in %s: %s'
+    if existing_references:
+        request.errors.add('body', data_key_refs,
+                            error  % (data_key, data_key_refs, [x for x in existing_references].__str__()))
+
+
 #######################
 # /categories service #
 #######################
@@ -83,6 +98,24 @@ def categories_post(request):
     return {"status": "succeeded"}
 
 
+@categories.delete(accept="text/json",)
+def categories_delete(request):
+    """method : DELETE
+
+       content_type: text/json
+
+       path : categories
+
+       body :
+
+       return codes: 200, 400
+    """
+
+    models.delete(request.validated, models.Category, "categories", request)
+    # TODO raise errors
+    return {"status": "succeeded"}
+
+
 ########################
 # /item_groups service #
 ########################
@@ -110,6 +143,10 @@ def validate_item_group_parent_id(request):
                             error  % ([x for x in non_existing].__str__()))
 
 
+def validate_item_group_no_item_references_exist(request):
+    validate_no_reference_ids_exist("item_groups", "items", "parent_id", request)
+
+
 @item_groups.post(schema=schemata.ItemGroupsList, accept="text/json",
                   validators=(validate_item_group_id,
                               validate_item_group_parent_id))
@@ -132,6 +169,25 @@ def item_groups_post(request):
     return {"status": "succeeded"}
 
 
+@item_groups.delete(accept="text/json",
+                  validators=validate_item_group_no_item_references_exist)
+def item_groups_delete(request):
+    """method : DELETE
+
+       content_type: text/json
+
+       path : item_groups
+
+       body :
+
+       return codes: 200, 400
+    """
+
+    models.delete(request.validated, models.Item, "item_groups", request)
+    # TODO raise errors
+    return {"status": "succeeded"}
+
+
 #############################
 # /unit_of_measures service #
 #############################
@@ -144,6 +200,10 @@ unit_of_measures = Service(name='unit_of_measures',
 
 def validate_unit_of_measure_id(request):
     validate_id("unit_of_measures", request)
+
+
+def validate_unit_of_measure_no_item_references_exist(request):
+    validate_no_reference_ids_exist("unit_of_measures", "items", "unit_of_measure_id", request)
 
 
 @unit_of_measures.post(schema=schemata.UnitOfMeasuresList, accept="text/json",
@@ -165,6 +225,25 @@ def unit_of_measures_post(request):
     return {"status": "succeeded"}
 
 
+@unit_of_measures.delete(accept="text/json",
+                  validators=validate_unit_of_measure_no_item_references_exist)
+def unit_of_measures_delete(request):
+    """method : DELETE
+
+       content_type: text/json
+
+       path : unit_of_measures
+
+       body :
+
+       return codes: 200, 400
+    """
+
+    models.delete(request.validated, models.Item, "unit_of_measures", request)
+    # TODO raise errors
+    return {"status": "succeeded"}
+
+
 ######################
 # /vpe_types service #
 ######################
@@ -177,6 +256,10 @@ vpe_types = Service(name='vpe_types',
 
 def validate_vpe_type_id(request):
     validate_id("vpe_types", request)
+
+
+def validate_vpe_type_no_item_references_exist(request):
+    validate_no_reference_ids_exist("vpe_types", "items", "vpe_type_id", request)
 
 
 @vpe_types.post(schema=schemata.VPETypesList, accept="text/json",
@@ -195,6 +278,25 @@ def vpe_types_post(request):
 
     models.transform_to_python_and_store(request.validated,
                                          models.EntityData, "vpe_types", request)
+    return {"status": "succeeded"}
+
+
+@vpe_types.delete(accept="text/json",
+                  validators=validate_vpe_type_no_item_references_exist)
+def vpe_types_delete(request):
+    """method : DELETE
+
+       content_type: text/json
+
+       path : vpe_types
+
+       body :
+
+       return codes: 200, 400
+    """
+
+    models.delete(request.validated, models.Item, "vpe_types", request)
+    # TODO raise errors
     return {"status": "succeeded"}
 
 

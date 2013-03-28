@@ -23,9 +23,10 @@ def setup_integration():
     config.include(organicseeds_webshop_api.utilities)
     config.include(organicseeds_webshop_api.models)
     request.root = organicseeds_webshop_api.root_factory(request)
+    app_root = request.root.app_root
     return dict(request=request,
                 config=config,
-                app_root=request.root.app_root)
+                app_root=app_root)
 
 
 
@@ -38,9 +39,10 @@ def setup_functional():
     config.include(organicseeds_webshop_api.utilities)
     config.include(organicseeds_webshop_api.models)
     request.root = organicseeds_webshop_api.root_factory(request)
+    app_root = request.root.app_root
     return dict(request=request,
                 config=config,
-                app_root=request.root.app_root)
+                app_root=app_root)
 
 
 def set_testfile(testfile):
@@ -63,7 +65,13 @@ class IntegrationTestCase(unittest.TestCase):
     def tearDown(self):
         testing.tearDown()
         self.testfile.close()
+        self.request.root.app_root["categories"].clear()
+        self.request.root.app_root["items"].clear()
+        self.request.root.app_root["item_groups"].clear()
+        self.request.root.app_root["vpe_types"].clear()
+        self.request.root.app_root["unit_of_measures"].clear()
         self.request = None
+
 
 
 class FunctionalTestCase(unittest.TestCase):

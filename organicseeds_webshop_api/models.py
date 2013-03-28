@@ -157,7 +157,7 @@ def transform_to_python_and_store(data, itemtype, data_key, request):
         catalog_id = document_map.add(obj_path)
         catalog.index_doc(catalog_id, obj)
     # link objects
-    transaction.commit()
+    transaction.get().commit()
 
 
 def delete(data, itemtype, data_key, request):
@@ -165,12 +165,11 @@ def delete(data, itemtype, data_key, request):
     folder = app_root[data_key]
     catalog = app_root["catalog"]
     document_map = app_root["document_map"]
-    # delete objects
-    for i in folder.keys():
-        # get python object
-        del(folder[i])
-        # uncatalog
+    # uncatalog
+    for i in folder.iterkeys():
         obj_path = "%s/%s" % (data_key, i)
         catalog_id = document_map.docid_for_address(obj_path)
         catalog.unindex_doc(catalog_id)
-    transaction.commit()
+    # delete objects
+    folder.clear()
+    transaction.get().commit()
