@@ -75,8 +75,8 @@ def categories_post(request):
 
        return codes: 200, 400
     """
-    data = json.loads(request.body)
-    models.transform_to_python_and_store(data,
+
+    models.transform_to_python_and_store(request.validated,
                                         models.Category, "categories", request)
     return {"status": "succeeded"}
 
@@ -123,8 +123,8 @@ def item_groups_post(request):
 
        return codes: 200, 400
     """
-    data = json.loads(request.body)
-    models.transform_to_python_and_store(data,
+
+    models.transform_to_python_and_store(request.validated,
                                          models.ItemGroup, "item_groups", request)
     return {"status": "succeeded"}
 
@@ -157,8 +157,7 @@ def unit_of_measures_post(request):
        return codes: 200, 400
     """
 
-    data = json.loads(request.body)
-    models.transform_to_python_and_store(data,
+    models.transform_to_python_and_store(request.validated,
                                          models.EntityData, "unit_of_measures", request)
     return {"status": "succeeded"}
 
@@ -191,8 +190,7 @@ def vpe_types_post(request):
        return codes: 200, 400
     """
 
-    data = json.loads(request.body)
-    models.transform_to_python_and_store(data,
+    models.transform_to_python_and_store(request.validated,
                                          models.EntityData, "vpe_types", request)
     return {"status": "succeeded"}
 
@@ -268,8 +266,7 @@ def items_post(request):
        return codes: 200, 400
     """
 
-    data = json.loads(request.body)
-    models.transform_to_python_and_store(data,
+    models.transform_to_python_and_store(request.validated,
                                          models.Item, "items", request)
     return {"status": "succeeded"}
 

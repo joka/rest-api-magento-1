@@ -14,8 +14,7 @@ class TestServicesCategoriesIntegration(IntegrationTestCase):
 
     def test_post(self):
         from organicseeds_webshop_api.services import categories_post
-        jsonstr = json.dumps(self.testdata)
-        self.request.body = jsonstr
+        self.request.validated = self.testdata
         response = categories_post(self.request)
         assert(response == {'status': 'succeeded'})
 
@@ -64,8 +63,7 @@ class TestServicesItemGroupsIntegration(IntegrationTestCase):
 
     def test_post(self):
         from organicseeds_webshop_api.services import item_groups_post
-        jsonstr = json.dumps(self.testdata)
-        self.request.body = jsonstr
+        self.request.validated = self.testdata
         response = item_groups_post(self.request)
         assert(response == {'status': 'succeeded'})
 
@@ -76,8 +74,7 @@ class TestServicesVPETypesIntegration(IntegrationTestCase):
 
     def test_post(self):
         from organicseeds_webshop_api.services import vpe_types_post
-        jsonstr = json.dumps(self.testdata)
-        self.request.body = jsonstr
+        self.request.validated = self.testdata
         response = vpe_types_post(self.request)
         assert(response == {'status': 'succeeded'})
 
@@ -88,8 +85,7 @@ class TestServicesUnitOfMeasuresIntegration(IntegrationTestCase):
 
     def test_post(self):
         from organicseeds_webshop_api.services import unit_of_measures_post
-        jsonstr = json.dumps(self.testdata)
-        self.request.body = jsonstr
+        self.request.validated = self.testdata
         response = unit_of_measures_post(self.request)
         assert(response == {'status': 'succeeded'})
 
@@ -100,9 +96,8 @@ class TestServicesItemsIntegration(IntegrationTestCase):
 
     def test_post(self):
         from organicseeds_webshop_api.services import items_post
-        jsonstr = json.dumps(self.testdata)
-        self.request.body = jsonstr
-        response =  items_post(self.request)
+        self.request.validated = self.testdata
+        response = items_post(self.request)
         assert(response == {'status': 'succeeded'})
 
 
