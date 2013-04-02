@@ -1,50 +1,50 @@
 item_groups:
 
   - 
-    # basic fields
-    id: 33333_karottensorte  # id
-    __type__: sortendetail # [sortendetail]
-    parent_id: 1003_karotten # id, parent category id reference (attribute inheritance)
-    order: 1 # integer_gt_null
-    shops:  # [(<shopid>, Bool)] # activate in shop
+    # BasicNode fields
+    id: 33333_karottensorte 
+    __type__: sortendetail 
+    parent_id: 1003_karotten
+    order: 1 
+    shops:  
         - [ch_hobby, True]  
         - [ch_profi, True]  
-    title:      # StringTranslation
-      default: Aktuelle Aussaten # optional 
-      fr: actuelle # optional 
-    shortdescription:  # StringTranslation 
-      default: Karotten, Ruebli, Möhren  # optional
-      fr: carotte # optional 
+        - [ch_resell, True]  
+    title:  
+      default: Aktuelle Aussaten 
+      fr: actuelle 
+    shortdescription:  
+      default: Karotten, Ruebli, Möhren 
+      fr: carotte 
     
     # Category fields
-    text_attributes:   # optional # wird vererbt 
+    text_attributes: # optional # wird vererbt über parent_id Hierarchie
         -
-          id: reife  # id 
+          id: reife  # Identifier
           title:     # StringTranslation 
             default: Reife
           order: 1   # IntegerGtNull
-          group: attribute_group1 # id
+          group: attribute_group1 # Identifier
           value:
              -
-              id: spaet # id 
+              id: spaet # Identifier
               text:     # StringTranslation
                 default: Spät 
-              url: # URL # optional
-                   # TODO muss das auch übersetzt werden??
+              url: # URL # optional # TODO muss das auch übersetzt werden??
         -
           id: vermehrer
           title: 
             default: Vermehrer
           order: 2
-          group: attribute_group1 # id
+          group: attribute_group1
           value:
             -
-              id: lebensgemeinschaft_bingenheim # id 
+              id: lebensgemeinschaft_bingenheim 
               text: 
                 default: Lebensgemeinschaft Bingenheim
               url: http://www.lebensgemeinschaftbingenheim.de
             -
-              id: saatzucht_rose # id
+              id: saatzucht_rose 
               text: 
                 default: Saatzucht Rose
               url: http://www....
@@ -55,7 +55,7 @@ item_groups:
           title: 
             default: Wuchsgröße (mm)
           order: 3
-          group: attribute_group1 # id
+          group: attribute_group1
           value:
               count: 22.0 # Float
               unit: mm  # String
@@ -75,38 +75,38 @@ item_groups:
           title: 
             default: Aussaat Monate
           order: 5
-          group: attribute_group1 # id
+          group: attribute_group1 
           value: [True, True, False, False, False, False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True] # weekmatrix
 
     file_attributes:  # optional # wird vererbt 
       -
         id: detailbeschreibung
-        title:               # StringTranslation 
+        title:              
           default: Detailbschreibung
         order: 1
-        group: documents # id
+        group: documents 
         value: folder/document1.pdf # RelativeFilePathUnix 
 
     link_attributes:  # optional # wird vererbt 
       -
         id: sortendatenbank
-        title:               # StringTranslation 
+        title:             
           default: Sortendatenbankeintrag 
         order: 1
-        group: links # id
+        group: links 
         value: http://soten.com     # URL # TODO muss das übersetzt werden?
 
     # Group Item fields
-    category_ids :   # list of category id references, optional
+    category_ids :   # sequence of reference  # optional
         - 1003        
     description:      # StringTranslation
       default: Ausführliche Beschreibung 
     certificates:
-      - psr  # id 
+      - psr  # Identifier
       - bioverita 
     qualities:    # sortendetail_vpe qualities
       -
-        id: 1   # id
+        id: 1   # Identifier
         title:  # StringTranslation 
             default: Normalsaatgut
         size: # String # optional

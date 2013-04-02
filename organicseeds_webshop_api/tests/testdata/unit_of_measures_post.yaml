@@ -1,6 +1,6 @@
 unit_of_measures:
   -
-    id: portion # id
+    id: portion # Identifier
     title:
       default: Portion # StringTranslations
       fr: Portiòn

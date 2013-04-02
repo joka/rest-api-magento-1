@@ -1,6 +1,6 @@
 vpe_types:
   -
-    id: saatscheibe # id
+    id: saatscheibe # Identifier
     title:
       default: Saatscheibe # StringTranslations
       ch: Saatscheibe

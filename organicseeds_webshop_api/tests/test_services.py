@@ -252,6 +252,7 @@ class TestServicesFunctional(FunctionalTestCase):
 
     def test_post_invalid(self):
         jsondata = self.testdata
+        import ipdb; ipdb.set_trace()
         with pytest.raises(AppError):
             self.app.post_json('/items', jsondata)
 

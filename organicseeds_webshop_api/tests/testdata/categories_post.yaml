@@ -1,25 +1,19 @@
 categories:
   -
-    id: 1000  # id, global unique
+    # BasicNode fields
+    id: 1000  # Identifier
     __type__: category # [category | sortenuebersicht] 
-    parent_id: # id  
-               # root category hat leere parent_id
-               # Hierarchie muss eingehalten werden:
-               #    category -> [ category | Sortenübersicht ] -> [ Sortendetail ] -> Verpackungseinheit)
-               # Ordnung muss eingehalten werden:
-               #    first level categories, second level, third level ...
-    order: 1 # integer_gt_null
-    shops:    # [(<shopid>, Bool)] # activate in shop # 
-        - [ch_hobby, True]  # optional
-        - [ch_profi, True]  # optional
+    parent_id: # Identifier   
+    order: 1 # IntegerGtNull
+    shops:    # sequence of Shop
+        - [ch_hobby, True]  
+        - [ch_profi, True]  
     title:    # StringTranslation
-        default: Aktuelle Aussaten # optional
-        fr: actuelle # optional 
-    shortdescription:    # StringTranslation  
-        default: Karotten, Ruebli, Möhren # optional
+        default: Aktuelle Aussaten 
+        fr: actuelle
+    shortdescription: # StringTranslation  
+        default: Karotten, Ruebli, Möhren 
    
-    #synonyms: # optional
-
   -
     id: 1001
     __type__: category
@@ -32,8 +26,6 @@ categories:
         default: Aktuelle Aussaten
     shortdescription: 
         default: 
-
-    # synonyms:  # optional 
 
   -
     id: 1002_gartenwerkzeuge
@@ -48,8 +40,6 @@ categories:
     shortdescription:
         default: nützliches
 
-    # synonyms:  # optional 
-
   -
     id: 1002_gemuese
     __type__: category
@@ -62,8 +52,6 @@ categories:
         default: Gemüse
     shortdescription:
         default:
-
-    # synonyms:  # optional 
 
   -
     id: 1003_karotten
@@ -78,16 +66,7 @@ categories:
     shortdescription:
         default: 
 
-    synonyms:
-        de_ch: #optional
-          -
-            id: 2010a  # id
-            title: Ruebli  # String
-          -
-           id: 2010b
-           title: Möhren
-        #fr_ch: # optional
-        #it_ch: # optional
-        #de_de: # optional
-        #fr_fr: # optional
-        #it_it: # optional
+    synonyms: # SynonymsTranslation # optional
+        de_ch:  # optional
+          - [2010a, Ruebli]  # [Identifier, String]
+          - [2010b, Möhren] 

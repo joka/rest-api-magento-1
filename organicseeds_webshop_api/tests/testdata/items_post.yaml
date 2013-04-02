@@ -2,77 +2,52 @@ items:
 
   # sortendetail_vpe:
   -
-    # BasicNode attributes
-    id: itemka32  # id, alpha-numerisch ohne sonderzeichen
+    # BasicNode fields
+    id: itemka32  
     __type__: sortendetail_vpe # [ sortendetail_vpe | default_vpe]
-    parent_id: 33333_karottensorte # id, parent id reference (item_group/sortendetail) 
-    order: 3 # integer_gt_null
-    shops:    # [(<shopid>, Bool)] # activate in shop # 
-        - [ch_hobby, True]  # optional, default False
-        - [ch_profi, True]  # optional
-        - [ch_resell, True] # optional  
-        - [de_hobby, True]  # optional 
-        - [de_profi, True]  # optional 
-        - [de_resell, True] # optional  
-        - [fr_hobby, True]  # optional 
-        - [fr_profi, True]  # optional 
-        - [fr_resell, True] # optional  
-    title:  # StringTranslation
-      default: title   # optional 
-      de: titlede # optional
-      fr: titlefr # optional
-      it: titleit # optional
-      en: titleen # optional
-    shortdescription: # StringTranslation 
-      default: kurzbeschreibung   # optional 
-      fr: dscription # optional
+    parent_id: 33333_karottensorte
+    order: 3 
+    shops:    
+        - [ch_hobby, True]  
+        - [ch_profi, True]  
+        - [ch_resell, True] 
+    title: 
+      default: title  
+      de: titlede
+      fr: titlefr
+    shortdescription:
+      default: kurzbeschreibung  
+      fr: dscription 
 
-    # Item attributes
+    # Item fieds
     description: # StringTranslation
         default: Ausführliche Beschreibung
-    #category_ids :   # list of category id references, optional
-                      # unnötig wenn parent eine item_group ist.
-                      # optional
+    #category_ids :   # sequence of reference # optional
 
-    sku: itemka32 # id, == articelnumber in selctline
-    group: pflanzgut # <pflanzgut>,  [ saatgut | pflanzgut | sonstiges ]
-    vpe_default: True # Bool, default Verpackungseinheit
-    vpe_type_id: saatscheibe # id reference
-    weight_brutto: 0.25 # float, kg
-    weight_netto: 0.15 # float, kg
-    unit_of_measure_id: portion # id reference
+    sku: itemka32 # Identifier (Artikelnummer)
+    group: pflanzgut # Identifier #  saatgut | pflanzgut | sonstiges 
+    vpe_default: True # Bool
+    vpe_type_id: saatscheibe # reference
+    weight_brutto: 0.25 # Float # kg
+    weight_netto: 0.15 # Float # kg
+    unit_of_measure_id: portion # reference
     price:
-      default: 4.30 # decimal, default price SFR
-      websites:     # [(<websiteid>, Descimal)] # optional
-        - [ch_website, 3.00]  # optional, ch price SFR
-        - [fr_website, 3.00]  # optional, fr price EUR
-        - [de_website, 3.00]  # optional, de price EUR
-    tierprices: # Staffelpreise
+      default: 4.30 # Decimal # default price SFR
+      websites:     #  sequence of WebsitePrice  # optional
+        - [ch_website, 3.00]  
+        - [fr_website, 3.00]  
+        - [de_website, 3.00]  
+    tierprices: # sequence of TierPrice # Staffelpreise
           -
-            website: de_website # <websites>
-            customer_group:  0 # <customergroups> 
-                               # 0 = Not logged in,
-                               # 1 = General,
-                               # 2 = Wholesale,
-                               # 3 = Reailer
+            website: de_website # WebsiteID
+            customer_group:  0 # CustomerGroup
             min_sale_qty: 100 # integer ohne null
             price: 4.20 # decimal
-
-
-    tax_class: 0 # integer <tax_group>, Magent berechnet Tax abhänging von tax_class, Kundengruppe, Lieferort, Website !!
-                # 0 = magento default tax group
-                # 2 = Taxable goods
-                # 4 = Shipping 
-                # 5 = Reduces Taxable goods
-
-    quality_id: sortenquality1 # id reference
-
-    min_sale_qty: 1 # integer ohne 0, optional, ==  mindestbestellmenge,
-                    # default 1
-    max_sale_qty: 100 # integer ohne 0, optional, ==  höchstbestellmenge,
-                      # default 1000000
-    inventory_status: 2 #<invetnory_status> [1|2|3|4|5|6|7|8]
-                        # 2 = available
+    tax_class: 2 # TaxGroup, Magento berechnet Tax abhänging von tax_class, Kundengruppe, Lieferort, Website 
+    quality_id: sortenquality1 # reference
+    min_sale_qty: 1 # IntegerGtNull # ==  mindestbestellmenge, # optional
+    max_sale_qty: 100 # IntegerGtNull # ==  höchstbestellmenge,  # optional
+    inventory_status: 2 # 1|2|3|4|5|6|7|8 
 
     # magento Lagerverwaltungs features, zu klären ob/wie nutzen
 
@@ -97,12 +72,13 @@ items:
     #custom_min_sale_qty: 300 # int, maximaler Wert in Gramm der ohne
                               # überprüfung bestellt werden kann  # optional
 
+
 # default_vpe:
 #-
     ## BasicNode attributes
     #id: gartenschaufel32 
     #__type__: default_vpe 
-    #parent_id: 1002_gartenwerkzeuge # id, parent id reference (category)
+    #parent_id: 1002_gartenwerkzeuge
     #order: 1 
     #shops:
         #- (ch_hobby, True)
