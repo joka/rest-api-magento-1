@@ -252,7 +252,6 @@ class TestServicesFunctional(FunctionalTestCase):
 
     def test_post_invalid(self):
         jsondata = self.testdata
-        import ipdb; ipdb.set_trace()
         with pytest.raises(AppError):
             self.app.post_json('/items', jsondata)
 
@@ -304,10 +303,7 @@ class TestServicesFunctional(FunctionalTestCase):
         items = self.testdata
         self.app.post_json('/items', items)
 
-        resp = self.app.delete_json('/categories', {})
-        assert resp.status_int == 200
-
-        resp = self.app.delete_json('/item_groups', {})
+        resp = self.app.delete_json('/items', {})
         assert resp.status_int == 200
 
         resp = self.app.delete_json('/vpe_types', {})
@@ -316,6 +312,8 @@ class TestServicesFunctional(FunctionalTestCase):
         resp = self.app.delete_json('/unit_of_measures', {})
         assert resp.status_int == 200
 
-        resp = self.app.delete_json('/items', {})
+        resp = self.app.delete_json('/item_groups', {})
         assert resp.status_int == 200
 
+        resp = self.app.delete_json('/categories', {})
+        assert resp.status_int == 200
