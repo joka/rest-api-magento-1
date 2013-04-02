@@ -6,10 +6,10 @@ items:
     id: itemka32  
     __type__: sortendetail_vpe # [ sortendetail_vpe | default_vpe]
     parent_id: 33333_karottensorte
-    order: 3 
-    shops:    
-        - [ch_hobby, True]  
-        - [ch_profi, True]  
+    order : 3
+    shops:
+        - [ch_hobby, True]
+        - [ch_profi, True]
         - [ch_resell, True] 
     title: 
       default: title  

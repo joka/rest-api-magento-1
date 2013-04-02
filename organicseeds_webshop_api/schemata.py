@@ -77,14 +77,14 @@ class RelativeFilePathUnix(colander.SchemaNode):
 class IntegerGtEqNull(colander.SchemaNode):
     """Integer greater/equal 0"""
 
-    schema_type = Integer
+    schema_type = colander.Integer
     validator = Range(min=0)
 
 
 class IntegerGtNull(colander.SchemaNode):
     """Integer greater 0"""
 
-    schema_type = Integer
+    schema_type = colander.Integer
     validator = Range(min=1)
 
 class Identifier(colander.SchemaNode):
@@ -154,8 +154,7 @@ class TaxClass(colander.SchemaNode):
          - 4 = (Shipping) 
          - 5 = Reduces Taxable goods
     """
-
-    schema_type = Integer
+    schema_type = colander.Integer
     validator = OneOf([0, 2, 4, 5])
 
 
@@ -451,11 +450,12 @@ class Shop(colander.TupleSchema):
     """
 
     shopeid = ShopID()
-    activated = colander.SchemaNode(Bool(), default=False, missing=False)
+    activated = colander.SchemaNode(colander.Bool(), default=False, missing=False)
 
 
 class Shops(colander.SequenceSchema):
-    shop = Shop()            # TODO test empty list
+
+    shop = Shop()
 
 
 class WebsitePrice(colander.TupleSchema):
@@ -528,7 +528,7 @@ class BasicNode(colander.MappingSchema):
        shortdescription : StringTranslation
     """
 
-    id = String()
+    id = Identifier()
     __type__ = String()
     parent_id = Identifier(default=None, missing=None)
     order = IntegerGtNull()
@@ -796,8 +796,8 @@ class Item(BasicNode):
     tierprices = TierPrices()
     tax_class = TaxClass()
     quality_id = String()
-    min_sale_qty = Integer(default=1, missing=1, required=False) # TODO not <= 0 validation
-    max_sale_qty = Integer(default=1000000, missing=1000000, required=False)
+    min_sale_qty = IntegerGtNull(default=1, missing=1, required=False)
+    max_sale_qty = IntegerGtNull(default=1000000, missing=1000000, required=False)
     inventory_status = Integer(validator=OneOf([1,2,3,4,5,6,7,8]))
 
 
