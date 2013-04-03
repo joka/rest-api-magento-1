@@ -78,6 +78,10 @@ def validate_category_parent_id(request):
             request.errors.add('body', 'parent_id', error)
 
 
+def validate_no_item_group_references_exist(request):
+    validate_no_reference_ids_exist("categories", "item_groups", "parent_id", request)
+
+
 @categories.post(schema=schemata.CategoriesList, accept="text/json",
                  validators=(validate_category_parent_id,
                              validate_category_id))
@@ -99,12 +103,16 @@ def categories_post(request):
 
     models.transform_to_python_and_store(request.validated,
                                         models.Category, "categories", request)
+    #TODO update parent links
+    #TODO update category children,
     return {"status": "succeeded"}
 
 
-@categories.delete(accept="text/json",)
+@categories.delete(accept="text/json",
+                   validators=(validate_no_item_group_references_exist))
 def categories_delete(request):
-    """Delete category entities
+    """Delete category entities.
+       You should delete item_group children first.
 
        method : DELETE
 
@@ -174,11 +182,12 @@ def item_groups_post(request):
 
     models.transform_to_python_and_store(request.validated,
                                          models.ItemGroup, "item_groups", request)
+    #TODO update parent links
+    #TODO update category children,
     return {"status": "succeeded"}
 
 
-@item_groups.delete(accept="text/json",
-                  validators=validate_item_group_no_item_references_exist)
+@item_groups.delete(accept="text/json")
 def item_groups_delete(request):
     """Delete item group entities
 
@@ -194,7 +203,6 @@ def item_groups_delete(request):
     """
 
     models.delete(request.validated, models.Item, "item_groups", request)
-    # TODO raise errors
     return {"status": "succeeded"}
 
 
@@ -281,7 +289,8 @@ def validate_vpe_type_no_item_references_exist(request):
 @vpe_types.post(schema=schemata.VPETypesList, accept="text/json",
                 validators=(validate_vpe_type_id,))
 def vpe_types_post(request):
-    """Create new vpe type data (for items)
+    """Create new vpe type data (for items).
+       You should delete referencing items first.
 
        method : POST
 
@@ -304,7 +313,8 @@ def vpe_types_post(request):
 @vpe_types.delete(accept="text/json",
                   validators=validate_vpe_type_no_item_references_exist)
 def vpe_types_delete(request):
-    """Delete vpe type data
+    """Delete vpe type data (for items).
+       You should delete referencing items first.
 
        method : DELETE
 
@@ -402,6 +412,8 @@ def items_post(request):
 
     models.transform_to_python_and_store(request.validated,
                                          models.Item, "items", request)
+    #TODO update parent links
+    #TODO update item_group/category children
     return {"status": "succeeded"}
 
 
@@ -421,7 +433,7 @@ def items_delete(request):
     """
 
     models.delete(request.validated, models.Item, "items", request)
-    # TODO raise errors
+    #TODO update item_group/category children
     return {"status": "succeeded"}
 
 

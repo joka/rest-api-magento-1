@@ -250,12 +250,12 @@ class TestServicesFunctional(FunctionalTestCase):
 
     testdatafilepath = ("/testdata/items_post.yaml")
 
-    def test_post_invalid(self):
-        jsondata = self.testdata
+    def test_post_items_invalid(self):
+        items = self.testdata
         with pytest.raises(AppError):
-            self.app.post_json('/items', jsondata)
+            self.app.post_json('/items', items)
 
-    def test_post_valid(self):
+    def test_post_items_item_groups_categories_valid(self):
         categories = set_testfile("/testdata/categories_post.yaml")["testdata"]
         resp = self.app.post_json('/categories', categories)
         assert resp.status_int == 200
@@ -276,7 +276,7 @@ class TestServicesFunctional(FunctionalTestCase):
         resp = self.app.post_json('/items', items)
         assert resp.status_int == 200
 
-    def test_delete_invalid(self):
+    def test_delete_items_invalid(self):
         categories = set_testfile("/testdata/categories_post.yaml")["testdata"]
         self.app.post_json('/categories', categories)
         groups = set_testfile("/testdata/item_groups_post.yaml")["testdata"]
@@ -291,7 +291,10 @@ class TestServicesFunctional(FunctionalTestCase):
         with pytest.raises(AppError):
             self.app.delete_json('/unit_of_measures', {})
 
-    def test_delete_valid(self):
+        with pytest.raises(AppError):
+            self.app.delete_json('/vpe_types', {})
+
+    def test_delete_items_valid(self):
         categories = set_testfile("/testdata/categories_post.yaml")["testdata"]
         self.app.post_json('/categories', categories)
         groups = set_testfile("/testdata/item_groups_post.yaml")["testdata"]
@@ -312,8 +315,66 @@ class TestServicesFunctional(FunctionalTestCase):
         resp = self.app.delete_json('/unit_of_measures', {})
         assert resp.status_int == 200
 
+    #def test_delete_item_groups_invalid(self):
+        #categories = set_testfile("/testdata/categories_post.yaml")["testdata"]
+        #self.app.post_json('/categories', categories)
+        #groups = set_testfile("/testdata/item_groups_post.yaml")["testdata"]
+        #self.app.post_json('/item_groups', groups)
+        #vpe = set_testfile("/testdata/vpe_types_post.yaml")["testdata"]
+        #self.app.post_json('/vpe_types', vpe)
+        #measure = set_testfile("/testdata/unit_of_measures_post.yaml")["testdata"]
+        #self.app.post_json('/unit_of_measures', measure)
+        #items = self.testdata
+        #self.app.post_json('/items', items)
+
+        #with pytest.raises(AppError):
+            #self.app.delete_json('/item_groups', {})
+
+    def test_delete_item_groups_valid(self):
+        categories = set_testfile("/testdata/categories_post.yaml")["testdata"]
+        self.app.post_json('/categories', categories)
+        groups = set_testfile("/testdata/item_groups_post.yaml")["testdata"]
+        self.app.post_json('/item_groups', groups)
+        vpe = set_testfile("/testdata/vpe_types_post.yaml")["testdata"]
+        self.app.post_json('/vpe_types', vpe)
+        measure = set_testfile("/testdata/unit_of_measures_post.yaml")["testdata"]
+        self.app.post_json('/unit_of_measures', measure)
+        items = self.testdata
+        self.app.post_json('/items', items)
+
+        resp = self.app.delete_json('/item_groups', {})
+        assert resp.status_int == 200
+
+    def test_delete_categories_invalid(self):
+        categories = set_testfile("/testdata/categories_post.yaml")["testdata"]
+        self.app.post_json('/categories', categories)
+        groups = set_testfile("/testdata/item_groups_post.yaml")["testdata"]
+        self.app.post_json('/item_groups', groups)
+        vpe = set_testfile("/testdata/vpe_types_post.yaml")["testdata"]
+        self.app.post_json('/vpe_types', vpe)
+        measure = set_testfile("/testdata/unit_of_measures_post.yaml")["testdata"]
+        self.app.post_json('/unit_of_measures', measure)
+        items = self.testdata
+        self.app.post_json('/items', items)
+
+        with pytest.raises(AppError):
+            self.app.delete_json('/categories', {})
+
+    def test_delete_categories_valid(self):
+        categories = set_testfile("/testdata/categories_post.yaml")["testdata"]
+        self.app.post_json('/categories', categories)
+        groups = set_testfile("/testdata/item_groups_post.yaml")["testdata"]
+        self.app.post_json('/item_groups', groups)
+        vpe = set_testfile("/testdata/vpe_types_post.yaml")["testdata"]
+        self.app.post_json('/vpe_types', vpe)
+        measure = set_testfile("/testdata/unit_of_measures_post.yaml")["testdata"]
+        self.app.post_json('/unit_of_measures', measure)
+        items = self.testdata
+        self.app.post_json('/items', items)
+
         resp = self.app.delete_json('/item_groups', {})
         assert resp.status_int == 200
 
         resp = self.app.delete_json('/categories', {})
         assert resp.status_int == 200
+
