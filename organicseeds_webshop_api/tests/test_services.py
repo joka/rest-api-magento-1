@@ -69,17 +69,50 @@ class TestServicesCategoriesIntegration(IntegrationTestCase):
         error_desription = 'parent_id: 1000 and id: 1000 are the same'
         assert(error_desription == self.request.errors[0]["description"])
 
-    def test_validator_id_nonvalid_already_exists(self):
-        from organicseeds_webshop_api.services import validate_category_id
+    def test_validator_id_does_not_exists_nonvalid(self):
+        from organicseeds_webshop_api.services import validate_category_id_does_not_exists
         self.testdata["categories"][0]['id'] = u"1000"
         existing = self.app_root["categories"]
         existing[u"1000"] = object()
         self.request.validated = self.testdata
-        validate_category_id(self.request)
+        validate_category_id_does_not_exists(self.request)
         error_desription = "The following ids do already exists"\
                            " in categories: [u'1000']"
         assert(error_desription == self.request.errors[0]["description"])
         del(existing[u"1000"])
+
+    def test_validator_id_does_not_exists_valid(self):
+        from organicseeds_webshop_api.services import validate_category_id_does_not_exists
+        self.testdata["categories"][0]['id'] = u"1000"
+        existing = self.app_root["categories"]
+        self.request.validated = self.testdata
+        validate_category_id_does_not_exists(self.request)
+        assert(len(self.request.errors) == 0)
+
+    def test_validator_id_does_exists_nonvalid(self):
+        from organicseeds_webshop_api.services import validate_category_id_does_exists
+        existing = self.app_root["categories"]
+        existing.clear()
+        self.request.validated = self.testdata
+        validate_category_id_does_exists(self.request)
+        error_desription = "The following ids do not exists"\
+                           " in categories: [1000, 1001, '1002_gemuese',"\
+                           " '1002_gartenwerkzeuge', '1003_karotten']"
+        assert(error_desription == self.request.errors[0]["description"])
+
+    def test_validator_id_does_exists_valid(self):
+        from organicseeds_webshop_api.services import validate_category_id_does_exists
+        self.testdata["categories"][0]['id'] = 1000
+        existing = self.app_root["categories"]
+        existing.clear()
+        existing[1000] = object()
+        existing[1001] = object()
+        existing[u"1002_gemuese"] = object()
+        existing[u"1002_gartenwerkzeuge"] = object()
+        existing[u"1003_karotten"] = object()
+        self.request.validated = self.testdata
+        validate_category_id_does_exists(self.request)
+        assert(len(self.request.errors) == 0)
 
 
 class TestServicesItemGroupsIntegration(IntegrationTestCase):

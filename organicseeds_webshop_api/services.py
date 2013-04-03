@@ -15,7 +15,7 @@ from organicseeds_webshop_api import models
 ###################
 
 
-def validate_id(data_key, request):
+def validate_id_does_not_exists(data_key, request):
     entities =  request.validated[data_key]
     entity_ids = set([i["id"] for i in entities])
     app_root = request.root.app_root
@@ -27,6 +27,20 @@ def validate_id(data_key, request):
     if already_exists:
         request.errors.add('body', 'id',
                             error  % (data_key, [x for x in already_exists].__str__()))
+
+
+def validate_id_does_exists(data_key, request):
+    entities =  request.validated[data_key]
+    entity_ids = set([i["id"] for i in entities])
+    app_root = request.root.app_root
+    existing_folder = app_root[data_key]
+    existing = set(existing_folder.keys())
+    not_existing = entity_ids.difference(existing)
+
+    error = 'The following ids do not exists in %s: %s'
+    if not_existing:
+        request.errors.add('body', 'id',
+                            error  % (data_key, [x for x in not_existing].__str__()))
 
 
 def validate_no_reference_ids_exist(data_key, data_key_refs,
@@ -54,8 +68,12 @@ categories = Service(name='categories',
                      description="Service to upload webshop categories")
 
 
-def validate_category_id(request):
-    validate_id("categories", request)
+def validate_category_id_does_not_exists(request):
+    validate_id_does_not_exists("categories", request)
+
+
+def validate_category_id_does_exists(request):
+    validate_id_does_exists("categories", request)
 
 
 def validate_category_parent_id(request):
@@ -84,7 +102,7 @@ def validate_no_item_group_references_exist(request):
 
 @categories.post(schema=schemata.CategoriesList, accept="text/json",
                  validators=(validate_category_parent_id,
-                             validate_category_id))
+                             validate_category_id_does_not_exists))
 def categories_post(request):
     """Create new category entities
 
@@ -140,8 +158,8 @@ item_groups = Service(name='item_groups',
                       description="Service to upload item groups (like Sortendetails)")
 
 
-def validate_item_group_id(request):
-    validate_id("item_groups", request)
+def validate_item_group_id_does_not_exists(request):
+    validate_id_does_not_exists("item_groups", request)
 
 
 def validate_item_group_parent_id(request):
@@ -162,7 +180,7 @@ def validate_item_group_no_item_references_exist(request):
 
 
 @item_groups.post(schema=schemata.ItemGroupsList, accept="text/json",
-                  validators=(validate_item_group_id,
+                  validators=(validate_item_group_id_does_not_exists,
                               validate_item_group_parent_id))
 def item_groups_post(request):
     """Create new item group entities
@@ -216,8 +234,8 @@ unit_of_measures = Service(name='unit_of_measures',
                 description="Service to upload unit_of_measures")
 
 
-def validate_unit_of_measure_id(request):
-    validate_id("unit_of_measures", request)
+def validate_unit_of_measure_id_does_not_exists(request):
+    validate_id_does_not_exists("unit_of_measures", request)
 
 
 def validate_unit_of_measure_no_item_references_exist(request):
@@ -225,7 +243,7 @@ def validate_unit_of_measure_no_item_references_exist(request):
 
 
 @unit_of_measures.post(schema=schemata.UnitOfMeasuresList, accept="text/json",
-                       validators=(validate_unit_of_measure_id,))
+                       validators=(validate_unit_of_measure_id_does_not_exists,))
 def unit_of_measures_post(request):
     """Create new unit of measure data (for items)
 
@@ -278,8 +296,8 @@ vpe_types = Service(name='vpe_types',
                 description="Service to upload vpe_types")
 
 
-def validate_vpe_type_id(request):
-    validate_id("vpe_types", request)
+def validate_vpe_type_id_does_not_exists(request):
+    validate_id_does_not_exists("vpe_types", request)
 
 
 def validate_vpe_type_no_item_references_exist(request):
@@ -287,7 +305,7 @@ def validate_vpe_type_no_item_references_exist(request):
 
 
 @vpe_types.post(schema=schemata.VPETypesList, accept="text/json",
-                validators=(validate_vpe_type_id,))
+                validators=(validate_vpe_type_id_does_not_exists,))
 def vpe_types_post(request):
     """Create new vpe type data (for items).
        You should delete referencing items first.
@@ -344,8 +362,12 @@ items = Service(name='items',
 #TODO validate item quality_id
 
 
-def validate_item_id(request):
-    validate_id("items", request)
+def validate_item_id_does_not_exists(request):
+    validate_id_does_not_exists("items", request)
+
+
+def validate_item_id_does_exists(request):
+    validate_id_does_exists("items", request)
 
 
 def validate_item_parent_id(request):
@@ -390,7 +412,7 @@ def validate_item_unit_of_measure_id(request):
 
 
 @items.post(schema=schemata.ItemsList, accept="text/json",
-            validators=(validate_item_id,
+            validators=(validate_item_id_does_not_exists,
                         validate_item_parent_id,
                         validate_item_vpe_type_id,
                         validate_item_unit_of_measure_id))
@@ -412,6 +434,34 @@ def items_post(request):
 
     models.transform_to_python_and_store(request.validated,
                                          models.Item, "items", request)
+    #TODO update parent links
+    #TODO update item_group/category children
+    return {"status": "succeeded"}
+
+
+@items.put(schema=schemata.ItemsList, accept="text/json",
+            validators=(validate_item_id_does_exists,
+                        validate_item_parent_id,
+                        validate_item_vpe_type_id,
+                        validate_item_unit_of_measure_id))
+def items_put(request):
+    """Update existing item entities
+
+       method : PUT
+
+       content_type: text/json
+
+       path : items
+
+       body :
+
+       * Sequence of Item
+
+       return codes: 200, 400
+    """
+
+    #models.transform_to_python_and_update(request.validated,
+                                         #models.Item, "items", request)
     #TODO update parent links
     #TODO update item_group/category children
     return {"status": "succeeded"}
