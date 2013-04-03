@@ -52,7 +52,7 @@ class Bool(colander.SchemaNode):
 
 
 class URL(colander.SchemaNode):
-    """URL string, utf-8 encoding
+    """URL String, utf-8 encoding
 
        Example value: http://x.org
     """
@@ -65,9 +65,9 @@ class RelativeFilePathUnix(colander.SchemaNode):
 
        Example values:
 
-       - folder1/file
-       - ./folder1/file
-       - file
+         - folder1/file
+         - ./folder1/file
+         - file
     """
 
     schema_type = colander.String
@@ -88,7 +88,7 @@ class IntegerGtNull(colander.SchemaNode):
     validator = Range(min=1)
 
 class Identifier(colander.SchemaNode):
-    """Alpha/numeric/_  string, encoding utf-8
+    """Alpha/numeric/_  String, encoding utf-8
 
        A global unique identifier.
 
@@ -100,7 +100,7 @@ class Identifier(colander.SchemaNode):
 
 
 class ShopID(colander.SchemaNode):
-    """Shop identifier, string encoding utf-8
+    """Shop Identifier
 
        Values: ch_hobby | che_profi | ch_resell, fr_hobby | ...
     """
@@ -118,7 +118,7 @@ class ShopID(colander.SchemaNode):
                        ])
 
 class WebsiteID(colander.SchemaNode):
-    """Website identifier, string encoding utf-8
+    """Website Identifier
 
        Values: ch_website | de_website | fr_website | ...
     """
@@ -135,20 +135,21 @@ class CustomerGroup(colander.SchemaNode):
     """Customer group id, Integer
 
        values:
-       - 0 # Not logged in,
-       - 1 # General,
-       - 2 # Wholesale,
-       - 3 # Reailer
+         - 0 = Not logged in
+         - 1 = General
+         - 2 = Wholesale
+         - 3 = Reailer
     """
 
     schema_type = colander.Integer
-    validator= OneOf([0,1,2,3])
+    validator= OneOf([0, 1, 2, 3])
 
 
 class TaxClass(colander.SchemaNode):
-    """Item tax class Integer
+    """Item tax class, Integer
 
        values:
+
          - 0 = magento default tax group
          - 2 = Taxable goods
          - 4 = (Shipping) 
@@ -164,9 +165,13 @@ class StringTranslation(colander.MappingSchema):
        value:
 
          default : String   # optional
+
          de : String        # optional
+
          fr : String        # optional
+
          it : String        # optional
+
          en : String        # optional
     """
 
@@ -189,13 +194,15 @@ class IDList(colander.SequenceSchema):
 
 
 class TextLink(colander.MappingSchema):
-    """Text with URL
+    """Text String with optional URL
 
        value:
 
          id : Identifier
+
          text : StringTranslation
-         url = URL # optional
+
+         url : URL # optional
     """
 
     id = Identifier()
@@ -213,7 +220,9 @@ class Measure(colander.MappingSchema):
     """Measurement
 
        value:
+
           count: Float  # for example 1.0
+
           unit : String # for example "mm"
     """
 
@@ -299,7 +308,7 @@ class BaseAttribute(colander.MappingSchema):
 
 
 class TextAttribute(BaseAttribute):
-    """Text strings with optional url
+    """Text Strings with optional URL
 
        value:
 
@@ -309,7 +318,7 @@ class TextAttribute(BaseAttribute):
 
          order : IntegerGtNull
 
-         value : [TextLink, TextLink, ..]
+         value : sequence of TextLink
     """
     value = TextLinks
 
@@ -394,13 +403,13 @@ class FileAttribute(BaseAttribute):
 
        value:
 
-        id: Identifiers
+         id: Identifiers
 
-        title : StringTranslation
+         title : StringTranslation
 
-        order : IntegerGtNull
+         order : IntegerGtNull
 
-        value : RelativeFilePathUnix
+         value : RelativeFilePathUnix
 
        Example values:
 
@@ -422,13 +431,13 @@ class LinkAttribute(BaseAttribute):
 
        value:
 
-        id: Identifiers
+         id: Identifiers
 
-        title : StringTranslation
+         title : StringTranslation
 
-        order : IntegerGtNull
+         order : IntegerGtNull
 
-        value : URL
+         value : URL
 
        Example value: http://x.org
     """
@@ -459,6 +468,14 @@ class Shops(colander.SequenceSchema):
 
 
 class WebsitePrice(colander.TupleSchema):
+    """Price of this item
+
+       value:
+
+         websiteid : WebsiteID
+
+         price : Decimal
+    """
 
     websiteid = WebsiteID()
     price = Decimal()
@@ -477,6 +494,7 @@ class Price(colander.MappingSchema):
          default : Decimal # Default price SFR
 
          websites :
+
             - [WebsiteID, Price]
     """
 
@@ -490,9 +508,12 @@ class TierPrice(colander.MappingSchema):
         value:
 
           website : WebsiteID
-          customer_group = CustomerGroup
-          min_sale_qty = Integer
-          price = Decimal
+
+          customer_group : CustomerGroup
+
+          min_sale_qty : Integer
+
+          price : Decimal
     """
 
     website = WebsiteID()
@@ -515,17 +536,17 @@ class BasicNode(colander.MappingSchema):
 
        value:
 
-       id : Identifier
+           id : Identifier
 
-       __type__ : String
+           __type__ : String
 
-       parent_id : Identifier # reference to category / item_group for items; to category for categories; to categories for item_groups
+           parent_id : Identifier # reference to category / item_group for items; to category for categories; to categories for item_groups
 
-       order : IntegerGtNull
+           order : IntegerGtNull
 
-       title : StringTranslation
+           title : StringTranslation
 
-       shortdescription : StringTranslation
+           shortdescription : StringTranslation
     """
 
     id = Identifier()
@@ -557,17 +578,17 @@ class SynonymsTranslation(colander.MappingSchema):
 
        value:
 
-       de_de : sequence of [id, Title] # optional
+           de_de : sequence of [id, Title] # optional
 
-       de_ch : sequence of [id, Title] # optional
+           de_ch : sequence of [id, Title] # optional
 
-       fr_fr : sequence of [id, Title] # optional
+           fr_fr : sequence of [id, Title] # optional
 
-       fr_ch : sequence of [id, Title] # optional
+           fr_ch : sequence of [id, Title] # optional
 
-       it_it : sequence of [id, Title] # optional
+           it_it : sequence of [id, Title] # optional
 
-       it_ch : sequence of [id, Title] # optional
+           it_ch : sequence of [id, Title] # optional
     """
 
     de_de = Synonyms(default=[], missing=[], required=False)
@@ -583,23 +604,23 @@ class Category(BasicNode):
 
        value:
 
-       <BasicNode> value
+           <BasicNode> fields
 
-       __type__ : String # sortenuebersicht" | "category"
+           __type__ : String # sortenuebersicht" | "category"
 
-       synonyms : sequence of SynonymsTranslation
+           synonyms : sequence of SynonymsTranslation
 
-       text_attributes : sequence of TextAttribute
+           text_attributes : sequence of TextAttribute
 
-       measure_attributes : sequence of MeasureAttribute
+           measure_attributes : sequence of MeasureAttribute
 
-       bool_attributes : sequence of BoolAttribute
+           bool_attributes : sequence of BoolAttribute
 
-       weekmatrix_attributes : sequence of WeekmatrixAttribute
+           weekmatrix_attributes : sequence of WeekmatrixAttribute
 
-       file_attributes : sequence of FileAttribute
+           file_attributes : sequence of FileAttribute
 
-       link_attributes : sequence of LinkAttribute
+           link_attributes : sequence of LinkAttribute
     """
     __type__ = String(validator=OneOf(["sortenuebersicht",
                                        "category"]))
@@ -628,6 +649,18 @@ class CategoriesList(colander.MappingSchema):
 
 
 class Quality(colander.MappingSchema):
+    """VPE Quality
+
+       value:
+
+         id : Identifier
+
+         title : StringTranslation
+
+         size : String  # optional
+
+         tkg : Float
+    """
 
     id = Identifier()
     title = StringTranslation()
@@ -645,19 +678,19 @@ class ItemGroup(Category):
 
        value:
 
-       <BasicNode> value
+         <BasicNode> fields
 
-       <Category> value
+         <Category> fields
 
-       __type__ : String # sortendetail
+         __type__ : String # sortendetail
 
-       category_ids : sequence of IDList
+         category_ids : sequence of IDList
 
-       description : StringTranslation
+         description : StringTranslation
 
-       certificates : sequence of DList # psr | bioverita ...
+         certificates : sequence of DList # psr | bioverita ...
 
-       qualities : sequence of Qualtity
+         qualities : sequence of Qualtity
     """
 
 
@@ -689,9 +722,9 @@ class UnitOfMeasure(colander.MappingSchema):
 
        value:
 
-       id : Identifier
+           id : Identifier
 
-       title : StringTranslation
+           title : StringTranslation
     """
 
     id = Identifier()
@@ -713,11 +746,11 @@ class VPEType(colander.MappingSchema):
 
        value:
 
-       id : Identifier
+           id : Identifier
 
-       title : StringTranslation
+           title : StringTranslation
 
-       legend : StringTranslation
+           legend : StringTranslation
     """
 
     id = Identifier()
@@ -740,41 +773,41 @@ class Item(BasicNode):
 
        value:
 
-       <BasicNode> value
+           <BasicNode> fields
 
-       __type__ : String # sortendetail_vpe | default_vpe
+           __type__ : String # sortendetail_vpe | default_vpe
 
-       category_ids : sequence of IDList
+           category_ids : sequence of IDList
 
-       description : StringTranslation
+           description : StringTranslation
 
-       sku : String # == Artikelnummer
+           sku : String # == Artikelnummer
 
-       group : String # saatgut | pflanzgut | sonstiges
+           group : String # saatgut | pflanzgut | sonstiges
 
-       vpe_default = Bool  # default vpe of item group
+           vpe_default = Bool  # default vpe of item group
 
-       vpe_type_id = Identifier # reference to vpe_type
+           vpe_type_id = Identifier # reference to vpe_type
 
-       weight_brutto = Float
+           weight_brutto = Float
 
-       weight_netto = Float
+           weight_netto = Float
 
-       unit_of_measure_id = Identifier # refernce to unit_of_measure
+           unit_of_measure_id = Identifier # refernce to unit_of_measure
 
-       price = Price
+           price = Price
 
-       tierprices = sequence of TierPrice
+           tierprices = sequence of TierPrice
 
-       tax_class = TaxClass
+           tax_class = TaxClass
 
-       quality_id = Identifier # reference to item_group quality
+           quality_id = Identifier # reference to item_group quality
 
-       min_sale_qty = Integer # default 1
+           min_sale_qty = Integer # default 1
 
-       max_sale_qty = Integer # default 1000000
+           max_sale_qty = Integer # default 1000000
 
-       inventory_status = Integer # 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+           inventory_status = Integer # 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
     """
 
     __type__ = String(validator=OneOf(["sortendetail_vpe",

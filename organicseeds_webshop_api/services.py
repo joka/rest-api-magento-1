@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # vim: set ts=4 sw=4:
-"""Webserservies to upload Entities to the webshop"""
+"""Webserservies to create webshop entities"""
 
 import json
 from pyramid.security import Everyone, Authenticated, Allow
@@ -82,13 +82,17 @@ def validate_category_parent_id(request):
                  validators=(validate_category_parent_id,
                              validate_category_id))
 def categories_post(request):
-    """method : POST
+    """Create new category entities
+
+       method : POST
 
        content_type: text/json
 
        path : categories
 
-       body : Sequence of Category
+       body :
+
+       * Sequence of Category
 
        return codes: 200, 400
     """
@@ -100,7 +104,9 @@ def categories_post(request):
 
 @categories.delete(accept="text/json",)
 def categories_delete(request):
-    """method : DELETE
+    """Delete category entities
+
+       method : DELETE
 
        content_type: text/json
 
@@ -151,7 +157,9 @@ def validate_item_group_no_item_references_exist(request):
                   validators=(validate_item_group_id,
                               validate_item_group_parent_id))
 def item_groups_post(request):
-    """method : POST
+    """Create new item group entities
+
+       method : POST
 
        content_type: text/json
 
@@ -172,7 +180,9 @@ def item_groups_post(request):
 @item_groups.delete(accept="text/json",
                   validators=validate_item_group_no_item_references_exist)
 def item_groups_delete(request):
-    """method : DELETE
+    """Delete item group entities
+
+       method : DELETE
 
        content_type: text/json
 
@@ -209,13 +219,17 @@ def validate_unit_of_measure_no_item_references_exist(request):
 @unit_of_measures.post(schema=schemata.UnitOfMeasuresList, accept="text/json",
                        validators=(validate_unit_of_measure_id,))
 def unit_of_measures_post(request):
-    """method : POST
+    """Create new unit of measure data (for items)
+
+       method : POST
 
        content_type: text/json
 
        path : unit_of_measures
 
-       body : Sequence of UnitOfMeasure
+       body :
+
+       * Sequence of UnitOfMeasure
 
        return codes: 200, 400
     """
@@ -228,7 +242,9 @@ def unit_of_measures_post(request):
 @unit_of_measures.delete(accept="text/json",
                   validators=validate_unit_of_measure_no_item_references_exist)
 def unit_of_measures_delete(request):
-    """method : DELETE
+    """Delete unit of measure data
+
+       method : DELETE
 
        content_type: text/json
 
@@ -265,13 +281,17 @@ def validate_vpe_type_no_item_references_exist(request):
 @vpe_types.post(schema=schemata.VPETypesList, accept="text/json",
                 validators=(validate_vpe_type_id,))
 def vpe_types_post(request):
-    """method : POST
+    """Create new vpe type data (for items)
+
+       method : POST
 
        content_type: text/json
 
        path : vpe_types
 
-       body : Sequence of VPEType
+       body :
+
+       * Sequence of VPEType
 
        return codes: 200, 400
     """
@@ -284,7 +304,9 @@ def vpe_types_post(request):
 @vpe_types.delete(accept="text/json",
                   validators=validate_vpe_type_no_item_references_exist)
 def vpe_types_delete(request):
-    """method : DELETE
+    """Delete vpe type data
+
+       method : DELETE
 
        content_type: text/json
 
@@ -363,13 +385,17 @@ def validate_item_unit_of_measure_id(request):
                         validate_item_vpe_type_id,
                         validate_item_unit_of_measure_id))
 def items_post(request):
-    """method : POST
+    """Create new item entities
+
+       method : POST
 
        content_type: text/json
 
        path : items
 
-       body : Sequence of Item
+       body :
+
+       * Sequence of Item
 
        return codes: 200, 400
     """
@@ -381,7 +407,9 @@ def items_post(request):
 
 @items.delete(accept="text/json")
 def items_delete(request):
-    """method : DELETE
+    """Delete item entities
+
+       method : DELETE
 
        content_type: text/json
 
@@ -397,9 +425,9 @@ def items_delete(request):
     return {"status": "succeeded"}
 
 
-def find_element(path, context):
-    subpaths = path.split("/")
-    ob = context
-    for subpath in subpaths:
-        ob = ob[subpath]
-    return ob
+#def find_element(path, context):
+    #subpaths = path.split("/")
+    #ob = context
+    #for subpath in subpaths:
+        #ob = ob[subpath]
+    #return ob
