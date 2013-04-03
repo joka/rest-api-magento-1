@@ -116,7 +116,7 @@ def categories_post(request):
 
        * Sequence of Category
 
-       return codes: 200, 400
+       return codes: 200, 400, 500
     """
 
     models.transform_to_python_and_store(request.validated,
@@ -140,7 +140,7 @@ def categories_delete(request):
 
        body :
 
-       return codes: 200, 400
+       return codes: 200, 400, 500
     """
 
     models.delete(request.validated, models.Category, "categories", request)
@@ -195,7 +195,7 @@ def item_groups_post(request):
 
        * item_groups : Sequence of ItemGroup
 
-       return codes: 200, 400
+       return codes: 200, 400, 500
     """
 
     models.transform_to_python_and_store(request.validated,
@@ -217,7 +217,7 @@ def item_groups_delete(request):
 
        body :
 
-       return codes: 200, 400
+       return codes: 200, 400, 500
     """
 
     models.delete(request.validated, models.Item, "item_groups", request)
@@ -257,7 +257,7 @@ def unit_of_measures_post(request):
 
        * Sequence of UnitOfMeasure
 
-       return codes: 200, 400
+       return codes: 200, 400, 500
     """
 
     models.transform_to_python_and_store(request.validated,
@@ -278,7 +278,7 @@ def unit_of_measures_delete(request):
 
        body :
 
-       return codes: 200, 400
+       return codes: 200, 400, 500
     """
 
     models.delete(request.validated, models.Item, "unit_of_measures", request)
@@ -320,7 +320,7 @@ def vpe_types_post(request):
 
        * Sequence of VPEType
 
-       return codes: 200, 400
+       return codes: 200, 400, 500
     """
 
     models.transform_to_python_and_store(request.validated,
@@ -342,7 +342,7 @@ def vpe_types_delete(request):
 
        body :
 
-       return codes: 200, 400
+       return codes: 200, 400, 500
     """
 
     models.delete(request.validated, models.Item, "vpe_types", request)
@@ -429,7 +429,7 @@ def items_post(request):
 
        * Sequence of Item
 
-       return codes: 200, 400
+       return codes: 200, 400, 500
     """
 
     models.transform_to_python_and_store(request.validated,
@@ -457,7 +457,7 @@ def items_put(request):
 
        * Sequence of ItemUpdate
 
-       return codes: 200, 400
+       return codes: 200, 400, 500
     """
 
     #models.transform_to_python_and_update(request.validated,
@@ -479,7 +479,7 @@ def items_delete(request):
 
        body :
 
-       return codes: 200, 400
+       return codes: 200, 400, 500
     """
 
     models.delete(request.validated, models.Item, "items", request)
