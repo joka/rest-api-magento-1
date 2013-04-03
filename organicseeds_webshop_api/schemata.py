@@ -718,7 +718,7 @@ class ItemGroupsList(colander.MappingSchema):
 
 
 class UnitOfMeasure(colander.MappingSchema):
-    """Webshop item data UnitOfMeasure
+    """Webshop Item data UnitOfMeasure
 
        value:
 
@@ -742,7 +742,7 @@ class UnitOfMeasuresList(colander.MappingSchema):
 
 
 class VPEType(colander.MappingSchema):
-    """Webshop item data UnitOfMeasure
+    """Webshop Item data UnitOfMeasure
 
        value:
 
@@ -842,3 +842,51 @@ class Items(colander.SequenceSchema):
 class ItemsList(colander.MappingSchema):
 
     items = Items()
+
+
+class ItemUpdate(BasicNode):
+    """Webshop update Item entity
+
+       The value fields are similar to the Item fields.
+       The __type__ and parent_id fields are not allowed.
+       All other fields exists, but are optional.
+    """
+    id = Identifier(required=True)
+    #__type__ = String()
+    #parent_id = Identifier(default=None, missing=None)
+    order = IntegerGtNull(required=False)
+    shops = Shops(required=False)
+    title = StringTranslation(required=False)
+    shortdescription = StringTranslation(required=False)
+
+    category_ids = IDList(default=[], missing=[], required=False)
+    description = StringTranslation(required=False)
+
+    sku = String(required=False)
+    group = String(validator=OneOf(["saatgut",
+                                    "pflanzgut",
+                                    "sonstiges"]),
+                   required=False)
+    vpe_default = Bool(required=False)
+    vpe_type_id = Identifier(required=False)
+    weight_brutto = Float(required=False)
+    weight_netto = Float(required=False)
+    unit_of_measure_id = Identifier(required=False)
+    price = Price(required=False)
+    tierprices = TierPrices(required=False)
+    tax_class = TaxClass(required=False)
+    quality_id = String(required=False)
+    min_sale_qty = IntegerGtNull(required=False)
+    max_sale_qty = IntegerGtNull(required=False)
+    inventory_status = Integer(validator=OneOf([1,2,3,4,5,6,7,8]),
+                               required=False)
+
+
+class ItemsUpdate(colander.SequenceSchema):
+
+    item_update = ItemUpdate()
+
+
+class ItemsUpdateList(colander.MappingSchema):
+
+    items = ItemsUpdate()

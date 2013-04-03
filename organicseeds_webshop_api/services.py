@@ -439,7 +439,7 @@ def items_post(request):
     return {"status": "succeeded"}
 
 
-@items.put(schema=schemata.ItemsList, accept="text/json",
+@items.put(schema=schemata.ItemsUpdateList, accept="text/json",
             validators=(validate_item_id_does_exists,
                         validate_item_parent_id,
                         validate_item_vpe_type_id,
@@ -455,7 +455,7 @@ def items_put(request):
 
        body :
 
-       * Sequence of Item
+       * Sequence of ItemUpdate
 
        return codes: 200, 400
     """

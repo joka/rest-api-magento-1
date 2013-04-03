@@ -278,6 +278,17 @@ class TestServicesItemsIntegration(IntegrationTestCase):
         search_results = catalog.query(Eq('id', 'itemka32'))[0]
         assert(search_results == 0)
 
+    def test_put(self):
+        from organicseeds_webshop_api.services import items_post
+        from organicseeds_webshop_api.services import items_put
+        from repoze.catalog.query import Eq
+        catalog = self.app_root["catalog"]
+        items = self.testdata
+        self.request.validated = items
+        response = items_post(self.request)
+        itemsupdate = self.testdata
+        #TODO import ipdb; ipdb.set_trace()
+
 
 class TestServicesFunctional(FunctionalTestCase):
 
