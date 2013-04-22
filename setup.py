@@ -16,6 +16,7 @@ requires = [
     'ZODB3',
     'repoze.catalog',
     'waitress',
+    'SOAPpy',
     ]
 test_requires = [
     "webtest",
