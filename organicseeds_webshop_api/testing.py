@@ -1,7 +1,6 @@
 import unittest
 import yaml
 import yaml2json
-import os.path
 from webtest import TestApp
 from pyramid import testing
 from cornice.errors import Errors
@@ -18,7 +17,8 @@ def setup_integration():
     request = testing.DummyRequest()
     request.context = testing.DummyResource()
     request.errors = Errors(request)
-    config = testing.setUp(request=request, settings = {"zodbconn.uri": "memory://"})
+    config = testing.setUp(request=request,
+                           settings={"zodbconn.uri": "memory://"})
     config.include("pyramid_zodbconn")
     config.include(organicseeds_webshop_api.utilities)
     config.include(organicseeds_webshop_api.models)
@@ -29,26 +29,15 @@ def setup_integration():
                 app_root=app_root)
 
 
-
-def setup_functional():
+def get_file(path):
     import organicseeds_webshop_api
-    request = testing.DummyRequest()
-    request.context = testing.DummyResource()
-    config = testing.setUp(request=request, settings = {"zodbconn.uri": "memory://"})
-    config.include("pyramid_zodbconn")
-    config.include(organicseeds_webshop_api.utilities)
-    config.include(organicseeds_webshop_api.models)
-    request.root = organicseeds_webshop_api.root_factory(request)
-    app_root = request.root.app_root
-    return dict(request=request,
-                config=config,
-                app_root=app_root)
+    import os
+    full_path = os.path.join(organicseeds_webshop_api.tests.__path__[0] + path)
+    return open(full_path, "r")
 
 
-def set_testfile(testfile):
-    import organicseeds_webshop_api
-    testfilepath = os.path.join(organicseeds_webshop_api.tests.__path__[0] + testfile)
-    testfile = open(testfilepath, "r")
+def set_testfile(testfilepath):
+    testfile = get_file(testfilepath)
     testdata = yaml.load(testfile)
     return dict(testdata=testdata,
                 testfile=testfile)
@@ -56,7 +45,7 @@ def set_testfile(testfile):
 
 class IntegrationTestCase(unittest.TestCase):
 
-    testdatafilepath =  "/testdata/.empty"
+    testdatafilepath = "/testdata/.empty"
 
     def setUp(self):
         self.__dict__.update(setup_integration())
@@ -73,10 +62,9 @@ class IntegrationTestCase(unittest.TestCase):
         self.request = None
 
 
-
 class FunctionalTestCase(unittest.TestCase):
 
-    testdatafilepath =  "/testdata/.empty"
+    testdatafilepath = "/testdata/.empty"
 
     def setUp(self):
         from organicseeds_webshop_api import main

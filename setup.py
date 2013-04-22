@@ -6,36 +6,33 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
-requires = [
-    'cornice',
-    'pyramid_whoauth', 'mozsvc', 'limone', 'limone_zodb',
-    'transaction',
-    'pyramid_zodbconn',
-    'pyramid_tm',
-    'pyramid_debugtoolbar',
-    'ZODB3',
-    'repoze.catalog',
-    'waitress',
-    'SOAPpy',
-    ]
-test_requires = [
-    "webtest",
-    "pytest",
-    "pytest-cov",
-    "pytest-capturelog",
-    "yaml2json",
-    ]
+requires = ['cornice',
+            'pyramid_whoauth', 'mozsvc', 'limone', 'limone_zodb',
+            'transaction',
+            'pyramid_zodbconn',
+            'pyramid_tm',
+            'pyramid_debugtoolbar',
+            'ZODB3',
+            'repoze.catalog',
+            'waitress',
+            'SOAPpy',
+            ]
+test_requires = ["webtest",
+                 "pytest",
+                 "pytest-cov",
+                 "pytest-capturelog",
+                 "yaml2json",
+                 ]
 
 setup(name='organicseeds_webshop_api',
       version='0.0',
       description='organicseeds_webshop_api',
       long_description=README + '\n\n' + CHANGES,
-      classifiers=[
-        "Programming Language :: Python",
-        "Framework :: Pyramid",
-        "Topic :: Internet :: WWW/HTTP",
-        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
-        ],
+      classifiers=["Programming Language :: Python",
+                   "Framework :: Pyramid",
+                   "Topic :: Internet :: WWW/HTTP",
+                   "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+                   ],
       author='',
       author_email='',
       url='',
@@ -46,8 +43,7 @@ setup(name='organicseeds_webshop_api',
       install_requires=requires,
       tests_require=test_requires,
       test_suite="organicseeds_webshop_api.tests",
-      extras_require=dict(
-        test = test_requires, ),
+      extras_require=dict(test=test_requires, ),
       entry_points="""\
       [paste.app_factory]
       main = organicseeds_webshop_api:main

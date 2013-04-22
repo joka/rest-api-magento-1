@@ -60,6 +60,7 @@ class URL(colander.SchemaNode):
     schema_type = colander.String
     validator = url
 
+
 class RelativeFilePathUnix(colander.SchemaNode):
     """Relative path string, utf-8 encoding
 
@@ -71,7 +72,7 @@ class RelativeFilePathUnix(colander.SchemaNode):
     """
 
     schema_type = colander.String
-    validator=Regex(u'^[a-zA-Z0-9\_\-\.][a-zA-Z0-9_\-/\.]+$')
+    validator = Regex(u'^[a-zA-Z0-9\_\-\.][a-zA-Z0-9_\-/\.]+$')
 
 
 class IntegerGtEqNull(colander.SchemaNode):
@@ -87,6 +88,7 @@ class IntegerGtNull(colander.SchemaNode):
     schema_type = colander.Integer
     validator = Range(min=1)
 
+
 class Identifier(colander.SchemaNode):
     """Alpha/numeric/_  String, encoding utf-8
 
@@ -95,7 +97,7 @@ class Identifier(colander.SchemaNode):
        Example value: bluABC_123
     """
     schema_type = colander.String
-    validator=Regex(u'^[a-zA-Z0-9_]+$')
+    validator = Regex(u'^[a-zA-Z0-9_]+$')
     title = u"dd"
 
 
@@ -117,6 +119,7 @@ class ShopID(colander.SchemaNode):
                        "fr_resell",
                        ])
 
+
 class WebsiteID(colander.SchemaNode):
     """Website Identifier
 
@@ -124,11 +127,10 @@ class WebsiteID(colander.SchemaNode):
     """
 
     schema_type = colander.String
-    validator=OneOf(["ch_website",
-                     "de_website",
-                     "fr_website",
-                    ])
-
+    validator = OneOf(["ch_website",
+                       "de_website",
+                       "fr_website",
+                       ])
 
 
 class CustomerGroup(colander.SchemaNode):
@@ -142,7 +144,7 @@ class CustomerGroup(colander.SchemaNode):
     """
 
     schema_type = colander.Integer
-    validator= OneOf([0, 1, 2, 3])
+    validator = OneOf([0, 1, 2, 3])
 
 
 class TaxClass(colander.SchemaNode):
@@ -175,11 +177,11 @@ class StringTranslation(colander.MappingSchema):
          en : String        # optional
     """
 
-    default = String( missing=u"", default=u"", required=False )
-    de = String( missing=u"", default=u"", required=False)
-    fr = String( missing=u"", default=u"", required=False)
-    it = String( missing=u"", default=u"", required=False)
-    en = String( missing=u"", default=u"", required=False)
+    default = String(missing=u"", default=u"", required=False)
+    de = String(missing=u"", default=u"", required=False)
+    fr = String(missing=u"", default=u"", required=False)
+    it = String(missing=u"", default=u"", required=False)
+    en = String(missing=u"", default=u"", required=False)
 
 
 class IDList(colander.SequenceSchema):
@@ -368,7 +370,6 @@ class BoolAttribute(BaseAttribute):
          value : Bool
     """
 
-
     value = Bool()
 
 
@@ -392,6 +393,7 @@ class WeekmatrixAttribute(BaseAttribute):
     """
 
     value = Weekmatrix
+
 
 class WeekmatrixAttributes(colander.SequenceSchema):
 
@@ -459,7 +461,8 @@ class Shop(colander.TupleSchema):
     """
 
     shopeid = ShopID()
-    activated = colander.SchemaNode(colander.Bool(), default=False, missing=False)
+    activated = colander.SchemaNode(colander.Bool(), default=False,
+                                    missing=False)
 
 
 class Shops(colander.SequenceSchema):
@@ -540,7 +543,9 @@ class BasicNode(colander.MappingSchema):
 
            __type__ : String
 
-           parent_id : Identifier # reference to category / item_group for items; to category for categories; to categories for item_groups
+           parent_id : Identifier # reference to category/item_group for items;
+                                  # to category for categories;
+                                  # to categories for item_groups
 
            order : IntegerGtNull
 
@@ -570,7 +575,7 @@ class Synonym(colander.TupleSchema):
 
 class Synonyms(colander.SequenceSchema):
 
-    synonym=Synonym()
+    synonym = Synonym()
 
 
 class SynonymsTranslation(colander.MappingSchema):
@@ -626,9 +631,11 @@ class Category(BasicNode):
                                        "category"]))
     synonyms = SynonymsTranslation(default={}, missing={}, required=False)
     text_attributes = TextAttributes(default=[], missing=[], required=False)
-    measure_attributes = MeasureAttributes(default=[], missing=[], required=False)
+    measure_attributes = MeasureAttributes(default=[], missing=[],
+                                           required=False)
     bool_attributes = BoolAttributes(default=[], missing=[], required=False)
-    weekmatrix_attributes = WeekmatrixAttributes(default=[], missing=[], required=False)
+    weekmatrix_attributes = WeekmatrixAttributes(default=[], missing=[],
+                                                 required=False)
     file_attributes = FileAttributes(default=[], missing=[], required=False)
     link_attributes = LinkAttributes(default=[], missing=[], required=False)
 
@@ -692,7 +699,6 @@ class ItemGroup(Category):
 
          qualities : sequence of Qualtity
     """
-
 
     __type__ = String(validator=OneOf(["sortendetail"]))
 
@@ -830,8 +836,9 @@ class Item(BasicNode):
     tax_class = TaxClass()
     quality_id = String()
     min_sale_qty = IntegerGtNull(default=1, missing=1, required=False)
-    max_sale_qty = IntegerGtNull(default=1000000, missing=1000000, required=False)
-    inventory_status = Integer(validator=OneOf([1,2,3,4,5,6,7,8]))
+    max_sale_qty = IntegerGtNull(default=1000000, missing=1000000,
+                                 required=False)
+    inventory_status = Integer(validator=OneOf([1, 2, 3, 4, 5, 6, 7, 8]))
 
 
 class Items(colander.SequenceSchema):
@@ -878,7 +885,7 @@ class ItemUpdate(BasicNode):
     quality_id = String(required=False)
     min_sale_qty = IntegerGtNull(required=False)
     max_sale_qty = IntegerGtNull(required=False)
-    inventory_status = Integer(validator=OneOf([1,2,3,4,5,6,7,8]),
+    inventory_status = Integer(validator=OneOf([1, 2, 3, 4, 5, 6, 7, 8]),
                                required=False)
 
 

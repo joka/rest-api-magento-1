@@ -3,14 +3,9 @@ from persistent.mapping import PersistentMapping
 from BTrees.OOBTree import OOBTree
 import transaction
 from pyramid.security import Everyone, Authenticated, Allow
-import limone_zodb
 from repoze.catalog.indexes.field import CatalogFieldIndex
-from repoze.catalog.indexes.keyword import CatalogKeywordIndex
 from repoze.catalog.catalog import Catalog
 from repoze.catalog.document import DocumentMap
-
-from organicseeds_webshop_api import schemata
-from organicseeds_webshop_api.utilities import IContentRegistryUtility
 
 
 class Root(object):
@@ -39,13 +34,13 @@ class Data(PersistentMapping):
     def from_appstruct(self, appstruct):
         """"
         :param appstruct: Mapping to updated object data
-        :type appstruct: Dictionary, keys are string, (colander schema appsctruct)
+        :type appstruct: Dictionary, keys are string, (colander appsctruct)
         """
         self.update(appstruct)
 
     def to_appstruct(self, appstruct):
         """"
-        :rtype appstruct: Dictionary, keys are string, (colander schema appstruct)
+        :rtype appstruct: Dictionary, keys are string, (colander appstruct)
         """
         appstruct = deepcopy(self.data)
         return appstruct
@@ -124,7 +119,8 @@ def bootstrap(zodb_root, app_root_id, request):
         app_root["catalog"]['__type__'] = CatalogFieldIndex(get___type__)
         app_root["catalog"]['group'] = CatalogFieldIndex(get_group)
         app_root["catalog"]['vpe_type_id'] = CatalogFieldIndex(get_vpe_type_id)
-        app_root["catalog"]['unit_of_measure_id'] = CatalogFieldIndex(get_unit_of_measure_id)
+        app_root["catalog"]['unit_of_measure_id'] = \
+            CatalogFieldIndex(get_unit_of_measure_id)
         app_root["catalog"]['quality_id'] = CatalogFieldIndex(get_quality_id)
         app_root["catalog"]['vpe_default'] = CatalogFieldIndex(get_vpe_default)
         app_root["document_map"] = DocumentMap()
