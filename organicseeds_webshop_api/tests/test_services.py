@@ -43,7 +43,7 @@ class TestServicesCategoriesIntegration(IntegrationTestCase):
         from organicseeds_webshop_api.services import categories_post
         self.testdata["categories"][1]["parent_id"] = 1000
         self.request.validated = self.testdata
-        response = categories_post(self.request)
+        categories_post(self.request)
         root = self.app_root["categories"][1000]
         child = self.app_root["categories"][1001]
         assert root.__parent__ is None
@@ -53,7 +53,7 @@ class TestServicesCategoriesIntegration(IntegrationTestCase):
         from organicseeds_webshop_api.services import categories_post
         self.testdata["categories"][1]["parent_id"] = "unknown"
         self.request.validated = self.testdata
-        response = categories_post(self.request)
+        categories_post(self.request)
         root = self.app_root["categories"][1000]
         child = self.app_root["categories"][1001]
         assert root.__parent__ is None
@@ -181,7 +181,7 @@ class TestServicesItemsIntegration(IntegrationTestCase):
         parent = object()
         self.app_root["item_groups"]["karotten"] = parent
         self.request.validated = self.testdata
-        response = items_post(self.request)
+        items_post(self.request)
         item = self.app_root["items"]["itemka32"]
         assert item.__parent__ is parent
 
@@ -190,7 +190,7 @@ class TestServicesItemsIntegration(IntegrationTestCase):
         self.testdata["items"][0]["parent_id"] = "unknown"
         self.testdata["items"][0]["id"] = "itemka32"
         self.request.validated = self.testdata
-        response = items_post(self.request)
+        items_post(self.request)
         item = self.app_root["items"]["itemka32"]
         assert item.__parent__ is None
 
