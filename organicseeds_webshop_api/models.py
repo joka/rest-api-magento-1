@@ -76,7 +76,7 @@ def get_parent_id(obj, default):
     return obj.get("parent_id", default)
 
 
-def get___type__(obj, default):
+def get__type__(obj, default):
     return obj.get("__type__", default)
 
 
@@ -116,7 +116,7 @@ def bootstrap(zodb_root, app_root_id, request):
         app_root["catalog"] = Catalog()
         app_root["catalog"]['parent_id'] = CatalogFieldIndex(get_parent_id)
         app_root["catalog"]['id'] = CatalogFieldIndex(get_id)
-        app_root["catalog"]['__type__'] = CatalogFieldIndex(get___type__)
+        app_root["catalog"]['__type__'] = CatalogFieldIndex(get__type__)
         app_root["catalog"]['group'] = CatalogFieldIndex(get_group)
         app_root["catalog"]['vpe_type_id'] = CatalogFieldIndex(get_vpe_type_id)
         app_root["catalog"]['unit_of_measure_id'] = \
