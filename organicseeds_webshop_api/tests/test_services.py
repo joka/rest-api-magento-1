@@ -287,7 +287,6 @@ class TestServicesItemsIntegration(IntegrationTestCase):
         self.request.validated = items
         response = items_post(self.request)
         itemsupdate = self.testdata
-        #TODO import ipdb; ipdb.set_trace()
 
 
 class TestServicesFunctional(FunctionalTestCase):

@@ -25,6 +25,8 @@ def includeme(config):
 
 # pyramid application main
 def main(global_config, **settings):
+    if not "zodbconn.uri" in settings:
+        settings.update({"zodbconn.uri": "memory://"})
     config = Configurator(settings=settings)
     config.set_root_factory(root_factory)
     config.include("pyramid_zodbconn")
