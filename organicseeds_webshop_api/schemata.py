@@ -161,6 +161,26 @@ class TaxClass(colander.SchemaNode):
     validator = OneOf([0, 2, 4, 5])
 
 
+class ItemTypeGroup(colander.SchemaNode):
+    """Item Type Group
+
+       Values: saatgut | pflanzgut | sonstiges
+    """
+    schema_type = colander.String
+    validator = OneOf(["saatgut",
+                       "pflanzgut",
+                       "sonstiges"])
+
+
+class InventoryStatus(colander.SchemaNode):
+    """Iventory status, Integer
+
+       values: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+    """
+    schema_type = colander.Integer
+    validator = OneOf([1, 2, 3, 4, 5, 6, 7, 8])
+
+
 class StringTranslation(colander.MappingSchema):
     """Translated String
 
@@ -818,14 +838,10 @@ class Item(BasicNode):
 
     __type__ = String(validator=OneOf(["sortendetail_vpe",
                                        "default_vpe"]))
-
     category_ids = IDList(default=[], missing=[], required=False)
     description = StringTranslation()
-
     sku = String()
-    group = String(validator=OneOf(["saatgut",
-                                    "pflanzgut",
-                                    "sonstiges"]))
+    group = ItemTypeGroup()
     vpe_default = Bool()
     vpe_type_id = Identifier()
     weight_brutto = Float()
@@ -838,7 +854,7 @@ class Item(BasicNode):
     min_sale_qty = IntegerGtNull(default=1, missing=1, required=False)
     max_sale_qty = IntegerGtNull(default=1000000, missing=1000000,
                                  required=False)
-    inventory_status = Integer(validator=OneOf([1, 2, 3, 4, 5, 6, 7, 8]))
+    inventory_status = InventoryStatus()
 
 
 class Items(colander.SequenceSchema):
@@ -851,42 +867,39 @@ class ItemsList(colander.MappingSchema):
     items = Items()
 
 
-class ItemUpdate(BasicNode):
+class ItemUpdate(colander.Schema):
     """Webshop update Item entity
 
        The value fields are similar to the Item fields.
-       The __type__ and parent_id fields are not allowed.
+       The __type__, parent_id, vpe_type_id, unit_of_measure_id,
+       fields are not allowed.
        All other fields exists, but are optional.
     """
-    id = Identifier(required=True)
-    #__type__ = String()
-    #parent_id = Identifier(default=None, missing=None)
-    order = IntegerGtNull(required=False)
-    shops = Shops(required=False)
-    title = StringTranslation(required=False)
-    shortdescription = StringTranslation(required=False)
+    id = Identifier()
+    #__type__ = String(mising=u"", required=False)
+    #parent_id = Identifier(missing=u"", required=False)
+    order = IntegerGtNull(missing=None, required=False)
+    shops = Shops(missing=None, required=False)
+    title = StringTranslation(missing=None, required=False)
+    shortdescription = StringTranslation(missing=None, required=False)
 
-    category_ids = IDList(default=[], missing=[], required=False)
-    description = StringTranslation(required=False)
+    category_ids = IDList(missing=None, required=False)
+    description = StringTranslation(missing=None, required=False)
 
-    sku = String(required=False)
-    group = String(validator=OneOf(["saatgut",
-                                    "pflanzgut",
-                                    "sonstiges"]),
-                   required=False)
-    vpe_default = Bool(required=False)
-    vpe_type_id = Identifier(required=False)
-    weight_brutto = Float(required=False)
-    weight_netto = Float(required=False)
-    unit_of_measure_id = Identifier(required=False)
-    price = Price(required=False)
-    tierprices = TierPrices(required=False)
-    tax_class = TaxClass(required=False)
-    quality_id = String(required=False)
-    min_sale_qty = IntegerGtNull(required=False)
-    max_sale_qty = IntegerGtNull(required=False)
-    inventory_status = Integer(validator=OneOf([1, 2, 3, 4, 5, 6, 7, 8]),
-                               required=False)
+    sku = String(missing=None, required=False)
+    group = ItemTypeGroup(missing=None, required=False)
+    vpe_default = Bool(missing=None, required=False)
+    #vpe_type_id = Identifier(missing=None, required=False)
+    weight_brutto = Float(missing=None, required=False)
+    weight_netto = Float(missing=None, required=False)
+    #unit_of_measure_id = Identifier(missing=None, required=False)
+    price = Price(missing=None, required=False)
+    tierprices = TierPrices(missing=None, required=False)
+    tax_class = TaxClass(missing=None, required=False)
+    quality_id = String(missing=None, required=False)
+    min_sale_qty = IntegerGtNull(missing=None, required=False)
+    max_sale_qty = IntegerGtNull(missing=None, required=False)
+    inventory_status = InventoryStatus(missing=None, required=False)
 
 
 class ItemsUpdate(colander.SequenceSchema):

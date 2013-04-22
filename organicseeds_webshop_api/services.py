@@ -281,10 +281,7 @@ def items_post(request):
 
 
 @items.put(schema=schemata.ItemsUpdateList, accept="text/json",
-           validators=(validators.validate_item_id_does_exists,
-                       validators.validate_item_parent_id,
-                       validators.validate_item_vpe_type_id,
-                       validators.validate_item_unit_of_measure_id))
+           validators=(validators.validate_item_id_does_exists))
 def items_put(request):
     """Update existing item entities
 
@@ -300,7 +297,14 @@ def items_put(request):
 
        return codes: 200, 400, 500
     """
-
+    # filter non existing fields in data
+    for item in request.validated["items"]:
+        for i, v in item.items():
+            if v is None:
+                del(item[i])
+    # store data
+    models.transform_to_python_and_store(request.validated, models.Item,
+                                         "items", request)
     #models.transform_to_python_and_update(request.validated,
                                          #models.Item, "items", request)
     #TODO update parent links

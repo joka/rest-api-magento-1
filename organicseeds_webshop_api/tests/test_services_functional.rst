@@ -57,6 +57,14 @@ Now we cann post items::
     <200 OK application/json...
 
 
+Update Items:
+-------------
+
+We can update existing items, exept the parent_id, __type__, vpe_type_id and unit_of_measure_id fields::
+
+    >>> app.put_json('/items', {"items": [{"id": "itemka32", 'default': u'New Description' }]})
+    <200 OK application/json body=...
+
 Deleting Items, VPE Types and Unit Of Measures
 ----------------------------------------------
 
@@ -99,3 +107,7 @@ then the categories::
 
     >>> app.delete_json('/categories', {})
     <200 OK application/json...
+
+
+TODO: Deleting items with referenced orders possible in Magento?
+      Out of sync webhop_ap/id von entities in Magento?

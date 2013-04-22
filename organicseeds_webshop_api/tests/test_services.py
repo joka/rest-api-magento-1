@@ -39,6 +39,26 @@ class TestServicesCategoriesIntegration(IntegrationTestCase):
         serach2 = catalog.query(Eq('__type__', 'sortenuebersicht'))[0]
         assert(search1 + serach2 == 0)
 
+    def test_categories_post_parent(self):
+        from organicseeds_webshop_api.services import categories_post
+        self.testdata["categories"][1]["parent_id"] = 1000
+        self.request.validated = self.testdata
+        response = categories_post(self.request)
+        root = self.app_root["categories"][1000]
+        child = self.app_root["categories"][1001]
+        assert root.__parent__ is None
+        assert child.__parent__ is root
+
+    def test_categories_post_parent_missing(self):
+        from organicseeds_webshop_api.services import categories_post
+        self.testdata["categories"][1]["parent_id"] = "unknown"
+        self.request.validated = self.testdata
+        response = categories_post(self.request)
+        root = self.app_root["categories"][1000]
+        child = self.app_root["categories"][1001]
+        assert root.__parent__ is None
+        assert child.__parent__ is None
+
 
 class TestServicesItemGroupsIntegration(IntegrationTestCase):
 
@@ -154,12 +174,38 @@ class TestServicesItemsIntegration(IntegrationTestCase):
         search_results = catalog.query(Eq('id', 'itemka32'))[0]
         assert(search_results == 0)
 
+    def test_items_post_parent(self):
+        from organicseeds_webshop_api.services import items_post
+        self.testdata["items"][0]["parent_id"] = "karotten"
+        self.testdata["items"][0]["id"] = "itemka32"
+        parent = object()
+        self.app_root["item_groups"]["karotten"] = parent
+        self.request.validated = self.testdata
+        response = items_post(self.request)
+        item = self.app_root["items"]["itemka32"]
+        assert item.__parent__ is parent
+
+    def test_items_post_parent_missing(self):
+        from organicseeds_webshop_api.services import items_post
+        self.testdata["items"][0]["parent_id"] = "unknown"
+        self.testdata["items"][0]["id"] = "itemka32"
+        self.request.validated = self.testdata
+        response = items_post(self.request)
+        item = self.app_root["items"]["itemka32"]
+        assert item.__parent__ is None
+
     def test_items_put(self):
         from organicseeds_webshop_api.services import items_post
         from organicseeds_webshop_api.services import items_put
-        from repoze.catalog.query import Eq
-        catalog = self.app_root["catalog"]
         items = self.testdata
         self.request.validated = items
-        response = items_post(self.request)
-        itemsupdate = self.testdata
+        items_post(self.request)
+
+        itemsupdate = {"items": [{"id": "itemka32",
+                       "description": {'default': u'New Description'},
+                       "order": None}]}
+        self.request.validated = itemsupdate
+        items_put(self.request)
+        item = self.app_root["items"].values()[0]
+        assert item["description"] == {'default': u'New Description'}
+        assert item["order"] == 3
