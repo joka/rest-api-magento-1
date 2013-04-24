@@ -167,7 +167,6 @@ def transform_to_python_and_store(data, itemtype, data_key, request):
             if data_key in ["item_groups", "categories"]:
                 category_parent = app_root["categories"].get(parent_id, None)
                 obj.__parent__ = category_parent
-    transaction.get().commit()
 
 
 def delete(data, itemtype, data_key, request):
@@ -182,4 +181,3 @@ def delete(data, itemtype, data_key, request):
         catalog.unindex_doc(catalog_id)
     # delete objects
     folder.clear()
-    transaction.get().commit()
