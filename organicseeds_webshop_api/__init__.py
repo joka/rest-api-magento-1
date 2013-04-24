@@ -19,8 +19,6 @@ def root_factory(request):
 def includeme(config):
     config.include("cornice")
     config.scan("organicseeds_webshop_api.services")
-    config.include(organicseeds_webshop_api.utilities)
-    config.include(organicseeds_webshop_api.models)
 
 
 # pyramid application main

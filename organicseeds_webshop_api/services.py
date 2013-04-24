@@ -8,6 +8,7 @@ from cornice import Service
 from organicseeds_webshop_api import schemata
 from organicseeds_webshop_api import models
 from organicseeds_webshop_api import validators
+from organicseeds_webshop_api import utils
 
 
 #######################
@@ -39,7 +40,7 @@ def categories_post(request):
        return codes: 200, 400, 500
     """
 
-    models.transform_to_python_and_store(request.validated, models.Category,
+    utils.transform_to_python_and_store(request.validated, models.Category,
                                          "categories", request)
     #TODO update parent links
     #TODO update category children,
@@ -64,7 +65,7 @@ def categories_delete(request):
        return codes: 200, 400, 500
     """
 
-    models.delete(request.validated, models.Category, "categories", request)
+    utils.delete(request.validated, models.Category, "categories", request)
     # TODO raise errors
     return {"status": "succeeded"}
 
@@ -100,7 +101,7 @@ def item_groups_post(request):
        return codes: 200, 400, 500
     """
 
-    models.transform_to_python_and_store(request.validated, models.ItemGroup,
+    utils.transform_to_python_and_store(request.validated, models.ItemGroup,
                                          "item_groups", request)
     #TODO update parent links
     #TODO update category children,
@@ -122,7 +123,7 @@ def item_groups_delete(request):
        return codes: 200, 400, 500
     """
 
-    models.delete(request.validated, models.Item, "item_groups", request)
+    utils.delete(request.validated, models.Item, "item_groups", request)
     return {"status": "succeeded"}
 
 
@@ -155,7 +156,7 @@ def unit_of_measures_post(request):
        return codes: 200, 400, 500
     """
 
-    models.transform_to_python_and_store(request.validated,
+    utils.transform_to_python_and_store(request.validated,
                                          models.EntityData,
                                          "unit_of_measures", request)
     return {"status": "succeeded"}
@@ -178,7 +179,7 @@ def unit_of_measures_delete(request):
        return codes: 200, 400, 500
     """
 
-    models.delete(request.validated, models.Item, "unit_of_measures", request)
+    utils.delete(request.validated, models.Item, "unit_of_measures", request)
     # TODO raise errors
     return {"status": "succeeded"}
 
@@ -212,7 +213,7 @@ def vpe_types_post(request):
        return codes: 200, 400, 500
     """
 
-    models.transform_to_python_and_store(request.validated,
+    utils.transform_to_python_and_store(request.validated,
                                          models.EntityData, "vpe_types",
                                          request)
     return {"status": "succeeded"}
@@ -236,7 +237,7 @@ def vpe_types_delete(request):
        return codes: 200, 400, 500
     """
 
-    models.delete(request.validated, models.Item, "vpe_types", request)
+    utils.delete(request.validated, models.Item, "vpe_types", request)
     # TODO raise errors
     return {"status": "succeeded"}
 
@@ -273,7 +274,7 @@ def items_post(request):
        return codes: 200, 400, 500
     """
 
-    models.transform_to_python_and_store(request.validated,
+    utils.transform_to_python_and_store(request.validated,
                                          models.Item, "items", request)
     #TODO update parent links
     #TODO update item_group/category children
@@ -303,7 +304,7 @@ def items_put(request):
             if v is None:
                 del(item[i])
     # store data
-    models.transform_to_python_and_store(request.validated, models.Item,
+    utils.transform_to_python_and_store(request.validated, models.Item,
                                          "items", request)
     #models.transform_to_python_and_update(request.validated,
                                          #models.Item, "items", request)
@@ -327,7 +328,7 @@ def items_delete(request):
        return codes: 200, 400, 500
     """
 
-    models.delete(request.validated, models.Item, "items", request)
+    utils.delete(request.validated, models.Item, "items", request)
     #TODO update item_group/category children
     return {"status": "succeeded"}
 

@@ -20,8 +20,6 @@ def setup_integration():
     config = testing.setUp(request=request,
                            settings={"zodbconn.uri": "memory://"})
     config.include("pyramid_zodbconn")
-    config.include(organicseeds_webshop_api.utilities)
-    config.include(organicseeds_webshop_api.models)
     request.root = organicseeds_webshop_api.root_factory(request)
     app_root = request.root.app_root
     return dict(request=request,
