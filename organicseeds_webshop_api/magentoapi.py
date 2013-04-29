@@ -102,14 +102,8 @@ class MagentoAPI(magento.api.API):
         return [bool(x) for x in self.multi_call(calls)]
 
     def delete_all(self):
-        if self.magento_method:
-            webshop_entities = self.single_call(self.magento_method + "list",
-                                                [{'type':{'ilike': self.magento_type}}])
-            webshop_ids = [x["product_id"] for x in webshop_entities]
-            calls = []
-            for webshop_id in webshop_ids:
-                calls.append([self.magento_method + "delete", [webshop_id]])
-            self.multi_call(calls)
+        """to be implemented in subclass"""
+        pass
 
     def create(self, appstructs):
         calls = []
@@ -164,6 +158,16 @@ class Items(MagentoAPI):
     entity_data_key = u"items"
     magento_type = u"simple"
     magento_method = u"catalog_product."
+
+    def delete_all(self):
+        if self.magento_method:
+            webshop_entities = self.single_call(self.magento_method + "list",
+                                                [{'type':{'ilike': self.magento_type}}])
+            webshop_ids = [x["product_id"] for x in webshop_entities]
+            calls = []
+            for webshop_id in webshop_ids:
+                calls.append([self.magento_method + "delete", [webshop_id]])
+            self.multi_call(calls)
 
     def _create_call(self, appstruct):
         call = [self.magento_method + 'create',
