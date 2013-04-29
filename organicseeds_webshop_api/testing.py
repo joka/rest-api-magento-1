@@ -59,6 +59,7 @@ class IntegrationTestCase(unittest.TestCase):
         self.request.root.app_root["unit_of_measures"].clear()
         self.request = None
 
+
 class MagentoIntegrationTestCase(IntegrationTestCase):
 
     magento_proxy_class = None

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import copy
 import pytest
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
