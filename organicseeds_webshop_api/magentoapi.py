@@ -103,7 +103,8 @@ class MagentoAPI(magento.api.API):
 
     def delete_all(self):
         if self.magento_method:
-            webshop_entities = self.single_call(self.magento_method + "list")
+            webshop_entities = self.single_call(self.magento_method + "list",
+                                                [{'type':{'ilike': self.magento_type}}])
             webshop_ids = [x["product_id"] for x in webshop_entities]
             calls = []
             for webshop_id in webshop_ids:
