@@ -60,6 +60,7 @@ class Entity(Data):
     """Webshop entity"""
 
     __parent__ = None
+    webshop_id = 0
 
 
 class Category(Entity):

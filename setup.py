@@ -15,7 +15,8 @@ requires = ['cornice',
             'ZODB3',
             'repoze.catalog',
             'waitress',
-            'SOAPpy',
+            'unidecode',
+            'magento'
             ]
 test_requires = ["webtest",
                  "pytest",
@@ -25,7 +26,7 @@ test_requires = ["webtest",
                  ]
 
 setup(name='organicseeds_webshop_api',
-      version='0.0',
+      version='0.2',
       description='organicseeds_webshop_api',
       long_description=README + '\n\n' + CHANGES,
       classifiers=["Programming Language :: Python",

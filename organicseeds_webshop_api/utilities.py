@@ -1,18 +1,18 @@
-from zope.interface import (
-    implements,
-    Interface,
-)
-import limone
+#from zope.interface import (
+    #implements,
+    #Interface,
+#)
+#import limone
 
 
-def includeme(config):
-    config.registry.registerUtility(ContentRegistryUtility())
+#def includeme(config):
+    #config.registry.registerUtility(ContentRegistryUtility())
 
 
-class IContentRegistryUtility(Interface):
-    """Singleton to register limone content types"""
+#class IContentRegistryUtility(Interface):
+    #"""Singleton to register limone content types"""
 
 
-class ContentRegistryUtility(limone.Registry):
+#class ContentRegistryUtility(limone.Registry):
 
-    implements(IContentRegistryUtility)
+    #implements(IContentRegistryUtility)

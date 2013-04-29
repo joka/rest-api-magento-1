@@ -1,4 +1,11 @@
-0.0
+0.2
+---
+
+- Update items: you cannot update the sku field anymore (we can readd this feature
+  later)
+
+
+0.1
 ---
 
 -  Initial version

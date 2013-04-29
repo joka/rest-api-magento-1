@@ -21,7 +21,7 @@ items:
 
     # Item fieds
     description: # StringTranslation
-        default: Ausführliche Beschreibung
+        default: Ausfuehrliche Beschreibung
     #category_ids :   # sequence of reference # optional
 
     sku: itemka32 # Identifier (Artikelnummer)

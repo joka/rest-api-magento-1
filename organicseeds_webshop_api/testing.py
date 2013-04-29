@@ -59,6 +59,26 @@ class IntegrationTestCase(unittest.TestCase):
         self.request.root.app_root["unit_of_measures"].clear()
         self.request = None
 
+class MagentoIntegrationTestCase(IntegrationTestCase):
+
+    magento_proxy_class = None
+    magento_proxy = None
+
+    def setUp(self):
+        super(MagentoIntegrationTestCase, self).setUp()
+        magento_proxy = self.magento_proxy_class(self.request)
+        magento_proxy.__enter__()
+        self.magento_proxy = magento_proxy
+
+    def tearDown(self):
+        from xmlrpclib import Fault
+        try:
+            self.magento_proxy.delete_all()
+        except Fault:
+            pass
+        self.magento_proxy.__exit__(None, None, None)
+        super(MagentoIntegrationTestCase, self).tearDown()
+
 
 class FunctionalTestCase(unittest.TestCase):
 

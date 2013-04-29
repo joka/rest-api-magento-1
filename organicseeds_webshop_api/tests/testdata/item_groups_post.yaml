@@ -14,7 +14,7 @@ item_groups:
       default: Aktuelle Aussaten 
       fr: actuelle 
     shortdescription:  
-      default: Karotten, Ruebli, Möhren 
+      default: Karotten, Ruebli, Moehren 
       fr: carotte 
     
     # Category fields
@@ -64,7 +64,7 @@ item_groups:
         -
           id: freuhblueher
           title: 
-            default: Frühblüher
+            default: Fruehblueher
           order: 4
           group: attribute_group1 
           value: True # Bool
@@ -100,7 +100,7 @@ item_groups:
     category_ids :   # sequence of reference  # optional
         - 1003        
     description:      # StringTranslation
-      default: Ausführliche Beschreibung 
+      default: Ausfuehrliche Beschreibung 
     certificates:
       - psr  # Identifier
       - bioverita 

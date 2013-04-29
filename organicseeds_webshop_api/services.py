@@ -41,7 +41,7 @@ def categories_post(request):
     """
 
     utils.transform_to_python_and_store(request.validated, models.Category,
-                                         "categories", request)
+                                        "categories", request)
     #TODO update parent links
     #TODO update category children,
     return {"status": "succeeded"}
@@ -102,7 +102,7 @@ def item_groups_post(request):
     """
 
     utils.transform_to_python_and_store(request.validated, models.ItemGroup,
-                                         "item_groups", request)
+                                        "item_groups", request)
     #TODO update parent links
     #TODO update category children,
     return {"status": "succeeded"}
@@ -157,8 +157,8 @@ def unit_of_measures_post(request):
     """
 
     utils.transform_to_python_and_store(request.validated,
-                                         models.EntityData,
-                                         "unit_of_measures", request)
+                                        models.EntityData,
+                                        "unit_of_measures", request)
     return {"status": "succeeded"}
 
 
@@ -214,8 +214,8 @@ def vpe_types_post(request):
     """
 
     utils.transform_to_python_and_store(request.validated,
-                                         models.EntityData, "vpe_types",
-                                         request)
+                                        models.EntityData, "vpe_types",
+                                        request)
     return {"status": "succeeded"}
 
 
@@ -275,7 +275,7 @@ def items_post(request):
     """
 
     utils.transform_to_python_and_store(request.validated,
-                                         models.Item, "items", request)
+                                        models.Item, "items", request)
     #TODO update parent links
     #TODO update item_group/category children
     return {"status": "succeeded"}
@@ -305,7 +305,7 @@ def items_put(request):
                 del(item[i])
     # store data
     utils.transform_to_python_and_store(request.validated, models.Item,
-                                         "items", request)
+                                        "items", request)
     #models.transform_to_python_and_update(request.validated,
                                          #models.Item, "items", request)
     #TODO update parent links
