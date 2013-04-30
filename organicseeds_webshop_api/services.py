@@ -40,10 +40,8 @@ def categories_post(request):
        return codes: 200, 400, 500
     """
 
-    utils.transform_to_python_and_store(request.validated, models.Category,
-                                        "categories", request)
-    #TODO update parent links
-    #TODO update category children,
+    utils.store(request.validated["categories"], models.Category,
+                "categories", request)
     return {"status": "succeeded"}
 
 
@@ -65,8 +63,7 @@ def categories_delete(request):
        return codes: 200, 400, 500
     """
 
-    utils.delete(request.validated, models.Category, "categories", request)
-    # TODO raise errors
+    utils.delete(request.validated["categories"], "categories", request)
     return {"status": "succeeded"}
 
 
@@ -101,10 +98,8 @@ def item_groups_post(request):
        return codes: 200, 400, 500
     """
 
-    utils.transform_to_python_and_store(request.validated, models.ItemGroup,
-                                        "item_groups", request)
-    #TODO update parent links
-    #TODO update category children,
+    utils.store(request.validated["item_groups"], models.ItemGroup,
+                "item_groups", request)
     return {"status": "succeeded"}
 
 
@@ -123,7 +118,7 @@ def item_groups_delete(request):
        return codes: 200, 400, 500
     """
 
-    utils.delete(request.validated, models.Item, "item_groups", request)
+    utils.delete(request.validated["item_groups"], "item_groups", request)
     return {"status": "succeeded"}
 
 
@@ -156,9 +151,8 @@ def unit_of_measures_post(request):
        return codes: 200, 400, 500
     """
 
-    utils.transform_to_python_and_store(request.validated,
-                                        models.EntityData,
-                                        "unit_of_measures", request)
+    utils.store(request.validated["unit_of_measures"], models.EntityData,
+                "unit_of_measures", request)
     return {"status": "succeeded"}
 
 
@@ -179,8 +173,8 @@ def unit_of_measures_delete(request):
        return codes: 200, 400, 500
     """
 
-    utils.delete(request.validated, models.Item, "unit_of_measures", request)
-    # TODO raise errors
+    utils.delete(request.validated["unit_of_measures"],
+                 "unit_of_measures", request)
     return {"status": "succeeded"}
 
 
@@ -213,9 +207,8 @@ def vpe_types_post(request):
        return codes: 200, 400, 500
     """
 
-    utils.transform_to_python_and_store(request.validated,
-                                        models.EntityData, "vpe_types",
-                                        request)
+    utils.store(request.validated["vpe_types"], models.EntityData,
+                "vpe_types", request)
     return {"status": "succeeded"}
 
 
@@ -237,8 +230,7 @@ def vpe_types_delete(request):
        return codes: 200, 400, 500
     """
 
-    utils.delete(request.validated, models.Item, "vpe_types", request)
-    # TODO raise errors
+    utils.delete(request.validated["vpe_types"], "vpe_types", request)
     return {"status": "succeeded"}
 
 
@@ -274,8 +266,8 @@ def items_post(request):
        return codes: 200, 400, 500
     """
 
-    utils.transform_to_python_and_store(request.validated,
-                                        models.Item, "items", request)
+    utils.store(request.validated["items"], models.Item,
+                "items", request)
     #TODO update parent links
     #TODO update item_group/category children
     return {"status": "succeeded"}
@@ -298,18 +290,14 @@ def items_put(request):
 
        return codes: 200, 400, 500
     """
-    # filter non existing fields in data
+    # filter non existing fields in
     for item in request.validated["items"]:
         for i, v in item.items():
             if v is None:
                 del(item[i])
-    # store data
-    utils.transform_to_python_and_store(request.validated, models.Item,
-                                        "items", request)
-    #models.transform_to_python_and_update(request.validated,
-                                         #models.Item, "items", request)
-    #TODO update parent links
-    #TODO update item_group/category children
+    # store
+    utils.store(request.validated["items"], models.Item,
+                "items", request)
     return {"status": "succeeded"}
 
 
@@ -328,14 +316,5 @@ def items_delete(request):
        return codes: 200, 400, 500
     """
 
-    utils.delete(request.validated, models.Item, "items", request)
-    #TODO update item_group/category children
+    utils.delete(request.validated["items"], "items", request)
     return {"status": "succeeded"}
-
-
-#def find_element(path, context):
-    #subpaths = path.split("/")
-    #ob = context
-    #for subpath in subpaths:
-        #ob = ob[subpath]
-    #return ob

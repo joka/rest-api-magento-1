@@ -4,12 +4,11 @@
 #####################################
 
 
-def transform_to_python_and_store(data, itemtype, data_key, request):
+def store(appstructs, itemtype, data_key, request):
     app_root = request.root.app_root
     folder = app_root[data_key]
     catalog = app_root["catalog"]
     document_map = app_root["document_map"]
-    appstructs = data[data_key]
     for appstruct in appstructs:
         obj_id = appstruct["id"]
         obj = None
@@ -39,7 +38,22 @@ def transform_to_python_and_store(data, itemtype, data_key, request):
                 obj.__parent__ = category_parent
 
 
-def delete(data, itemtype, data_key, request):
+def delete(appstructs, data_key, request):
+    app_root = request.root.app_root
+    folder = app_root[data_key]
+    catalog = app_root["catalog"]
+    document_map = app_root["document_map"]
+    for i in [a["id"] for a in appstructs]:
+        # uncatalog
+        obj_path = "%s/%s" % (data_key, i)
+        catalog_id = document_map.docid_for_address(obj_path)
+        catalog.unindex_doc(catalog_id)
+        # delete objects
+        if i in folder:
+            del(folder[i])
+
+
+def delete_all(data_key, request):
     app_root = request.root.app_root
     folder = app_root[data_key]
     catalog = app_root["catalog"]
@@ -51,3 +65,11 @@ def delete(data, itemtype, data_key, request):
         catalog.unindex_doc(catalog_id)
     # delete objects
     folder.clear()
+
+
+#def find_element(path, context):
+    #subpaths = path.split("/")
+    #ob = context
+    #for subpath in subpaths:
+        #ob = ob[subpath]
+    #return ob
