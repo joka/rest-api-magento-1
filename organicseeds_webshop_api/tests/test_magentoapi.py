@@ -38,7 +38,7 @@ def create_category(appstruct, request, proxy=None):
     if proxy:
         cat.webshop_id = int(
             proxy.single_call("catalog_category.create",
-                              [1, {"name": appstruct["id"],
+                              [2, {"name": appstruct["id"],
                                    "available_sort_by": ["position"],
                                    "include_in_menu": 1,
                                    "default_sort_by": "position",
@@ -158,10 +158,9 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         webshop_id = self.magento_proxy.create([appstruct])[0]
         assert webshop_id > 0
 
-    def test_magentoapi_create_items_with_item_group_parents(self):
+    def test_magentoapi_link_item_with_item_group_parents(self):
         proxy = self.magento_proxy
-        appstruct = self.testdata["items"][0]
-        appstruct["parent_id"] = "parent"
+        appstruct = {"id": u"item", "sku": u"itemsku", "parent_id": "parent"}
         item = create_item(appstruct, self.request, proxy)
         parent = create_item_group({"id": "parent"}, self.request, proxy)
         try:
@@ -172,10 +171,9 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         finally:
             proxy.single_call("catalog_product.delete", ["parent"])  # cleanup
 
-    def test_magentoapi_create_items_with_category_parents(self):
+    def test_magentoapi_link_items_with_category_parents(self):
         proxy = self.magento_proxy
-        appstruct = self.testdata["items"][0]
-        appstruct["parent_id"] = "parent"
+        appstruct = {"id": u"item", "sku": u"itemsku", "parent_id": "parent"}
         item = create_item(appstruct, self.request, proxy)
         parent = create_category({"id": "parent"}, self.request, proxy)
         try:
@@ -259,10 +257,25 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
     def test_magentoapi_create_categories(self):
         proxy = self.magento_proxy
         appstruct = self.testdata["categories"][0]
-        appstruct["parent_id"] = None
-        appstruct["title"]["default"] = u"unique_name"
         webshop_id = proxy.create([appstruct])[0]
-        assert webshop_id > 0
+        default_children = proxy.single_call("catalog_category.level",[None, None, 2])
+        assert webshop_id == int(default_children[0]["category_id"])
+
+    def test_magentoapi_link_category_parents(self):
+        proxy = self.magento_proxy
+        appstruct_p = {"id": u"parent", "parent_id": None}
+        appstruct_c = {"id": u"child", "parent_id": u"parent"}
+        category_p = create_category(appstruct_p, self.request, proxy)
+        category_c = create_category(appstruct_c, self.request, proxy)
+
+        proxy.link_category_parents([category_c.webshop_id,
+                                     category_p.webshop_id],
+                                    [appstruct_c, appstruct_p])
+        level1 = proxy.single_call("catalog_category.level", [None, None, 2])
+        assert category_p.webshop_id == int(level1[0]["category_id"])
+        level2 = proxy.single_call("catalog_category.level",
+                                   [None, None, category_p.webshop_id])
+        assert category_c.webshop_id == int(level2[0]["category_id"])
 
     def test_magentoapi_update_categories(self):
         proxy = self.magento_proxy

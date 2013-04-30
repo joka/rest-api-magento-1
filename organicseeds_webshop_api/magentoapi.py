@@ -115,7 +115,8 @@ class MagentoAPI(magento.api.API):
     def create(self, appstructs):
         calls = []
         for appstruct in appstructs:
-            calls.append(self._create_call(appstruct))
+            calls.append([self.magento_method + 'create',
+                          self._create_arguments(appstruct)])
         webshop_ids = [int(x) for x in self.multi_call(calls)]
         return webshop_ids
 
@@ -147,7 +148,17 @@ class MagentoAPI(magento.api.API):
                               [parent_webshop_id, webshop_id]])
         self.multi_call(calls)
 
-    def _create_call(self, appstruct):
+    def link_category_parents(self, webshop_ids, appstructs):
+        calls = []
+        for webshop_id, appstruct in zip(webshop_ids, appstructs):
+            parent_id = appstruct["parent_id"]
+            if parent_id:
+                parent_webshop_id = self.categories[parent_id].webshop_id
+                calls.append(['catalog_category.move',
+                              [webshop_id, parent_webshop_id]])
+        self.multi_call(calls)
+
+    def _create_arguments(self, appstruct):
         """to be implemented in subclass"""
         pass
 
@@ -190,13 +201,11 @@ class Items(MagentoAPI):
             calls.append([self.magento_method + "delete", [webshop_id]])
         self.multi_call(calls)
 
-    def _create_call(self, appstruct):
-        call = [self.magento_method + 'create',
-                [self.magento_type,
-                 4,  # attribute set
-                 appstruct["sku"],
-                 self._to_create_data(appstruct)]]
-        return call
+    def _create_arguments(self, appstruct):
+        return [self.magento_type,
+                4,  # attribute set
+                appstruct["sku"],
+                self._to_create_data(appstruct)]
 
     def _to_update_data(self, appstruct):
         """transforms item appstruct to magento update appstruct dictionary"""
@@ -226,13 +235,11 @@ class ItemGroups(Items):
     magento_type = u"grouped"
     magento_method = u"catalog_product."
 
-    def _create_call(self, appstruct):
-        call = [self.magento_method + 'create',
-                [self.magento_type,
-                 4,  # attribute set
-                 appstruct["id"],  # pseudo sku
-                 self._to_create_data(appstruct)]]
-        return call
+    def _create_arguments(self, appstruct):
+        return [self.magento_type,
+                4,  # attribute set
+                appstruct["id"],  # pseudo sku
+                self._to_create_data(appstruct)]
 
 
 class Categories(MagentoAPI):
@@ -243,28 +250,27 @@ class Categories(MagentoAPI):
 
     def delete_all(self):
         if self.magento_method:
-            webshop_entities = self.single_call(self.magento_method + "level")
-            webshop_ids = [int(x["category_id"]) for x in webshop_entities]
+            results1 = self.single_call(self.magento_method + "level",
+                                        [None, None, 1])
+            results2 = self.single_call(self.magento_method + "level",
+                                        [None, None, 2])
+            results3 = self.single_call(self.magento_method + "level",
+                                        [None, None, 3])
+            results4 = self.single_call(self.magento_method + "level",
+                                        [None, None, 4])
+            webshop_ids = [int(x["category_id"]) for x in results1 + results2 +
+                           results3 + results4]
             for webshop_id in webshop_ids:
                 if webshop_id > 1:
                     try:
                         self.single_call(self.magento_method + "delete",
                                          [webshop_id])
-                    except Fault as e:
-                        pass  # TODO logger
+                    except Fault:
+                        pass
 
-    def _create_call(self, appstruct):
-        call = [self.magento_method + 'create',
-                [self._get_parent_webshop_id(appstruct),
-                 self._to_create_data(appstruct)]]
-        return call
-
-    def _get_parent_webshop_id(self, appstruct):
-        parent_id = appstruct["parent_id"]
-        parent_webshp_id = 1
-        if parent_id:
-            parent_webshp_id = self.entities[parent_id].webshop_id
-        return parent_webshp_id
+    def _create_arguments(self, appstruct):
+        return [2, # set parent to default root category
+                self._to_create_data(appstruct)]
 
     def _to_update_data(self, appstruct):
         """transforms category appstruct to magento update data"""
