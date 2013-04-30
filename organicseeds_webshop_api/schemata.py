@@ -883,7 +883,7 @@ class ItemUpdate(colander.Schema):
     title = StringTranslation(missing=None, required=False)
     shortdescription = StringTranslation(missing=None, required=False)
 
-    category_ids = IDList(missing=None, required=False)
+    #category_ids = IDList(missing=None, required=False)
     description = StringTranslation(missing=None, required=False)
 
     #sku = String(missing=None, required=False)

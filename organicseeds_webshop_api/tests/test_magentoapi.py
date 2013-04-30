@@ -7,27 +7,43 @@ from organicseeds_webshop_api.testing import (
 from organicseeds_webshop_api import magentoapi
 
 
-def create_item(appstruct, request):
+def create_item(appstruct, request, proxy=None):
     from organicseeds_webshop_api.models import Item
     item = Item()
     item.from_appstruct(appstruct)
     request.root.app_root["items"][appstruct["id"]] = item
+    if proxy:
+        item.webshop_id = int(proxy.single_call("catalog_product.create",
+                              ["simple", 4, appstruct["sku"], []]))
     return item
 
 
-def create_item_group(appstruct, request):
+def create_item_group(appstruct, request, proxy=None):
     from organicseeds_webshop_api.models import ItemGroup
     item_group = ItemGroup()
     item_group.from_appstruct(appstruct)
     request.root.app_root["item_groups"][appstruct["id"]] = item_group
+    if proxy:
+        item_group.webshop_id = int(
+            proxy.single_call("catalog_product.create",
+                              ["grouped", 4, appstruct["id"], []]))
     return item_group
 
 
-def create_category(appstruct, request):
+def create_category(appstruct, request, proxy=None):
     from organicseeds_webshop_api.models import Category
     cat = Category()
     cat.from_appstruct(appstruct)
     request.root.app_root["categories"][appstruct["id"]] = cat
+    if proxy:
+        cat.webshop_id = int(
+            proxy.single_call("catalog_category.create",
+                              [1, {"name": appstruct["id"],
+                                   "available_sort_by": ["position"],
+                                   "include_in_menu": 1,
+                                   "default_sort_by": "position",
+                                   "is_active": 0},
+                               None]))
     return cat
 
 
@@ -109,11 +125,6 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
     testdatafilepath = ("/testdata/items_post.yaml")
     magento_proxy_class = magentoapi.Items
 
-    def test_magentoapi_create_items(self):
-        appstruct = self.testdata["items"][0]
-        webshop_id = self.magento_proxy.create([appstruct])[0]
-        assert webshop_id > 0
-
     def test_magentoapi_to_update_data(self):
         appstruct = self.testdata["items"][0]
         data = self.magento_proxy._to_update_data(appstruct)
@@ -142,11 +153,43 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
                         'visibility': 4}
         assert data == default_data
 
+    def test_magentoapi_create_items(self):
+        appstruct = self.testdata["items"][0]
+        webshop_id = self.magento_proxy.create([appstruct])[0]
+        assert webshop_id > 0
+
+    def test_magentoapi_create_items_with_item_group_parents(self):
+        proxy = self.magento_proxy
+        appstruct = self.testdata["items"][0]
+        appstruct["parent_id"] = "parent"
+        item = create_item(appstruct, self.request, proxy)
+        parent = create_item_group({"id": "parent"}, self.request, proxy)
+        try:
+            proxy.link_item_parents([item.webshop_id], [appstruct])
+            children = proxy.single_call("catalog_product_link.list",
+                                         ["grouped", parent.webshop_id])
+            assert item.webshop_id in [int(x["product_id"]) for x in children]
+        finally:
+            proxy.single_call("catalog_product.delete", ["parent"])  # cleanup
+
+    def test_magentoapi_create_items_with_category_parents(self):
+        proxy = self.magento_proxy
+        appstruct = self.testdata["items"][0]
+        appstruct["parent_id"] = "parent"
+        item = create_item(appstruct, self.request, proxy)
+        parent = create_category({"id": "parent"}, self.request, proxy)
+        try:
+            proxy.link_item_parents([item.webshop_id], [appstruct])
+            children = proxy.single_call("category.assignedProducts",
+                                         [parent.webshop_id])
+            assert item.webshop_id in [int(x["product_id"]) for x in children]
+        finally:
+            proxy.single_call("catalog_category.delete", [parent.webshop_id])
+
     def test_magentoapi_update_items(self):
         proxy = self.magento_proxy
         appstruct = self.testdata["items"][0]
-        item = create_item(appstruct, self.request)
-        item.webshop_id = proxy.create([appstruct])[0]
+        create_item(appstruct, self.request, proxy)
 
         updates = [{"id": appstruct["id"],
                     "title": {"default": u"New unique_name"}}]
@@ -157,8 +200,7 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
     def test_magentoapi_delete_items(self):
         proxy = self.magento_proxy
         appstruct = self.testdata["items"][0]
-        item = create_item(appstruct, self.request)
-        item.webshop_id = proxy.create([appstruct])[0]
+        create_item(appstruct, self.request, proxy)
 
         proxy.delete([{"id": appstruct["id"]}])
         results = proxy.single_call('catalog_product.list')
@@ -182,8 +224,7 @@ class TestMagentoAPIItemGroupsIntegration(MagentoIntegrationTestCase):
         appstruct = self.testdata["item_groups"][0]
         appstruct = self.testdata["item_groups"][0]
         appstruct["title"]["default"] = u"unique_name"
-        item_group = create_item_group(appstruct, self.request)
-        item_group.webshop_id = proxy.create([appstruct])[0]
+        create_item_group(appstruct, self.request, proxy)
 
         update = {"id": appstruct["id"],
                   "title": {"default": u"New unique_name"}}
@@ -194,8 +235,7 @@ class TestMagentoAPIItemGroupsIntegration(MagentoIntegrationTestCase):
     def test_magentoapi_delete_item_groups(self):
         proxy = self.magento_proxy
         appstruct = self.testdata["item_groups"][0]
-        item_group = create_item_group(appstruct, self.request)
-        item_group.webshop_id = proxy.create([appstruct])[0]
+        create_item_group(appstruct, self.request, proxy)
 
         proxy.delete([{"id": appstruct["id"]}])
         item_groups = proxy.single_call('catalog_product.list')
@@ -228,8 +268,7 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
         proxy = self.magento_proxy
         appstruct = self.testdata["categories"][0]
         appstruct["title"]["default"] = u"unique_name"
-        category = create_category(appstruct, self.request)
-        category.webshop_id = proxy.create([appstruct])[0]
+        create_category(appstruct, self.request, proxy)
 
         update = {"id": appstruct["id"],
                   "title": {"default": u"New unique_name"}}
@@ -239,8 +278,7 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
     def test_magentoapi_delete_categories(self):
         proxy = self.magento_proxy
         appstruct = self.testdata["categories"][0]
-        category = create_category(appstruct, self.request)
-        category.webshop_id = proxy.create([appstruct])[0]
+        category = create_category(appstruct, self.request, proxy)
 
         proxy.delete([{"id": appstruct["id"]}])
         result = proxy.single_call('catalog_category.level')

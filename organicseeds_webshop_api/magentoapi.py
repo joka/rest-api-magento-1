@@ -66,14 +66,21 @@ def get_translation(data, key, lang):
 class MagentoAPI(magento.api.API):
 
     entity_data_key = u""
-    entities = []
     magento_type = u""
     magento_method = u""
+
+    items = None
+    item_groups = None
+    categories = None
+    entities = None
 
     def __init__(self, request):
         super(MagentoAPI, self).__init__(apiurl, rpc_user, rpc_secret)
         self.request = request
-        self.entities = request.root.app_root.get(self.entity_data_key)
+        self.items = request.root.app_root["items"]
+        self.categories = request.root.app_root["categories"]
+        self.item_groups = request.root.app_root["item_groups"]
+        self.entities = getattr(self, self.entity_data_key, [])
 
     def single_call(self, resource_path, arguments=[]):
         """Send magento api v.1 call"""
@@ -126,6 +133,20 @@ class MagentoAPI(magento.api.API):
         results = [bool(x) for x in self.multi_call(calls)]
         return results
 
+    def link_item_parents(self, webshop_ids, appstructs):
+        calls = []
+        for webshop_id, appstruct in zip(webshop_ids, appstructs):
+            parent_id = appstruct["parent_id"]
+            if parent_id in self.item_groups:
+                parent_webshop_id = self.item_groups[parent_id].webshop_id
+                calls.append(["catalog_product_link.assign",
+                              ["grouped", parent_webshop_id, webshop_id]])
+            if parent_id in self.categories:
+                parent_webshop_id = self.categories[parent_id].webshop_id
+                calls.append(['catalog_category.assignProduct',
+                              [parent_webshop_id, webshop_id]])
+        self.multi_call(calls)
+
     def _create_call(self, appstruct):
         """to be implemented in subclass"""
         pass
@@ -160,14 +181,14 @@ class Items(MagentoAPI):
     magento_method = u"catalog_product."
 
     def delete_all(self):
-        if self.magento_method:
-            webshop_entities = self.single_call(self.magento_method + "list",
-                                                [{'type':{'ilike': self.magento_type}}])
-            webshop_ids = [x["product_id"] for x in webshop_entities]
-            calls = []
-            for webshop_id in webshop_ids:
-                calls.append([self.magento_method + "delete", [webshop_id]])
-            self.multi_call(calls)
+        webshop_entities = self.single_call(
+            self.magento_method + "list",
+            [{'type':{'ilike': self.magento_type}}])
+        webshop_ids = [x["product_id"] for x in webshop_entities]
+        calls = []
+        for webshop_id in webshop_ids:
+            calls.append([self.magento_method + "delete", [webshop_id]])
+        self.multi_call(calls)
 
     def _create_call(self, appstruct):
         call = [self.magento_method + 'create',
@@ -262,17 +283,8 @@ class Categories(MagentoAPI):
         return data
 
 
-
-###################################
-#  magento data categories proxy  #
-###################################
-
-
-
 # todo activet prodcut, updated activet/shop
 # todo docu inventory status
-# update category->products, auf item or category ebene?
 
 # todo validate unique title, sku(items and item_groups), id
 # todo activate/ status 1/0, store view/visibility, translations, website price
-# todo don not modify sku, this is primary key for magento
