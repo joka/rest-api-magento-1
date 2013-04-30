@@ -18,6 +18,22 @@ apiurl = "http://hobby.developlocal.sativa.jokasis.de/"
 #############
 
 
+def get_storeviews(appstruct):
+    storeviews = []
+    name_tmpl = "%s_%s_%s"
+    for shop, enabled in appstruct.get("shops", []):
+        type_ = shop[3:]
+        country = shop[:2]
+        if country == "ch":
+            for language in ["de", "fr", "it"]:
+                name = name_tmpl % (language, country, type_)
+                storeviews.append((name, enabled, language))
+        else:
+            name = name_tmpl % (country, country, type_)
+            storeviews.append((name, enabled, country))
+    return storeviews
+
+
 def get_category_ids(data, request):
     """returns category magento ids of item data"""
     categories = request.root.app_root["categories"]
@@ -51,6 +67,13 @@ def get_all_website_ids():
 def get_translation(data, key, lang):
     """returns translation of data[key] or None"""
     return data.get(key) and data[key].get(lang, None) or None
+
+def get_website_value(data, key, lang):
+    website = "default"
+    if lang != "default":
+        website = lang + "_website"
+    values = [x[1] for x in data.get("price", []) if x[0] == website]
+    return values and values[0] or None
 
 
 #def get_magento_inventory_status(data):
@@ -134,6 +157,22 @@ class MagentoAPI(magento.api.API):
         results = [bool(x) for x in self.multi_call(calls)]
         return results
 
+    def update_shops(self, webshop_ids, appstructs):
+        calls = []
+        for webshop_id, appstruct in zip(webshop_ids, appstructs):
+            storeviews = get_storeviews(appstruct)
+            for storeviewname, enabled, lang in storeviews:
+                data = self._to_update_translation_data(appstruct, lang)
+                if enabled:
+                     data["visibility"] = 4
+                else:
+                     data["visibility"] = 1
+                if data:
+                    calls.append([self.magento_method + 'update',
+                                  [webshop_id, data, storeviewname]])
+
+        return self.multi_call(calls)
+
     def link_item_parents(self, webshop_ids, appstructs):
         calls = []
         for webshop_id, appstruct in zip(webshop_ids, appstructs):
@@ -177,7 +216,8 @@ class MagentoAPI(magento.api.API):
             ("url_key", url_key),
             ("description", get_translation(appstruct, "description", lang)),
             ("short_description", get_translation(appstruct,
-                                                  "shortdescription", lang))]
+                                                  "shortdescription", lang)),
+            ("price", get_website_value(appstruct, "price", lang))]
         return dict([x for x in data_tuples if x[1] is not None])
 
     def _to_create_data(self, appstruct):
@@ -212,8 +252,6 @@ class Items(MagentoAPI):
         data = self._to_update_translation_data(appstruct, "default")
         extradata_tuples = [
             ("weight", appstruct.get("weight_brutto", None)),
-            ("price", appstruct["price"].get("default") if "price" in appstruct
-             else None),
             ("tax_class_id", appstruct.get("tax_class", None))]
             #"tier_price": get_tier_prices(item),
             #"stock_appstruct": get_stock_appstruct(item),
@@ -223,8 +261,8 @@ class Items(MagentoAPI):
     def _to_create_data(self, appstruct):
         """transforms item data to magento create data dictionary"""
         data = self._to_update_data(appstruct)
-        data["status"] = 0  # global product status is "disabled"
-        data["visibility"] = 4  # global visibility is "search and catalog"
+        data["status"] = 1  # global status is "enabled" for all websites
+        data["visibility"] = 1 # global visibility is disabled
         data["websites"] = get_all_website_ids()  # enabled for all websites
         return data
 
@@ -269,7 +307,7 @@ class Categories(MagentoAPI):
                         pass
 
     def _create_arguments(self, appstruct):
-        return [2, # set parent to default root category
+        return [2,  # set parent to default root category
                 self._to_create_data(appstruct)]
 
     def _to_update_data(self, appstruct):
