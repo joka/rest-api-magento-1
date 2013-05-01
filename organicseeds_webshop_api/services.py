@@ -63,7 +63,7 @@ def categories_delete(request):
        return codes: 200, 400, 500
     """
 
-    utils.delete(request.validated["categories"], "categories", request)
+    utils.delete_all("categories", request)
     return {"status": "succeeded"}
 
 
@@ -118,7 +118,7 @@ def item_groups_delete(request):
        return codes: 200, 400, 500
     """
 
-    utils.delete(request.validated["item_groups"], "item_groups", request)
+    utils.delete_all("item_groups", request)
     return {"status": "succeeded"}
 
 
@@ -173,8 +173,7 @@ def unit_of_measures_delete(request):
        return codes: 200, 400, 500
     """
 
-    utils.delete(request.validated["unit_of_measures"],
-                 "unit_of_measures", request)
+    utils.delete_all("unit_of_measures", request)
     return {"status": "succeeded"}
 
 
@@ -230,7 +229,7 @@ def vpe_types_delete(request):
        return codes: 200, 400, 500
     """
 
-    utils.delete(request.validated["vpe_types"], "vpe_types", request)
+    utils.delete_all("vpe_types", request)
     return {"status": "succeeded"}
 
 
@@ -316,5 +315,5 @@ def items_delete(request):
        return codes: 200, 400, 500
     """
 
-    utils.delete(request.validated["items"], "items", request)
+    utils.delete_all("items", request)
     return {"status": "succeeded"}

@@ -101,6 +101,11 @@ class Identifier(colander.SchemaNode):
     title = u"dd"
 
 
+class Identifiers(colander.SequenceSchema):
+
+    identifier = Identifier()
+
+
 class ShopID(colander.SchemaNode):
     """Shop Identifier
 
