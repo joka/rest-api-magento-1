@@ -24,13 +24,14 @@ def get_storeviews(appstruct):
     for shop, enabled in appstruct.get("shops", []):
         type_ = shop[3:]
         country = shop[:2]
+        lang = country
         if country == "ch":
-            for language in ["de", "fr", "it"]:
-                name = name_tmpl % (language, country, type_)
-                storeviews.append((name, enabled, language))
+            for lang in ["de", "fr", "it"]:
+                name = name_tmpl % (lang, country, type_)
+                storeviews.append((name, enabled, lang, country))
         else:
-            name = name_tmpl % (country, country, type_)
-            storeviews.append((name, enabled, country))
+            name = name_tmpl % (lang, country, type_)
+            storeviews.append((name, enabled, lang, country))
     return storeviews
 
 
@@ -68,13 +69,16 @@ def get_translation(data, key, lang):
     """returns translation of data[key] or None"""
     return data.get(key) and data[key].get(lang, None) or None
 
-def get_website_value(data, key, lang):
-    website = "default"
-    if lang != "default":
-        website = lang + "_website"
-    values = [x[1] for x in data.get("price", []) if x[0] == website]
-    return values and values[0] or None
-
+def get_website_value(appstruct, key, country):
+    value = None
+    data = appstruct.get(key, None)
+    if data and country == "default":
+        value = data.get(country, None)
+    if data and country != "default":
+        website = country + "_website"
+        values = [x[1] for x in data.get("websites", []) if x[0] == website]
+        value = values and values[0] or None
+    return value
 
 #def get_magento_inventory_status(data):
     #status = data["inventory_status"]
@@ -161,8 +165,8 @@ class MagentoAPI(magento.api.API):
         calls = []
         for webshop_id, appstruct in zip(webshop_ids, appstructs):
             storeviews = get_storeviews(appstruct)
-            for storeviewname, enabled, lang in storeviews:
-                data = self._to_update_translation_data(appstruct, lang)
+            for storeviewname, enabled, lang, country in storeviews:
+                data = self._to_update_shops_data(appstruct, lang, country)
                 if enabled:
                      data["visibility"] = 4
                 else:
@@ -170,7 +174,6 @@ class MagentoAPI(magento.api.API):
                 if data:
                     calls.append([self.magento_method + 'update',
                                   [webshop_id, data, storeviewname]])
-
         return self.multi_call(calls)
 
     def link_item_parents(self, webshop_ids, appstructs):
@@ -205,20 +208,8 @@ class MagentoAPI(magento.api.API):
         """to be implemented in subclass"""
         pass
 
-    def _to_update_translation_data(self, appstruct, lang):
-        """transforms item appstruct to magento update appstruct dictionary.
-           returns only StringTranslation values
-        """
-        name = get_translation(appstruct, "title", lang)
-        url_key = url_normaliser.url_normalizer(name) if name else None
-        data_tuples = [
-            ("name", name),
-            ("url_key", url_key),
-            ("description", get_translation(appstruct, "description", lang)),
-            ("short_description", get_translation(appstruct,
-                                                  "shortdescription", lang)),
-            ("price", get_website_value(appstruct, "price", lang))]
-        return dict([x for x in data_tuples if x[1] is not None])
+    def _to_update_shops_data(self, appstruct, lang, country="default"):
+        """to be implemented in subclass"""
 
     def _to_create_data(self, appstruct):
         """to be implemented in subclass"""
@@ -247,17 +238,6 @@ class Items(MagentoAPI):
                 appstruct["sku"],
                 self._to_create_data(appstruct)]
 
-    def _to_update_data(self, appstruct):
-        """transforms item appstruct to magento update appstruct dictionary"""
-        data = self._to_update_translation_data(appstruct, "default")
-        extradata_tuples = [
-            ("weight", appstruct.get("weight_brutto", None)),
-            ("tax_class_id", appstruct.get("tax_class", None))]
-            #"tier_price": get_tier_prices(item),
-            #"stock_appstruct": get_stock_appstruct(item),
-        data.update(dict([x for x in extradata_tuples if x[1] is not None]))
-        return data
-
     def _to_create_data(self, appstruct):
         """transforms item data to magento create data dictionary"""
         data = self._to_update_data(appstruct)
@@ -266,6 +246,31 @@ class Items(MagentoAPI):
         data["websites"] = get_all_website_ids()  # enabled for all websites
         return data
 
+    def _to_update_data(self, appstruct):
+        """transforms item appstruct to magento update appstruct dictionary"""
+        data = self._to_update_shops_data(appstruct, "default")
+        extradata_tuples = [
+            ("weight", appstruct.get("weight_brutto", None)),
+            ("tax_class_id", appstruct.get("tax_class", None))]
+            #"tier_price": get_tier_prices(item),
+            #"stock_appstruct": get_stock_appstruct(item),
+        data.update(dict([x for x in extradata_tuples if x[1] is not None]))
+        return data
+
+    def _to_update_shops_data(self, appstruct, lang, country="default"):
+        """transforms item appstruct to magento update appstruct dictionary.
+           returns only StringTranslation values
+        """
+        name = get_translation(appstruct, "title", lang)
+        url_key = url_normaliser.url_normalizer(name) if name else None
+        data_tuples = [
+            ("name", name),
+            ("url_key", url_key),
+            ("description", get_translation(appstruct, "description", lang)),
+            ("short_description", get_translation(appstruct,
+                                                  "shortdescription", lang)),
+            ("price", get_website_value(appstruct, "price", country))]
+        return dict([x for x in data_tuples if x[1] is not None])
 
 class ItemGroups(Items):
 
@@ -310,13 +315,6 @@ class Categories(MagentoAPI):
         return [2,  # set parent to default root category
                 self._to_create_data(appstruct)]
 
-    def _to_update_data(self, appstruct):
-        """transforms category appstruct to magento update data"""
-        data = self._to_update_translation_data(appstruct, "default")
-        extradata_tuples = []
-        data.update(dict([x for x in extradata_tuples if x[1] is not None]))
-        return data
-
     def _to_create_data(self, appstruct):
         """transforms item data to magento create data dictionary"""
         data = self._to_update_data(appstruct)
@@ -326,9 +324,26 @@ class Categories(MagentoAPI):
         data["is_active"] = 0
         return data
 
+    def _to_update_data(self, appstruct):
+        """transforms category appstruct to magento update data"""
+        data = self._to_update_shops_data(appstruct, "default")
+        extradata_tuples = []
+        data.update(dict([x for x in extradata_tuples if x[1] is not None]))
+        return data
 
-# todo activet prodcut, updated activet/shop
+    def _to_update_shops_data(self, appstruct, lang, country="default"):
+        """transforms item appstruct to magento update appstruct dictionary.
+           returns only StringTranslation values
+        """
+        name = get_translation(appstruct, "title", lang)
+        url_key = url_normaliser.url_normalizer(name) if name else None
+        data_tuples = [
+            ("name", name),
+            ("url_key", url_key),
+            ("short_description", get_translation(appstruct,
+                                                  "shortdescription", lang)),
+            ]
+        return dict([x for x in data_tuples if x[1] is not None])
+
 # todo docu inventory status
-
 # todo validate unique title, sku(items and item_groups), id
-# todo activate/ status 1/0, store view/visibility, translations, website price
