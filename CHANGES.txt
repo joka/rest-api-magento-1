@@ -1,8 +1,10 @@
 0.2
 ---
 
-- Update items: you cannot update the sku field anymore (we can readd this feature
-  later)
+- Items schema:  price field is now a sequence of WebsitePrice.
+    [("de_website", 1)] instead of {default: 1, "websites": [("de_website", 1)]}
+
+- Update items: you cannot update the sku field anymore 
 
 
 0.1

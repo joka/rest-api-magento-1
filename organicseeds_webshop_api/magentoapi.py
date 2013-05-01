@@ -69,15 +69,12 @@ def get_translation(data, key, lang):
     """returns translation of data[key] or None"""
     return data.get(key) and data[key].get(lang, None) or None
 
+
 def get_website_value(appstruct, key, country):
-    value = None
-    data = appstruct.get(key, None)
-    if data and country == "default":
-        value = data.get(country, None)
-    if data and country != "default":
-        website = country + "_website"
-        values = [x[1] for x in data.get("websites", []) if x[0] == website]
-        value = values and values[0] or None
+    websites = appstruct.get(key, [])
+    website_id = country + "_website"
+    values = [x[1] for x in websites if x[0] == website_id]
+    value = values and values[0] or None
     return value
 
 #def get_magento_inventory_status(data):
@@ -168,9 +165,9 @@ class MagentoAPI(magento.api.API):
             for storeviewname, enabled, lang, country in storeviews:
                 data = self._to_update_shops_data(appstruct, lang, country)
                 if enabled:
-                     data["visibility"] = 4
+                    data["visibility"] = 4
                 else:
-                     data["visibility"] = 1
+                    data["visibility"] = 1
                 if data:
                     calls.append([self.magento_method + 'update',
                                   [webshop_id, data, storeviewname]])
@@ -242,7 +239,7 @@ class Items(MagentoAPI):
         """transforms item data to magento create data dictionary"""
         data = self._to_update_data(appstruct)
         data["status"] = 1  # global status is "enabled" for all websites
-        data["visibility"] = 1 # global visibility is disabled
+        data["visibility"] = 1  # global visibility is disabled
         data["websites"] = get_all_website_ids()  # enabled for all websites
         return data
 
@@ -271,6 +268,7 @@ class Items(MagentoAPI):
                                                   "shortdescription", lang)),
             ("price", get_website_value(appstruct, "price", country))]
         return dict([x for x in data_tuples if x[1] is not None])
+
 
 class ItemGroups(Items):
 
@@ -337,12 +335,11 @@ class Categories(MagentoAPI):
         """
         name = get_translation(appstruct, "title", lang)
         url_key = url_normaliser.url_normalizer(name) if name else None
-        data_tuples = [
-            ("name", name),
-            ("url_key", url_key),
-            ("short_description", get_translation(appstruct,
-                                                  "shortdescription", lang)),
-            ]
+        data_tuples = [("name", name),
+                       ("url_key", url_key),
+                       ("short_description",
+                        get_translation(appstruct, "shortdescription", lang)),
+                       ]
         return dict([x for x in data_tuples if x[1] is not None])
 
 # todo docu inventory status

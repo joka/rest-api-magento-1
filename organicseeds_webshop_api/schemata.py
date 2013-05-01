@@ -509,22 +509,6 @@ class WebsitePrices(colander.SequenceSchema):
     websiteprice = WebsitePrice()
 
 
-class Price(colander.MappingSchema):
-    """Price of this item
-
-       value:
-
-         default : Decimal # Default price SFR
-
-         websites :
-
-            - [WebsiteID, Price]
-    """
-
-    default = Decimal()
-    websites = WebsitePrices()
-
-
 class TierPrice(colander.MappingSchema):
     """ Tier price of this item
 
@@ -821,7 +805,7 @@ class Item(BasicNode):
 
            unit_of_measure_id = Identifier # refernce to unit_of_measure
 
-           price = Price
+           price = sequence of WebsitePrice
 
            tierprices = sequence of TierPrice
 
@@ -847,7 +831,7 @@ class Item(BasicNode):
     weight_brutto = Float()
     weight_netto = Float()
     unit_of_measure_id = Identifier()
-    price = Price()
+    price = WebsitePrices()
     tierprices = TierPrices()
     tax_class = TaxClass()
     quality_id = String()
@@ -893,7 +877,7 @@ class ItemUpdate(colander.Schema):
     weight_brutto = Float(missing=None, required=False)
     weight_netto = Float(missing=None, required=False)
     #unit_of_measure_id = Identifier(missing=None, required=False)
-    price = Price(missing=None, required=False)
+    price = WebsitePrices(missing=None, required=False)
     tierprices = TierPrices(missing=None, required=False)
     tax_class = TaxClass(missing=None, required=False)
     quality_id = String(missing=None, required=False)

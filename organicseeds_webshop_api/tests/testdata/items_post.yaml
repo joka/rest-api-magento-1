@@ -32,11 +32,9 @@ items:
     weight_netto: 0.15 # Float # kg
     unit_of_measure_id: portion # reference
     price:
-      default: 4.30 # Decimal # default price SFR
-      websites:     #  sequence of WebsitePrice  # optional
-        - [ch_website, 3.00]  
-        - [fr_website, 3.00]  
-        - [de_website, 3.00]  
+        - [ch_website, 2.00] # SFR decimal
+        - [fr_website, 3.00] # EUR decimal
+        - [de_website, 4.00] # EUR decimal
     tierprices: # sequence of TierPrice # Staffelpreise
           -
             website: de_website # WebsiteID

@@ -33,7 +33,7 @@ def create_category(appstruct, request, categoriesproxy=None):
     cat.from_appstruct(appstruct)
     request.root.app_root["categories"][appstruct["id"]] = cat
     if categoriesproxy:
-        cat.webshop_id = categoriesproxy([appstruct])[0]
+        cat.webshop_id = categoriesproxy.create([appstruct])[0]
     return cat
 
 
@@ -134,18 +134,17 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
     testdatafilepath = ("/testdata/items_post.yaml")
     magento_proxy_class = magentoapi.Items
 
-
     def test_magentoapi_items_to_update_shops_data(self):
+        proxy = self.magento_proxy
         appstruct = self.testdata["items"][0]
-        data = self.magento_proxy._to_update_shops_data(appstruct, "fr")
+        data = proxy._to_update_shops_data(appstruct, "fr", "ch")
         assert data == {'name': 'titlefr',
                         'short_description': 'dscription',
                         'url_key': u'titlefr',
-                        'price': 3.0}
-        data = self.magento_proxy._to_update_shops_data(appstruct, "default")
+                        'price': 2.0}
+        data = proxy._to_update_shops_data(appstruct, "default", "default")
         assert data == {'name': 'title',
                         'short_description': 'kurzbeschreibung',
-                        'price': 4.3,
                         'url_key': u'title',
                         'description': 'Ausfuehrliche Beschreibung'
                         }
@@ -154,7 +153,7 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         appstruct = self.testdata["items"][0]
         data = self.magento_proxy._to_update_data(appstruct)
         assert ('weight', 0.25) in data.items()
-        assert ('url_key',  u'title') in data.items()
+        assert ('url_key', u'title') in data.items()
         appstruct = {}
         data = self.magento_proxy._to_update_data(appstruct)
         assert data == {}
@@ -173,7 +172,7 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         webshop_id = proxy.create([appstruct])[0]
         result = proxy.single_call('catalog_product.info', [webshop_id])
         assert result["websites"] == ['2', '3', '5']
-        assert result["price"] == '4.3000'
+        assert result["price"] == None
         assert result["status"] == '1'
 
     def test_magentoapi_link_item_with_item_group_parents(self):
@@ -219,37 +218,49 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
                      "shops": [("ch_hobby", True),  # items visible
                                ("ch_profi", False),  # items not visible
                                ("fr_profi", True),  # items visible
+                               ("de_resell", False),  # items not visible
                                ],
                      "title": {"default": u"default title", "fr": u"fr title"},
-                     "price": {"default": 1.0,
-                               "websites": [("ch_website", 2.0),
-                                            ("fr_website", 3.0)
-                                            ]}
+                     "price": [("ch_website", 2.0),
+                               ("fr_website", 3.0),
+                               ("de_website", 1.0),
+                               ]
                      }
         item = create_item(appstruct, self.request, proxy)
 
         proxy.update_shops([item.webshop_id], [appstruct])
-        fr_ch_hobby = proxy.single_call('catalog_product.info', [item.webshop_id, "fr_ch_hobby"])
+        fr_ch_hobby = proxy.single_call('catalog_product.info',
+                                        [item.webshop_id, "fr_ch_hobby"])
         assert fr_ch_hobby["name"] == "fr title"
         assert fr_ch_hobby["visibility"] == "4"
         assert fr_ch_hobby["price"] == "2.0000"
-        de_ch_hobby = proxy.single_call('catalog_product.info', [item.webshop_id, "de_ch_hobby"])
+        de_ch_hobby = proxy.single_call('catalog_product.info',
+                                        [item.webshop_id, "de_ch_hobby"])
         assert de_ch_hobby["name"] == "default title"
         assert de_ch_hobby["visibility"] == "4"
-        it_ch_hobby = proxy.single_call('catalog_product.info', [item.webshop_id, "it_ch_hobby"])
+        assert de_ch_hobby["price"] == "2.0000"
+        it_ch_hobby = proxy.single_call('catalog_product.info',
+                                        [item.webshop_id, "it_ch_hobby"])
         assert it_ch_hobby["name"] == "default title"
         assert it_ch_hobby["visibility"] == "4"
-        de_ch_profi = proxy.single_call('catalog_product.info', [item.webshop_id, "de_ch_profi"])
+        assert it_ch_hobby["price"] == "2.0000"
+        de_ch_profi = proxy.single_call('catalog_product.info',
+                                        [item.webshop_id, "de_ch_profi"])
         assert de_ch_profi["name"] == "default title"
         assert de_ch_profi["visibility"] == "1"  # item not visible
-        fr_fr_profi = proxy.single_call('catalog_product.info', [item.webshop_id, "fr_fr_profi"])
+        assert de_ch_profi["price"] == "2.0000"
+        fr_fr_profi = proxy.single_call('catalog_product.info',
+                                        [item.webshop_id, "fr_fr_profi"])
         assert fr_fr_profi["name"] == "fr title"
         assert fr_fr_profi["visibility"] == "4"
         assert fr_fr_profi["price"] == "3.0000"
-        fr_fr_hobby = proxy.single_call('catalog_product.info', [item.webshop_id, "fr_fr_hobby"])
+        fr_fr_hobby = proxy.single_call('catalog_product.info',
+                                        [item.webshop_id, "fr_fr_hobby"])
         assert fr_fr_hobby["visibility"] == "1"  # item not visible
-        #de_de_hobby = proxy.single_call('catalog_product.info', [item.webshop_id, "fr_ch_hobby"])
-        #assert de_de_hobby["price"] == "1.0000" # TODO Setting default website price is not working
+        de_de_hobby = proxy.single_call('catalog_product.info',
+                                        [item.webshop_id, "de_de_hobby"])
+        assert de_de_hobby["price"] == "1.0000"
+        assert de_de_hobby["visibility"] == "1"  # item not visible
 
     def test_magentoapi_delete_items(self):
         proxy = self.magento_proxy
@@ -314,7 +325,8 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
         proxy = self.magento_proxy
         appstruct = self.testdata["categories"][0]
         webshop_id = proxy.create([appstruct])[0]
-        default_children = proxy.single_call("catalog_category.level",[None, None, 2])
+        default_children = proxy.single_call("catalog_category.level",
+                                             [None, None, 2])
         assert webshop_id == int(default_children[0]["category_id"])
 
     def test_magentoapi_link_category_parents(self):
