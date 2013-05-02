@@ -81,7 +81,7 @@ items:
     #shops:
         #- (ch_hobby, True)
     #title:
-      #default: title 
+      #default: title2
     #shortdescription: 
       #default: kurzbeschreibung 
 

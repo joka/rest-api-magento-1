@@ -21,10 +21,15 @@ We also need some dictionaries to post json test data::
     >>> unitofmeasurestestdata = yaml.load(get_file("/testdata/unit_of_measures_post.yaml"))
     >>> vpestestdata = yaml.load(get_file("/testdata/vpe_types_post.yaml"))
 
+And should start with an empty database::
+
+    >>> sink = app.delete_json('/categories', {})
+    >>> sink = app.delete_json('/item_groups', {})
+    >>> sink = app.delete_json('/items', {})
+
 
 Add Items, ItemGroups, and Categories
 --------------------------------------
-
 
 We cannot post items if referenced entities are missing::
 

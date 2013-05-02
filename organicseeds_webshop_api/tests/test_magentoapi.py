@@ -322,7 +322,7 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
                         "is_active": 0}
         assert data == default_data
 
-    def test_magentoapi_categories_create_categories(self):
+    def test_magentoapi_categories_create(self):
         proxy = self.categories_proxy
         appstruct = self.testdata["categories"][0]
         webshop_id = proxy.create([appstruct])[0]

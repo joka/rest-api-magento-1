@@ -28,7 +28,7 @@ categories = Service(name='categories',
                              validators.validate_category_id_unique,
                              validators.validate_category_id_does_not_exists,
                              validators.validate_category_title_unique,
-                             validators.validate_category_title_do_not_exists,
+                             validators.validate_category_title_does_not_exists,
                              ))
 def categories_post(request):
     """Create new category entities
@@ -98,7 +98,7 @@ item_groups = Service(name='item_groups',
     validators=(validators.validate_item_group_id_unique,
                 validators.validate_item_group_id_does_not_exists,
                 validators.validate_item_group_title_unique,
-                validators.validate_item_group_title_do_not_exists,
+                validators.validate_item_group_title_does_not_exists,
                 validators.validate_item_group_parent_id
                 ))
 def item_groups_post(request):

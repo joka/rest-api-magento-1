@@ -11,8 +11,8 @@ item_groups:
         - [ch_profi, True]  
         - [ch_resell, True]  
     title:  
-      default: Aktuelle Aussaten 
-      fr: actuelle 
+      default: Karottensorte 
+      fr: carotte 
     shortdescription:  
       default: Karotten, Ruebli, Moehren 
       fr: carotte 

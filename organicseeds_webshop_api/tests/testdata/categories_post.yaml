@@ -23,7 +23,7 @@ categories:
         - [ch_hobby, True] 
         - [ch_profi, True] 
     title: 
-        default: Aktuelle Aussaten
+        default: Aktuelle Aussaten2
     shortdescription: 
         default: 
 

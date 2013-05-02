@@ -40,6 +40,7 @@ def _expand_titles(appstructs):
 def validate_title_unique(data_key,  request):
     appstructs = request.validated[data_key]
     titles = _expand_titles([x["title"] for x in appstructs if "title" in x])
+    titles = [x for x in titles if x ]
     titles_nonunique = [x for x, y in Counter(titles).items() if y > 1]
 
     error = 'The following titles are not unique: %s'
@@ -241,7 +242,6 @@ def validate_items_sku_unique(request):
 
 def validate_items_sku_does_not_exists(request):
     validate_key_does_not_exists("items", "sku", request)
-    validate_key_does_not_exists("item_groups", "sku", request)
 
 
 def validate_items_title_unique(request):
@@ -250,7 +250,6 @@ def validate_items_title_unique(request):
 
 def validate_items_title_does_not_exists(request):
     validate_title_does_not_exists("items", request)
-    validate_title_does_not_exists("item_groups", request)
 
 
 def validate_item_id_does_exists(request):
