@@ -7,6 +7,12 @@ class TestUtilsCategoriesIntegration(IntegrationTestCase):
 
     testdatafilepath = ("/testdata/categories_post.yaml")
 
+    def test_utils_remove_none_values(self):
+        from organicseeds_webshop_api import utils
+        appstructs = [{"key1": "value", "key2": None}]
+        filtered = utils.remove_none_values(appstructs)
+        assert filtered == [{"key1": "value"}]
+
     def test_utils_store_categories(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
