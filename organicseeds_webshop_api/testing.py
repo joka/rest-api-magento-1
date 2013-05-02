@@ -62,22 +62,30 @@ class IntegrationTestCase(unittest.TestCase):
 
 class MagentoIntegrationTestCase(IntegrationTestCase):
 
-    magento_proxy_class = None
-    magento_proxy = None
-
     def setUp(self):
         super(MagentoIntegrationTestCase, self).setUp()
-        magento_proxy = self.magento_proxy_class(self.request)
-        magento_proxy.__enter__()
-        self.magento_proxy = magento_proxy
+        from organicseeds_webshop_api import magentoapi
+        items_proxy = magentoapi.Items(self.request)
+        items_proxy.__enter__()
+        item_groups_proxy = magentoapi.ItemGroups(self.request)
+        categories_proxy = magentoapi.Categories(self.request)
+        item_groups_proxy.client = items_proxy.client
+        item_groups_proxy.session = items_proxy.session
+        categories_proxy.client = items_proxy.client
+        categories_proxy.session = items_proxy.session
+        self.items_proxy = items_proxy
+        self.item_groups_proxy = item_groups_proxy
+        self.categories_proxy = categories_proxy
 
     def tearDown(self):
         from xmlrpclib import Fault
         try:
-            self.magento_proxy.delete_all()
+            self.items_proxy.delete_all()
+            self.item_groups_proxy.delete_all()
+            self.categories_proxy.delete_all()
         except Fault:
             pass
-        self.magento_proxy.__exit__(None, None, None)
+        self.items_proxy.__exit__(None, None, None)
         super(MagentoIntegrationTestCase, self).tearDown()
 
 
