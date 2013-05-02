@@ -4,6 +4,7 @@ from xmlrpclib import Fault
 import magento.api
 import magento
 
+from organicseeds_webshop_api import exceptions
 from organicseeds_webshop_api import schemata
 from organicseeds_webshop_api import url_normaliser
 
@@ -16,6 +17,7 @@ apiurl = "http://hobby.developlocal.sativa.jokasis.de/"
 #############
 #  helpers  #
 #############
+
 
 
 def get_storeviews(appstruct):
@@ -114,15 +116,22 @@ class MagentoAPI(magento.api.API):
         """Send magento api v.1 multiCall"""
         # slice calls to make magento happy and send
         results = []
-        for i in range(0, len(calls), 100):
-            calls_chunk = calls[i:i + 100]
+        for i in range(0, len(calls), 8):
+            calls_chunk = calls[i:i + 8]
             results_chunk = self.multiCall(calls_chunk)
             results += results_chunk
         # raise error if something went wrong
-        for res in results:
-            if isinstance(res, dict) and "faultCode" in res:
-                raise Exception(res["faultCode"] + res["faultMessage"])
-        return results
+        errors = []
+        success = []
+        for x in results:
+            if isinstance(x, dict) and "faultCode" in x:
+                errors.append(x)
+            else:
+                success.append(x)
+        if errors:
+            raise exceptions.WebshopAPIErrors(errors, success)
+        # return results
+        return success
 
     def delete(self, webshop_ids):
         for webshop_id in webshop_ids:

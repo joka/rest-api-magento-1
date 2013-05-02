@@ -5,10 +5,12 @@
 #from pyramid.security import Everyone, Authenticated, Allow
 from cornice import Service
 
+from organicseeds_webshop_api import exceptions
 from organicseeds_webshop_api import schemata
 from organicseeds_webshop_api import models
 from organicseeds_webshop_api import validators
 from organicseeds_webshop_api import utils
+from organicseeds_webshop_api import magentoapi
 
 
 #######################
@@ -40,8 +42,15 @@ def categories_post(request):
        return codes: 200, 400, 500
     """
 
-    utils.store(request.validated["categories"], models.Category,
-                "categories", request)
+    appstructs = request.validated["categories"]
+    utils.store(appstructs, models.Category, "categories", request)
+    with magentoapi.Categories(request) as proxy:
+        try:
+            webshop_ids = proxy.create(appstructs)
+            proxy.update_shops(webshop_ids, appstructs)
+        except exceptions.WebshopAPIErrors as e:
+            proxy.delete([x for x in e.success if isinstance(x, int)])
+            raise exceptions._500(msg=e.errors)
     return {"status": "succeeded"}
 
 
@@ -64,6 +73,8 @@ def categories_delete(request):
     """
 
     utils.delete_all("categories", request)
+    with magentoapi.Categories(request) as proxy:
+        proxy.delete_all()
     return {"status": "succeeded"}
 
 
@@ -98,8 +109,15 @@ def item_groups_post(request):
        return codes: 200, 400, 500
     """
 
-    utils.store(request.validated["item_groups"], models.ItemGroup,
-                "item_groups", request)
+    appstructs = request.validated["item_groups"]
+    utils.store(appstructs, models.ItemGroup, "item_groups", request)
+    with magentoapi.ItemGroups(request) as proxy:
+        try:
+            webshop_ids = proxy.create(appstructs)
+            proxy.update_shops(webshop_ids, appstructs)
+        except exceptions.WebshopAPIErrors as e:
+            proxy.delete([x for x in e.success if isinstance(x, int)])
+            raise exceptions._500(msg=e.errors)
     return {"status": "succeeded"}
 
 
@@ -119,6 +137,8 @@ def item_groups_delete(request):
     """
 
     utils.delete_all("item_groups", request)
+    with magentoapi.ItemGroups(request) as proxy:
+        proxy.delete_all()
     return {"status": "succeeded"}
 
 
@@ -264,9 +284,15 @@ def items_post(request):
 
        return codes: 200, 400, 500
     """
-
-    utils.store(request.validated["items"], models.Item,
-                "items", request)
+    appstructs = request.validated["items"]
+    utils.store(appstructs, models.Item, "items", request)
+    with magentoapi.Items(request) as proxy:
+        try:
+            webshop_ids = proxy.create(appstructs)
+            proxy.update_shops(webshop_ids, appstructs)
+        except exceptions.WebshopAPIErrors as e:
+            proxy.delete([x for x in e.success if isinstance(x, int)])
+            raise exceptions._500(msg=e.errors)
     #TODO update parent links
     #TODO update item_group/category children
     return {"status": "succeeded"}
@@ -289,14 +315,11 @@ def items_put(request):
 
        return codes: 200, 400, 500
     """
-    # filter non existing fields in
-    for item in request.validated["items"]:
-        for i, v in item.items():
-            if v is None:
-                del(item[i])
-    # store
-    utils.store(request.validated["items"], models.Item,
-                "items", request)
+    appstructs = utils.remove_none_values(request.validated["items"])
+    utils.store(appstructs, models.Item, "items", request)
+    with magentoapi.Items(request) as proxy:
+        webshop_ids = proxy.update(appstructs)
+        proxy.update_shops(webshop_ids, appstructs)
     return {"status": "succeeded"}
 
 
@@ -316,4 +339,6 @@ def items_delete(request):
     """
 
     utils.delete_all("items", request)
+    with magentoapi.Items(request) as proxy:
+        proxy.delete_all()
     return {"status": "succeeded"}
