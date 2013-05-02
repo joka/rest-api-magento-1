@@ -124,13 +124,14 @@ class MagentoAPI(magento.api.API):
                 raise Exception(res["faultCode"] + res["faultMessage"])
         return results
 
-    def delete(self, appstructs):
-        calls = []
-        for data in appstructs:
-            entity_id = data["id"]
-            webshop_id = self.entities[entity_id].webshop_id
-            calls.append([self.magento_method + "delete", [webshop_id]])
-        return [bool(x) for x in self.multi_call(calls)]
+    def delete(self, webshop_ids):
+        for webshop_id in webshop_ids:
+            try:
+                self.single_call(self.magento_method + "delete", [webshop_id])
+            except Fault as e:  # TODO catch only not exists errors
+                if e.faultCode == "101":  # we ignore "does not exists" errors
+                    pass
+        return webshop_ids
 
     def delete_all(self):
         """to be implemented in subclass"""
@@ -222,14 +223,10 @@ class Items(MagentoAPI):
     magento_method = u"catalog_product."
 
     def delete_all(self):
-        webshop_entities = self.single_call(
-            self.magento_method + "list",
-            [{'type':{'ilike': self.magento_type}}])
-        webshop_ids = [x["product_id"] for x in webshop_entities]
-        calls = []
-        for webshop_id in webshop_ids:
-            calls.append([self.magento_method + "delete", [webshop_id]])
-        self.multi_call(calls)
+        results = self.single_call(self.magento_method + "list",
+                                   [{'type':{'ilike': self.magento_type}}])
+        webshop_ids = [x["product_id"] for x in results]
+        self.delete(webshop_ids)
 
     def _create_arguments(self, appstruct):
         return [self.magento_type,
@@ -292,22 +289,13 @@ class Categories(MagentoAPI):
     magento_method = u"catalog_category."
 
     def delete_all(self):
-        if self.magento_method:
-            results1 = self.single_call(self.magento_method + "level",
-                                        [None, None, 1])
-            results2 = self.single_call(self.magento_method + "level",
-                                        [None, None, 2])
-            results3 = self.single_call(self.magento_method + "level",
-                                        [None, None, 3])
-            webshop_ids = [int(x["category_id"]) for x in results1 + results2 +
-                           results3]
-            for webshop_id in webshop_ids:
-                if webshop_id > 1:
-                    try:
-                        self.single_call(self.magento_method + "delete",
-                                         [webshop_id])
-                    except Fault:
-                        pass
+        results = self.single_call(self.magento_method + "tree")
+        def children(category):
+            for x in category["children"]:
+                yield(int(x["category_id"]))
+                children(x["children"])
+        webshop_ids = [x for x in children(results) if x > 2]
+        self.delete(webshop_ids)
 
     def _create_arguments(self, appstruct):
         return [2,  # set parent to default root category

@@ -265,11 +265,14 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
     def test_magentoapi_delete_items(self):
         proxy = self.items_proxy
         appstruct = self.testdata["items"][0]
-        create_item(appstruct, self.request, proxy)
+        item = create_item(appstruct, self.request, proxy)
 
-        proxy.delete([{"id": appstruct["id"]}])
-        results = proxy.single_call('catalog_product.list')
-        assert results == []
+        results = proxy.delete([item.webshop_id])
+        assert results == [item.webshop_id]
+        products = proxy.single_call('catalog_product.list')
+        assert products == []
+        results = proxy.delete(["wrongid"])
+        assert results == ["wrongid"]
 
 
 class TestMagentoAPIItemGroupsIntegration(MagentoIntegrationTestCase):
@@ -300,11 +303,10 @@ class TestMagentoAPIItemGroupsIntegration(MagentoIntegrationTestCase):
     def test_magentoapi_delete_item_groups(self):
         proxy = self.item_groups_proxy
         appstruct = self.testdata["item_groups"][0]
-        create_item_group(appstruct, self.request, proxy)
+        item_group = create_item_group(appstruct, self.request, proxy)
 
-        proxy.delete([{"id": appstruct["id"]}])
-        item_groups = proxy.single_call('catalog_product.list')
-        assert item_groups == []
+        results = proxy.delete([item_group.webshop_id])
+        assert results == [True]
 
 
 class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
@@ -363,6 +365,6 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
         appstruct = self.testdata["categories"][0]
         category = create_category(appstruct, self.request, proxy)
 
-        proxy.delete([{"id": appstruct["id"]}])
-        result = proxy.single_call('catalog_category.level')
-        assert category.webshop_id not in [x["category_id"] for x in result]
+        results = proxy.delete([category.webshop_id])
+        assert results == [True]
+
