@@ -3,6 +3,78 @@ from organicseeds_webshop_api.testing import (
 )
 
 
+class TestValidatorsBasicIntegration(IntegrationTestCase):
+
+    def test_validate_key_unique_valid(self):
+        from organicseeds_webshop_api.validators import validate_key_unique
+        appstructs = {"entities": [{"id": 1}, {"id": 2}]}
+        self.request.validated = appstructs
+        validate_key_unique("entities", "id",  self.request)
+        assert(len(self.request.errors) == 0)
+
+    def test_validate_key_unique_invalid(self):
+        from organicseeds_webshop_api.validators import validate_key_unique
+        appstructs = {"entities": [{"id": 1}, {"id": 1}]}
+        self.request.validated = appstructs
+        validate_key_unique("entities", "id", self.request)
+        assert(len(self.request.errors) == 1)
+
+    def test_validate_key_do_not_exists_valid(self):
+        from organicseeds_webshop_api.validators import\
+            validate_key_does_not_exists
+        appstructs = {"entities": [{"id": 1}]}
+        self.request.validated = appstructs
+        self.request.root.app_root["entities"] = {}
+        validate_key_does_not_exists("entities", "id",  self.request)
+        assert(len(self.request.errors) == 0)
+
+    def test_validate_key_do_not_exists_invalid(self):
+        from organicseeds_webshop_api.validators import\
+            validate_key_does_not_exists
+        appstructs = {"entities": [{"id": 1}]}
+        self.request.validated = appstructs
+        self.request.root.app_root["entities"] = {}
+        self.request.root.app_root["entities"][1] = {"id": 1}
+        validate_key_does_not_exists("entities", "id",  self.request)
+        assert(len(self.request.errors) == 1)
+
+    def test_validate_title_unique_valid(self):
+        from organicseeds_webshop_api.validators import validate_title_unique
+        appstructs = {"entities": [{"title": {"default": "1"}},
+                                   {"title": {"default": "2", "fr":"3"}}]}
+        self.request.validated = appstructs
+        validate_title_unique("entities", self.request)
+        assert(len(self.request.errors) == 0)
+
+    def test_validate_title_unique_invalid(self):
+        from organicseeds_webshop_api.validators import validate_title_unique
+        appstructs = {"entities": [{"title": {"default": "1"}},
+                                   {"title": {"default": "2", "fr":"1"}}]}
+        self.request.validated = appstructs
+        validate_title_unique("entities", self.request)
+        assert(len(self.request.errors) == 1)
+
+    def test_validate_title_does_not_exists_valid(self):
+        from organicseeds_webshop_api.validators import\
+            validate_title_does_not_exists
+        appstructs = {"entities": [{"title": {"default": "1"}}]}
+        self.request.validated = appstructs
+        self.request.root.app_root["entities"] = {}
+        self.request.root.app_root["entities"][1] = {"title": {"fr": "2"}}
+        validate_title_does_not_exists("entities", self.request)
+        assert(len(self.request.errors) == 0)
+
+    def test_validate_title_does_not_exists_invalid(self):
+        from organicseeds_webshop_api.validators import\
+            validate_title_does_not_exists
+        appstructs = {"entities": [{"title": {"default": "1"}}]}
+        self.request.validated = appstructs
+        self.request.root.app_root["entities"] = {}
+        self.request.root.app_root["entities"][1] = {"title": {"fr": "1"}}
+        validate_title_does_not_exists("entities", self.request)
+        assert(len(self.request.errors) == 1)
+
+
 class TestValidatorsCategoryIntegration(IntegrationTestCase):
 
     testdatafilepath = ("/testdata/categories_post.yaml")

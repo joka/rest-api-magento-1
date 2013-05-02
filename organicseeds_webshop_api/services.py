@@ -25,7 +25,11 @@ categories = Service(name='categories',
 
 @categories.post(schema=schemata.CategoriesList, accept="text/json",
                  validators=(validators.validate_category_parent_id,
-                             validators.validate_category_id_does_not_exists))
+                             validators.validate_category_id_unique,
+                             validators.validate_category_id_does_not_exists,
+                             validators.validate_category_title_unique,
+                             validators.validate_category_title_do_not_exists,
+                             ))
 def categories_post(request):
     """Create new category entities
 
@@ -91,8 +95,12 @@ item_groups = Service(name='item_groups',
 
 @item_groups.post(
     schema=schemata.ItemGroupsList, accept="text/json",
-    validators=(validators.validate_item_group_id_does_not_exists,
-                validators.validate_item_group_parent_id))
+    validators=(validators.validate_item_group_id_unique,
+                validators.validate_item_group_id_does_not_exists,
+                validators.validate_item_group_title_unique,
+                validators.validate_item_group_title_do_not_exists,
+                validators.validate_item_group_parent_id
+                ))
 def item_groups_post(request):
     """Create new item group entities
 
@@ -154,7 +162,9 @@ unit_of_measures = Service(name='unit_of_measures',
 
 @unit_of_measures.post(
     schema=schemata.UnitOfMeasuresList, accept="text/json",
-    validators=(validators.validate_unit_of_measure_id_does_not_exists))
+    validators=(validators.validate_unit_of_measure_id_unique,
+                validators.validate_unit_of_measure_id_does_not_exists,
+                ))
 def unit_of_measures_post(request):
     """Create new unit of measure data (for items)
 
@@ -208,7 +218,9 @@ vpe_types = Service(name='vpe_types',
 
 
 @vpe_types.post(schema=schemata.VPETypesList, accept="text/json",
-                validators=(validators.validate_vpe_type_id_does_not_exists,))
+                validators=(validators.validate_vpe_type_id_unique,
+                            validators.validate_vpe_type_id_does_not_exists
+                            ))
 def vpe_types_post(request):
     """Create new vpe type data (for items).
        You should delete referencing items first.
@@ -265,10 +277,16 @@ items = Service(name='items',
 
 
 @items.post(schema=schemata.ItemsList, accept="text/json",
-            validators=(validators.validate_item_id_does_not_exists,
+            validators=(validators.validate_items_id_unique,
+                        validators.validate_items_id_does_not_exists,
+                        validators.validate_items_sku_unique,
+                        validators.validate_items_sku_does_not_exists,
+                        validators.validate_items_title_unique,
+                        validators.validate_items_title_does_not_exists,
                         validators.validate_item_parent_id,
                         validators.validate_item_vpe_type_id,
-                        validators.validate_item_unit_of_measure_id))
+                        validators.validate_item_unit_of_measure_id,
+                        ))
 def items_post(request):
     """Create new item entities
 
@@ -299,7 +317,10 @@ def items_post(request):
 
 
 @items.put(schema=schemata.ItemsUpdateList, accept="text/json",
-           validators=(validators.validate_item_id_does_exists))
+           validators=(validators.validate_item_id_does_exists,
+                       validators.validate_items_title_unique,
+                       validators.validate_items_title_does_not_exists,
+                       ))
 def items_put(request):
     """Update existing item entities
 
