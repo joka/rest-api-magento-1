@@ -100,10 +100,8 @@ class TestMagentoAPIHelpersIntegration(IntegrationTestCase):
 
 class TestMagentoAPIMagentoAPIIntegration(MagentoIntegrationTestCase):
 
-    magento_proxy_class = magentoapi.MagentoAPI
-
     def test_magentoapi_magentoapi_multi_call(self):
-        proxy = self.magento_proxy
+        proxy = self.items_proxy
         calls = []
         response = proxy.multi_call(calls)
         assert response == []
@@ -126,16 +124,15 @@ class TestMagentoAPIMagentoAPIIntegration(MagentoIntegrationTestCase):
     def test_magentoapi_magentoapi_multi_call_error(self):
         calls = [["wrong_metho"]]
         with pytest.raises(Exception):
-            self.magento_proxy.multi_call(calls)
+            self.items_proxy.multi_call(calls)
 
 
 class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
 
     testdatafilepath = ("/testdata/items_post.yaml")
-    magento_proxy_class = magentoapi.Items
 
     def test_magentoapi_items_to_update_shops_data(self):
-        proxy = self.magento_proxy
+        proxy = self.items_proxy
         appstruct = self.testdata["items"][0]
         data = proxy._to_update_shops_data(appstruct, "fr", "ch")
         assert data == {'name': 'titlefr',
@@ -151,35 +148,36 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
 
     def test_magentoapi_items_to_update_data(self):
         appstruct = self.testdata["items"][0]
-        data = self.magento_proxy._to_update_data(appstruct)
+        data = self.items_proxy._to_update_data(appstruct)
         assert ('weight', 0.25) in data.items()
         assert ('url_key', u'title') in data.items()
         appstruct = {}
-        data = self.magento_proxy._to_update_data(appstruct)
+        data = self.items_proxy._to_update_data(appstruct)
         assert data == {}
 
     def test_magentoapi_items_to_create_data(self):
         appstruct = {}
-        data = self.magento_proxy._to_create_data(appstruct)
+        data = self.items_proxy._to_create_data(appstruct)
         assert ('status', 1) in data.items()
         assert ('websites', ['ch_website', 'de_website', 'fr_website'])\
             in data.items()
         assert ('visibility', 1) in data.items()
 
     def test_magentoapi_create_items(self):
-        proxy = self.magento_proxy
+        proxy = self.items_proxy
         appstruct = self.testdata["items"][0]
         webshop_id = proxy.create([appstruct])[0]
         result = proxy.single_call('catalog_product.info', [webshop_id])
         assert result["websites"] == ['2', '3', '5']
-        assert result["price"] == None
+        assert result["price"] is None
         assert result["status"] == '1'
 
     def test_magentoapi_link_item_with_item_group_parents(self):
-        proxy = self.magento_proxy
+        proxy = self.items_proxy
         appstruct = {"id": u"item", "sku": u"itemsku", "parent_id": "parent"}
         item = create_item(appstruct, self.request, proxy)
-        parent = create_item_group({"id": "parent"}, self.request, proxy)
+        parent = create_item_group({"id": "parent"}, self.request,
+                                   self.item_groups_proxy)
         try:
             proxy.link_item_parents([item.webshop_id], [appstruct])
             children = proxy.single_call("catalog_product_link.list",
@@ -189,10 +187,12 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
             proxy.single_call("catalog_product.delete", ["parent"])  # cleanup
 
     def test_magentoapi_link_items_with_category_parents(self):
-        proxy = self.magento_proxy
+        proxy = self.items_proxy
         appstruct = {"id": u"item", "sku": u"itemsku", "parent_id": "parent"}
         item = create_item(appstruct, self.request, proxy)
-        parent = create_category({"id": "parent"}, self.request, proxy)
+        parent = create_category(
+            {"id": "parent", "title": {"default": "parent"}}, self.request,
+            self.categories_proxy)
         try:
             proxy.link_item_parents([item.webshop_id], [appstruct])
             children = proxy.single_call("category.assignedProducts",
@@ -202,18 +202,18 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
             proxy.single_call("catalog_category.delete", [parent.webshop_id])
 
     def test_magentoapi_items_update(self):
-        proxy = self.magento_proxy
+        proxy = self.items_proxy
         appstruct = self.testdata["items"][0]
         create_item(appstruct, self.request, proxy)
 
-        updates = [{"id": appstruct["id"],
-                    "title": {"default": u"New unique_name"}}]
-        proxy.update(updates)
-        results = proxy.single_call('catalog_product.list')
-        assert results[0]["name"] == u"New unique_name"
+        update = {"id": appstruct["id"],
+                  "title": {"default": u"New unique_name"}}
+        webshop_id = proxy.update([update])[0]
+        results = proxy.single_call('catalog_product.info', [webshop_id])
+        assert results["name"] == u"New unique_name"
 
     def test_magentoapi_items_update_shops(self):
-        proxy = self.magento_proxy
+        proxy = self.items_proxy
         appstruct = {"id": u"item", "sku": u"itemsku",
                      "shops": [("ch_hobby", True),  # items visible
                                ("ch_profi", False),  # items not visible
@@ -263,7 +263,7 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         assert de_de_hobby["visibility"] == "1"  # item not visible
 
     def test_magentoapi_delete_items(self):
-        proxy = self.magento_proxy
+        proxy = self.items_proxy
         appstruct = self.testdata["items"][0]
         create_item(appstruct, self.request, proxy)
 
@@ -275,17 +275,17 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
 class TestMagentoAPIItemGroupsIntegration(MagentoIntegrationTestCase):
 
     testdatafilepath = ("/testdata/item_groups_post.yaml")
-    magento_proxy_class = magentoapi.ItemGroups
+    items_proxy_class = magentoapi.ItemGroups
 
     def test_magentoapi_create_item_groups(self):
-        proxy = self.magento_proxy
+        proxy = self.item_groups_proxy
         appstruct = self.testdata["item_groups"][0]
         appstruct["title"]["default"] = u"unique_name"
         webshop_id = proxy.create([appstruct])[0]
         assert webshop_id > 0
 
     def test_magentoapi_update_item_groups(self):
-        proxy = self.magento_proxy
+        proxy = self.item_groups_proxy
         appstruct = self.testdata["item_groups"][0]
         appstruct = self.testdata["item_groups"][0]
         appstruct["title"]["default"] = u"unique_name"
@@ -293,12 +293,12 @@ class TestMagentoAPIItemGroupsIntegration(MagentoIntegrationTestCase):
 
         update = {"id": appstruct["id"],
                   "title": {"default": u"New unique_name"}}
-        proxy.update([update])
-        results = proxy.single_call('catalog_product.list')
-        assert results[0]["name"] == u"New unique_name"
+        webshop_id = proxy.update([update])[0]
+        results = proxy.single_call('catalog_product.info', [webshop_id])
+        assert results["name"] == u"New unique_name"
 
     def test_magentoapi_delete_item_groups(self):
-        proxy = self.magento_proxy
+        proxy = self.item_groups_proxy
         appstruct = self.testdata["item_groups"][0]
         create_item_group(appstruct, self.request, proxy)
 
@@ -310,29 +310,30 @@ class TestMagentoAPIItemGroupsIntegration(MagentoIntegrationTestCase):
 class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
 
     testdatafilepath = ("/testdata/categories_post.yaml")
-    magento_proxy_class = magentoapi.Categories
 
-    def test_magentoapi_to_create_data(self):
+    def test_magentoapi_categories_to_create_data(self):
         appstruct = {}
-        data = self.magento_proxy._to_create_data(appstruct)
+        data = self.categories_proxy._to_create_data(appstruct)
         default_data = {"available_sort_by": ["position", "name", "price"],
                         "default_sort_by": "position",
                         "include_in_menu": 1,
                         "is_active": 0}
         assert data == default_data
 
-    def test_magentoapi_create_categories(self):
-        proxy = self.magento_proxy
+    def test_magentoapi_categories_create_categories(self):
+        proxy = self.categories_proxy
         appstruct = self.testdata["categories"][0]
         webshop_id = proxy.create([appstruct])[0]
         default_children = proxy.single_call("catalog_category.level",
                                              [None, None, 2])
         assert webshop_id == int(default_children[0]["category_id"])
 
-    def test_magentoapi_link_category_parents(self):
-        proxy = self.magento_proxy
-        appstruct_p = {"id": u"parent", "parent_id": None}
-        appstruct_c = {"id": u"child", "parent_id": u"parent"}
+    def test_magentoapi_categories_link_category_parents(self):
+        proxy = self.categories_proxy
+        appstruct_p = {"id": u"parent", "parent_id": None, "title": {"default":
+                                                                     "parent"}}
+        appstruct_c = {"id": u"child", "parent_id": u"parent", "title":
+                       {"default": "child"}}
         category_p = create_category(appstruct_p, self.request, proxy)
         category_c = create_category(appstruct_c, self.request, proxy)
 
@@ -345,19 +346,20 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
                                    [None, None, category_p.webshop_id])
         assert category_c.webshop_id == int(level2[0]["category_id"])
 
-    def test_magentoapi_update_categories(self):
-        proxy = self.magento_proxy
+    def test_magentoapi_categories_update_categories(self):
+        proxy = self.categories_proxy
         appstruct = self.testdata["categories"][0]
         appstruct["title"]["default"] = u"unique_name"
         create_category(appstruct, self.request, proxy)
 
         update = {"id": appstruct["id"],
                   "title": {"default": u"New unique_name"}}
-        results = proxy.update([update])
-        assert results[0] is True
+        webshop_id = proxy.update([update])[0]
+        results = proxy.single_call('catalog_category.info', [webshop_id])
+        assert results["name"] == u"New unique_name"
 
-    def test_magentoapi_delete_categories(self):
-        proxy = self.magento_proxy
+    def test_magentoapi_categories_delete_categories(self):
+        proxy = self.categories_proxy
         appstruct = self.testdata["categories"][0]
         category = create_category(appstruct, self.request, proxy)
 

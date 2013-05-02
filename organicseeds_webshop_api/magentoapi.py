@@ -114,8 +114,8 @@ class MagentoAPI(magento.api.API):
         """Send magento api v.1 multiCall"""
         # slice calls to make magento happy and send
         results = []
-        for i in range(0, len(calls), 8):
-            calls_chunk = calls[i:i + 8]
+        for i in range(0, len(calls), 100):
+            calls_chunk = calls[i:i + 100]
             results_chunk = self.multiCall(calls_chunk)
             results += results_chunk
         # raise error if something went wrong
@@ -146,17 +146,19 @@ class MagentoAPI(magento.api.API):
 
     def update(self, appstructs):
         calls = []
+        webshop_ids = []
         for appstruct in appstructs:
             entity_id = appstruct["id"]
             webshop_id = self.entities[entity_id].webshop_id
+            webshop_ids.append(webshop_id)
             calls.append(
                 [self.magento_method + 'update',
                  [webshop_id,
                   self._to_update_data(appstruct),
                   ]
                  ])
-        results = [bool(x) for x in self.multi_call(calls)]
-        return results
+        self.multi_call(calls)
+        return webshop_ids
 
     def update_shops(self, webshop_ids, appstructs):
         calls = []
@@ -297,10 +299,8 @@ class Categories(MagentoAPI):
                                         [None, None, 2])
             results3 = self.single_call(self.magento_method + "level",
                                         [None, None, 3])
-            results4 = self.single_call(self.magento_method + "level",
-                                        [None, None, 4])
             webshop_ids = [int(x["category_id"]) for x in results1 + results2 +
-                           results3 + results4]
+                           results3]
             for webshop_id in webshop_ids:
                 if webshop_id > 1:
                     try:
@@ -343,4 +343,5 @@ class Categories(MagentoAPI):
         return dict([x for x in data_tuples if x[1] is not None])
 
 # todo docu inventory status
-# todo validate unique title, sku(items and item_groups), id
+# todo validate unique title, sku(items and item_groups), id,
+#      title translations
