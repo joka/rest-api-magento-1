@@ -58,6 +58,22 @@ def categories_post(request):
     return {"status": "succeeded"}
 
 
+@categories.get()
+def categories_get(request):
+    """Get all category webshop data
+
+       method : GET
+
+       path : categories
+
+       return codes: 200, 400, 500
+    """
+
+    with magentoapi.Categories(request) as proxy:
+        result = proxy.list()
+        return {"categories": result}
+
+
 @categories.delete(
     accept="text/json",
     validators=(validators.validate_no_item_group_references_exist))

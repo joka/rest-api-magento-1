@@ -154,6 +154,12 @@ class MagentoAPI(magento.api.API):
         webshop_ids = [int(x) for x in self.multi_call(calls)]
         return webshop_ids
 
+
+    def list(self):
+        """to be implemented in subclass"""
+        pass
+
+
     def update(self, appstructs):
         calls = []
         webshop_ids = []
@@ -298,13 +304,19 @@ class Categories(MagentoAPI):
     magento_method = u"catalog_category."
 
     def delete_all(self):
-        results = self.single_call(self.magento_method + "tree")
-        def children(category):
-            for x in category["children"]:
-                yield(int(x["category_id"]))
-                children(x["children"])
-        webshop_ids = [x for x in children(results) if x > 2]
+        webshop_ids = [x["category_id"] for x in self.list() if
+                       x["category_id"] > 2]
         self.delete(webshop_ids)
+
+    def list(self):
+        results = self.single_call(self.magento_method + "tree")
+        def children(category, res):
+            category["category_id"] = int(category["category_id"])
+            res.append(category)
+            for child in category["children"]:
+                children(child, res)
+            return res
+        return children(results, [])
 
     def _create_arguments(self, appstruct):
         return [2,  # set parent to default root category
