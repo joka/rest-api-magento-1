@@ -1,14 +1,17 @@
+Changelog
+==========
+
 0.2
 ---
 
-- Items schema: use Float instead of Decimal
+- Item schema: use Float instead of Decimal
 
-- Items schema: title field/title translations have to be unique
+- Item schema: title field/title translations have to be unique
 
-- Items schema:  price field is now a sequence of WebsitePrice.
+- Item schema:  price field is now a sequence of WebsitePrice.
     [("de_website", 1)] instead of {default: 1, "websites": [("de_website", 1)]}
 
-- Update items: you cannot update the sku field anymore 
+- ItemUpdate schema: you cannot update the sku field anymore
 
 
 0.1
