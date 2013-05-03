@@ -15,7 +15,7 @@ items:
       default: title  
       de: titlede
       fr: titlefr
-    shortdescription:
+    short_description:
       default: kurzbeschreibung  
       fr: dscription 
 
@@ -82,7 +82,7 @@ items:
         #- (ch_hobby, True)
     #title:
       #default: title2
-    #shortdescription: 
+    #short_description: 
       #default: kurzbeschreibung 
 
     ## Item attributes

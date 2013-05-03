@@ -13,7 +13,7 @@ item_groups:
     title:  
       default: Karottensorte 
       fr: carotte 
-    shortdescription:  
+    short_description:  
       default: Karotten, Ruebli, Moehren 
       fr: carotte 
     

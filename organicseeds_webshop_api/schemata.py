@@ -560,7 +560,7 @@ class BasicNode(colander.MappingSchema):
 
            title : StringTranslation
 
-           shortdescription : StringTranslation
+           short_description : StringTranslation
     """
 
     id = Identifier()
@@ -569,7 +569,7 @@ class BasicNode(colander.MappingSchema):
     order = IntegerGtNull()
     shops = Shops()
     title = StringTranslation()
-    shortdescription = StringTranslation()
+    short_description = StringTranslation()
 
 
 ##############
@@ -870,7 +870,7 @@ class ItemUpdate(colander.Schema):
     order = IntegerGtNull(missing=None, required=False)
     shops = Shops(missing=None, required=False)
     title = StringTranslation(missing=None, required=False)
-    shortdescription = StringTranslation(missing=None, required=False)
+    short_description = StringTranslation(missing=None, required=False)
 
     #category_ids = IDList(missing=None, required=False)
     description = StringTranslation(missing=None, required=False)

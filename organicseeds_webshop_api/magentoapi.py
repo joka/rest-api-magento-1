@@ -276,7 +276,7 @@ class Items(MagentoAPI):
             ("url_key", url_key),
             ("description", get_translation(appstruct, "description", lang)),
             ("short_description", get_translation(appstruct,
-                                                  "shortdescription", lang)),
+                                                  "short_description", lang)),
             ("price", get_website_value(appstruct, "price", country))]
         return dict([x for x in data_tuples if x[1] is not None])
 
@@ -360,7 +360,7 @@ class Categories(MagentoAPI):
         data_tuples = [("name", name),
                        ("url_key", url_key),
                        ("short_description",
-                        get_translation(appstruct, "shortdescription", lang)),
+                        get_translation(appstruct, "short_description", lang)),
                        ]
         return dict([x for x in data_tuples if x[1] is not None])
 

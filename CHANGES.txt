@@ -4,7 +4,9 @@ Changelog
 0.2
 ---
 
-- Item schema: use Float instead of Decimal
+- schema: renamed shortdescription to short_description
+
+- schema: use Float instead of Decimal
 
 - Item schema: title field/title translations have to be unique
 

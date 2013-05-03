@@ -11,7 +11,7 @@ categories:
     title:    # StringTranslation
         default: Aktuelle Aussaten 
         fr: actuelle
-    shortdescription: # StringTranslation  
+    short_description: # StringTranslation  
         default: Karotten, Ruebli, Möhren 
    
   -
@@ -24,7 +24,7 @@ categories:
         - [ch_profi, True] 
     title: 
         default: Aktuelle Aussaten2
-    shortdescription: 
+    short_description: 
         default: 
 
   -
@@ -37,7 +37,7 @@ categories:
         - [ch_profi, True] 
     title: 
         default: Gartenwerkzeuge
-    shortdescription:
+    short_description:
         default: nuetzliches
 
   -
@@ -50,7 +50,7 @@ categories:
         - [ch_profi, True] 
     title: 
         default: Gemuese
-    shortdescription:
+    short_description:
         default:
 
   -
@@ -63,7 +63,7 @@ categories:
         - [ch_profi, True] 
     title: 
         default: Karotten
-    shortdescription:
+    short_description:
         default: 
 
     synonyms: # SynonymsTranslation # optional
