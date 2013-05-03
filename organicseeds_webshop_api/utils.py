@@ -73,7 +73,8 @@ def delete_all(data_key, request):
 def remove_none_values(appstructs):
     for item in appstructs:
         for i, v in item.items():
-            if v is None: del(item[i])
+            if v is None:
+                del(item[i])
     return appstructs
 
 #def find_element(path, context):

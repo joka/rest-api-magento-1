@@ -4,7 +4,8 @@ from collections import Counter
 # base validators #
 ###################
 
-def validate_key_unique(data_key, key,  request):
+
+def validate_key_unique(data_key, key, request):
     appstructs = request.validated[data_key]
     values = [x[key] for x in appstructs if key in x]
     values_nonunique = [x for x, y in Counter(values).items() if y > 1]
@@ -29,18 +30,24 @@ def validate_key_does_not_exists(data_key, key, request):
 
 
 def _expand_titles(appstructs):
-    for x in appstructs:
-        if "default" in x: yield x["default"]
-        if "fr" in x: yield x["fr"]
-        if "en" in x: yield x["en"]
-        if "it" in x: yield x["it"]
-        if "de" in x: yield x["de"]
+    titles = [x["title"] for x in appstructs if x.get("title", None)]
+    for x in titles:
+        if "default" in x:
+            yield x["default"]
+        if "fr" in x:
+            yield x["fr"]
+        if "en" in x:
+            yield x["en"]
+        if "it" in x:
+            yield x["it"]
+        if "de" in x:
+            yield x["de"]
 
 
-def validate_title_unique(data_key,  request):
+def validate_title_unique(data_key, request):
     appstructs = request.validated[data_key]
-    titles = _expand_titles([x["title"] for x in appstructs if "title" in x])
-    titles = [x for x in titles if x ]
+    titles = _expand_titles(appstructs)
+    titles = [x for x in titles if x]
     titles_nonunique = [x for x, y in Counter(titles).items() if y > 1]
 
     error = 'The following titles are not unique: %s'
@@ -48,18 +55,18 @@ def validate_title_unique(data_key,  request):
         request.errors.add('body', "title", error % (str(titles_nonunique)))
 
 
-def validate_title_does_not_exists(data_key,  request):
+def validate_title_does_not_exists(data_key, request):
     appstructs = request.validated[data_key]
-    titles = _expand_titles([x["title"] for x in appstructs if "title" in x])
+    titles = _expand_titles(appstructs)
     existing_folder = request.root.app_root[data_key]
-    existing_titles = set(_expand_titles([x["title"] for x in
+    existing_titles = set(_expand_titles([x for x in
                                           existing_folder.values()]))
     already_exists = existing_titles.intersection(titles)
 
     error = 'The following titles do already exists in %s: %s'
     if already_exists:
         request.errors.add('body', "title", error % (data_key,
-                                    [x for x in already_exists].__str__()))
+                           [x for x in already_exists].__str__()))
 
 
 def validate_id_does_not_exists(data_key, request):
@@ -114,6 +121,10 @@ def validate_category_id_unique(request):
     validate_key_unique("categories", "id", request)
 
 
+def validate_category_id_does_exists(request):
+    validate_id_does_exists("categories", request)
+
+
 def validate_category_id_does_not_exists(request):
     validate_id_does_not_exists("categories", request)
 
@@ -153,6 +164,7 @@ def validate_no_item_group_references_exist(request):
 ########################
 # /item_groups service #
 ########################
+
 
 def validate_item_group_id_unique(request):
     validate_key_unique("item_groups", "id", request)
@@ -203,7 +215,6 @@ def validate_unit_of_measure_id_does_not_exists(request):
 def validate_unit_of_measure_no_item_references_exist(request):
     validate_no_reference_ids_exist("unit_of_measures", "items",
                                     "unit_of_measure_id", request)
-
 
 
 ######################

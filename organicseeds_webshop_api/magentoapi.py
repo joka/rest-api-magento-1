@@ -19,7 +19,6 @@ apiurl = "http://hobby.developlocal.sativa.jokasis.de/"
 #############
 
 
-
 def get_storeviews(appstruct):
     storeviews = []
     name_tmpl = "%s_%s_%s"
@@ -154,11 +153,9 @@ class MagentoAPI(magento.api.API):
         webshop_ids = [int(x) for x in self.multi_call(calls)]
         return webshop_ids
 
-
     def list(self):
         """to be implemented in subclass"""
         pass
-
 
     def update(self, appstructs):
         calls = []
@@ -239,7 +236,7 @@ class Items(MagentoAPI):
 
     def delete_all(self):
         results = self.single_call(self.magento_method + "list",
-                                   [{'type':{'ilike': self.magento_type}}])
+                                   [{'type': {'ilike': self.magento_type}}])
         webshop_ids = [x["product_id"] for x in results]
         self.delete(webshop_ids)
 
@@ -310,6 +307,7 @@ class Categories(MagentoAPI):
 
     def list(self):
         results = self.single_call(self.magento_method + "tree")
+
         def children(category, res):
             category["category_id"] = int(category["category_id"])
             res.append(category)
