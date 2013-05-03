@@ -28,7 +28,7 @@ categories = Service(name='categories',
                              validators.validate_category_id_unique,
                              validators.validate_category_id_does_not_exists,
                              validators.validate_category_title_unique,
-                             validators.validate_category_title_does_not_exists,
+                             validators.validate_category_title_does_not_exists
                              ))
 def categories_post(request):
     """Create new category entities
@@ -319,11 +319,13 @@ def items_post(request):
        return codes: 200, 400, 500
     """
     appstructs = request.validated["items"]
-    utils.store(appstructs, models.Item, "items", request)
+    items = utils.store(appstructs, models.Item, "items", request)
     with magentoapi.Items(request) as proxy:
         try:
             webshop_ids = proxy.create(appstructs)
             proxy.update_shops(webshop_ids, appstructs)
+            for item, webshop_id in zip(items, webshop_ids):
+                item.webshop_id = webshop_id
         except exceptions.WebshopAPIErrors as e:
             proxy.delete([x for x in e.success if isinstance(x, int)])
             raise exceptions._500(msg=e.errors)
@@ -355,8 +357,12 @@ def items_put(request):
     appstructs = utils.remove_none_values(request.validated["items"])
     utils.store(appstructs, models.Item, "items", request)
     with magentoapi.Items(request) as proxy:
-        webshop_ids = proxy.update(appstructs)
-        proxy.update_shops(webshop_ids, appstructs)
+        try:
+            webshop_ids = proxy.update(appstructs)
+            proxy.update_shops(webshop_ids, appstructs)
+        except exceptions.WebshopAPIErrors as e:
+            proxy.delete([x for x in e.success if isinstance(x, int)])
+            raise exceptions._500(msg=e.errors)
     return {"status": "succeeded"}
 
 

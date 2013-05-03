@@ -1,6 +1,5 @@
 import copy
 import pytest
-from organicseeds_webshop_api import magentoapi
 from organicseeds_webshop_api.testing import (
     MagentoIntegrationTestCase,
 )
@@ -17,34 +16,38 @@ def create_item(appstruct, request):
 class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
 
     testdatafilepath = ("/testdata/items_post.yaml")
-    magento_proxy_class = magentoapi.Items
 
     @pytest.mark.loadtest
-    def test_load_create_items_100(self):
-        proxy = self.magento_proxy
+    def test_load_create_items_time_10(self):
+        proxy = self.items_proxy
         import time
         start = time.time()
         appstruct = self.testdata["items"][0]
         appstructs = []
         items = []
-        for x in range(0, 100):
+        for x in range(0, 10):
             appstruct_ = copy.deepcopy(appstruct)
             appstruct_["id"] = u"id" + str(x)
             appstruct_["sku"] = u"sku" + str(x)
             appstruct_["title"]["default"] = u"title" + str(x)
+            appstruct_["title"]["fr"] = u"titlefr" + str(x)
+            appstruct_["title"]["de"] = u"titlede" + str(x)
             appstructs.append(appstruct_)
             items.append(create_item(appstruct_, self.request))
+        print("\ncreating items")
         webshop_ids = proxy.create(appstructs)
         for i, webshop_id in enumerate(webshop_ids):
             items[i].webshop_id = webshop_id
-        proxy.delete(appstructs)
+        print("\nupdateing items")
+        proxy.update_shops(webshop_ids, appstructs)
         end = time.time()
-        print("\n\nTime to create and delete 100 items:")
+        print("\n\nTime to create and delete 10 items:")
         print(end - start)
         print("\n")
 
     @pytest.mark.loadtest
     def test_load_create_items_6(self):
+        proxy = self.items_proxy
         appstruct = self.testdata["items"][0]
         appstructs = []
         items = []
@@ -53,11 +56,14 @@ class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
             appstruct_["id"] = u"id" + str(x)
             appstruct_["sku"] = u"sku" + str(x)
             appstruct_["title"]["default"] = u"title" + str(x)
+            appstruct_["title"]["fr"] = u"titlefr" + str(x)
+            appstruct_["title"]["de"] = u"titlede" + str(x)
             appstructs.append(appstruct_)
             items.append(create_item(appstruct_, self.request))
-        webshop_ids = self.magento_proxy.create(appstructs)
+        webshop_ids = proxy.create(appstructs)
         for i, webshop_id in enumerate(webshop_ids):
             items[i].webshop_id = webshop_id
+        proxy.update_shops(webshop_ids, appstructs)
 
     @pytest.mark.loadtest
     def test_load_create_items_7(self):
@@ -69,9 +75,11 @@ class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
             appstruct_["id"] = u"id" + str(x)
             appstruct_["sku"] = u"sku" + str(x)
             appstruct_["title"]["default"] = u"title" + str(x)
+            appstruct_["title"]["fr"] = u"titlefr" + str(x)
+            appstruct_["title"]["de"] = u"titlede" + str(x)
             appstructs.append(appstruct_)
             items.append(create_item(appstruct_, self.request))
-        webshop_ids = self.magento_proxy.create(appstructs)
+        webshop_ids = self.items_proxy.create(appstructs)
         for i, webshop_id in enumerate(webshop_ids):
             items[i].webshop_id = webshop_id
 
@@ -85,9 +93,11 @@ class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
             appstruct_["id"] = u"id" + str(x)
             appstruct_["sku"] = u"sku" + str(x)
             appstruct_["title"]["default"] = u"title" + str(x)
+            appstruct_["title"]["fr"] = u"titlefr" + str(x)
+            appstruct_["title"]["de"] = u"titlede" + str(x)
             appstructs.append(appstruct_)
             items.append(create_item(appstruct_, self.request))
-        webshop_ids = self.magento_proxy.create(appstructs)
+        webshop_ids = self.items_proxy.create(appstructs)
         for i, webshop_id in enumerate(webshop_ids):
             items[i].webshop_id = webshop_id
 
@@ -101,9 +111,11 @@ class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
             appstruct_["id"] = u"id" + str(x)
             appstruct_["sku"] = u"sku" + str(x)
             appstruct_["title"]["default"] = u"title" + str(x)
+            appstruct_["title"]["fr"] = u"titlefr" + str(x)
+            appstruct_["title"]["de"] = u"titlede" + str(x)
             appstructs.append(appstruct_)
             items.append(create_item(appstruct_, self.request))
-        webshop_ids = self.magento_proxy.create(appstructs)
+        webshop_ids = self.items_proxy.create(appstructs)
         for i, webshop_id in enumerate(webshop_ids):
             items[i].webshop_id = webshop_id
 
@@ -117,9 +129,11 @@ class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
             appstruct_["id"] = u"id" + str(x)
             appstruct_["sku"] = u"sku" + str(x)
             appstruct_["title"]["default"] = u"title" + str(x)
+            appstruct_["title"]["fr"] = u"titlefr" + str(x)
+            appstruct_["title"]["de"] = u"titlede" + str(x)
             appstructs.append(appstruct_)
             items.append(create_item(appstruct_, self.request))
-        webshop_ids = self.magento_proxy.create(appstructs)
+        webshop_ids = self.items_proxy.create(appstructs)
         for i, webshop_id in enumerate(webshop_ids):
             items[i].webshop_id = webshop_id
 
@@ -133,9 +147,11 @@ class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
             appstruct_["id"] = u"id" + str(x)
             appstruct_["sku"] = u"sku" + str(x)
             appstruct_["title"]["default"] = u"title" + str(x)
+            appstruct_["title"]["fr"] = u"titlefr" + str(x)
+            appstruct_["title"]["de"] = u"titlede" + str(x)
             appstructs.append(appstruct_)
             items.append(create_item(appstruct_, self.request))
-        webshop_ids = self.magento_proxy.create(appstructs)
+        webshop_ids = self.items_proxy.create(appstructs)
         for i, webshop_id in enumerate(webshop_ids):
             items[i].webshop_id = webshop_id
 
@@ -149,8 +165,10 @@ class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
             appstruct_["id"] = u"id" + str(x)
             appstruct_["sku"] = u"sku" + str(x)
             appstruct_["title"]["default"] = u"title" + str(x)
+            appstruct_["title"]["fr"] = u"titlefr" + str(x)
+            appstruct_["title"]["de"] = u"titlede" + str(x)
             appstructs.append(appstruct_)
             items.append(create_item(appstruct_, self.request))
-        webshop_ids = self.magento_proxy.create(appstructs)
+        webshop_ids = self.items_proxy.create(appstructs)
         for i, webshop_id in enumerate(webshop_ids):
             items[i].webshop_id = webshop_id

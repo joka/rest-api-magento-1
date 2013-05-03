@@ -1,9 +1,10 @@
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
+    MagentoIntegrationTestCase
 )
 
 
-class TestServicesCategoriesIntegration(IntegrationTestCase):
+class TestServicesCategoriesIntegration(MagentoIntegrationTestCase):
 
     testdatafilepath = ("/testdata/categories_post.yaml")
 
@@ -23,7 +24,7 @@ class TestServicesCategoriesIntegration(IntegrationTestCase):
         assert(response == {'status': 'succeeded'})
 
 
-class TestServicesItemGroupsIntegration(IntegrationTestCase):
+class TestServicesItemGroupsIntegration(MagentoIntegrationTestCase):
 
     testdatafilepath = ("/testdata/item_groups_post.yaml")
 
@@ -83,7 +84,7 @@ class TestServicesUnitOfMeasuresIntegration(IntegrationTestCase):
         assert(response == {'status': 'succeeded'})
 
 
-class TestServicesItemsIntegration(IntegrationTestCase):
+class TestServicesItemsIntegration(MagentoIntegrationTestCase):
 
     testdatafilepath = ("/testdata/items_post.yaml")
 

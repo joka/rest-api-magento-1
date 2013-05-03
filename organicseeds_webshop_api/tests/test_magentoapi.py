@@ -306,7 +306,7 @@ class TestMagentoAPIItemGroupsIntegration(MagentoIntegrationTestCase):
         item_group = create_item_group(appstruct, self.request, proxy)
 
         results = proxy.delete([item_group.webshop_id])
-        assert results == [True]
+        assert results == [item_group.webshop_id]
 
 
 class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
@@ -366,5 +366,4 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
         category = create_category(appstruct, self.request, proxy)
 
         results = proxy.delete([category.webshop_id])
-        assert results == [True]
-
+        assert results == [category.webshop_id]
