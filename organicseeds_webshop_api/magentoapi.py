@@ -316,6 +316,21 @@ class Categories(MagentoAPI):
             return res
         return children(results, [])
 
+    def update_shops(self, webshop_ids, appstructs):
+        calls = []
+        for webshop_id, appstruct in zip(webshop_ids, appstructs):
+            storeviews = get_storeviews(appstruct)
+            for storeviewname, enabled, lang, country in storeviews:
+                data = self._to_update_shops_data(appstruct, lang, country)
+                if enabled:
+                    data["is_active"] = 1
+                else:
+                    data["is_active"] = 0
+                if data:
+                    calls.append([self.magento_method + 'update',
+                                  [webshop_id, data, storeviewname]])
+        return self.multi_call(calls)
+
     def _create_arguments(self, appstruct):
         return [2,  # set parent to default root category
                 self._to_create_data(appstruct)]

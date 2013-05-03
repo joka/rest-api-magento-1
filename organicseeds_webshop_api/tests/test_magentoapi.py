@@ -330,6 +330,46 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
                                              [None, None, 2])
         assert webshop_id == int(default_children[0]["category_id"])
 
+    def test_magentoapi_categories_update_shops(self):
+        proxy = self.categories_proxy
+        appstruct = {"id": u"cat1",
+                     "shops": [("ch_hobby", True),  # visible
+                               ("ch_profi", False),  # not visible
+                               ("fr_profi", True),  # visible
+                               ("de_resell", False),  # not visible
+                               ],
+                     "title": {"default": u"default title", "fr": u"fr title"},
+                     }
+        category = create_category(appstruct, self.request, proxy)
+
+        proxy.update_shops([category.webshop_id], [appstruct])
+        fr_ch_hobby = proxy.single_call('catalog_category.info',
+                                        [category.webshop_id, "fr_ch_hobby"])
+        assert fr_ch_hobby["name"] == "fr title"
+        assert fr_ch_hobby["is_active"] == "1"
+        de_ch_hobby = proxy.single_call('catalog_category.info',
+                                        [category.webshop_id, "de_ch_hobby"])
+        assert de_ch_hobby["name"] == "default title"
+        assert de_ch_hobby["is_active"] == "1"
+        it_ch_hobby = proxy.single_call('catalog_category.info',
+                                        [category.webshop_id, "it_ch_hobby"])
+        assert it_ch_hobby["name"] == "default title"
+        assert it_ch_hobby["is_active"] == "1"
+        de_ch_profi = proxy.single_call('catalog_category.info',
+                                        [category.webshop_id, "de_ch_profi"])
+        assert de_ch_profi["name"] == "default title"
+        assert de_ch_profi["is_active"] == "0"  # category not visible
+        fr_fr_profi = proxy.single_call('catalog_category.info',
+                                        [category.webshop_id, "fr_fr_profi"])
+        assert fr_fr_profi["name"] == "fr title"
+        assert fr_fr_profi["is_active"] == "1"
+        fr_fr_hobby = proxy.single_call('catalog_category.info',
+                                        [category.webshop_id, "fr_fr_hobby"])
+        assert fr_fr_hobby["is_active"] == "0"  # category not visible
+        de_de_hobby = proxy.single_call('catalog_category.info',
+                                        [category.webshop_id, "de_de_hobby"])
+        assert de_de_hobby["is_active"] == "0"  # category not visible
+
     def test_magentoapi_categories_link_category_parents(self):
         proxy = self.categories_proxy
         appstruct_p = {"id": u"parent", "parent_id": None, "title": {"default":
