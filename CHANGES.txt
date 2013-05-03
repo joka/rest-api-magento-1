@@ -1,6 +1,8 @@
 0.2
 ---
 
+- Items schema: use Float instead of Decimal
+
 - Items schema: title field/title translations have to be unique
 
 - Items schema:  price field is now a sequence of WebsitePrice.

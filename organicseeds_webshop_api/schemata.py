@@ -502,11 +502,11 @@ class WebsitePrice(colander.TupleSchema):
 
          websiteid : WebsiteID
 
-         price : Decimal
+         price : Float
     """
 
     websiteid = WebsiteID()
-    price = Decimal()
+    price = Float()
 
 
 class WebsitePrices(colander.SequenceSchema):
@@ -525,13 +525,13 @@ class TierPrice(colander.MappingSchema):
 
           min_sale_qty : Integer
 
-          price : Decimal
+          price : Float
     """
 
     website = WebsiteID()
     customer_group = CustomerGroup()
     min_sale_qty = Integer()
-    price = Decimal()
+    price = Float()
 
 
 class TierPrices(colander.SequenceSchema):
