@@ -3,8 +3,8 @@ vpe_types:
     id: saatscheibe # Identifier
     title:
       default: Saatscheibe # StringTranslations
-      ch: Saatscheibe
+      fr: Saatscheibe fr
     legend:
-        default: Kleine nützliche Scheiben..  # StringTranslations
-        en: dolls..
+      default: Kleine nützliche Scheiben..  # StringTranslations
+      en: dolls..
  
