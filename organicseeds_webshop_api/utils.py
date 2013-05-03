@@ -77,6 +77,12 @@ def remove_none_values(appstructs):
                 del(item[i])
     return appstructs
 
+
+def set_webshop_ids(items, webshop_ids):
+    for item, webshop_id in zip(items, webshop_ids):
+        item.webshop_id = webshop_id
+
+
 #def find_element(path, context):
     #subpaths = path.split("/")
     #ob = context

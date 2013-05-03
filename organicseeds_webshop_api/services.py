@@ -39,10 +39,11 @@ def categories_post(request):
     """
 
     appstructs = request.validated["categories"]
-    utils.store(appstructs, models.Category, "categories", request)
+    categories = utils.store(appstructs, models.Category, "categories", request)
     with magentoapi.Categories(request) as proxy:
         try:
             webshop_ids = proxy.create(appstructs)
+            utils.set_webshop_ids(categories, webshop_ids)
             proxy.update_shops(webshop_ids, appstructs)
         except exceptions.WebshopAPIErrors as e:
             proxy.delete([x for x in e.success if isinstance(x, int)])
@@ -102,11 +103,14 @@ def item_groups_post(request):
     """
 
     appstructs = request.validated["item_groups"]
-    utils.store(appstructs, models.ItemGroup, "item_groups", request)
+    item_groups = utils.store(appstructs, models.ItemGroup,
+                              "item_groups", request)
     with magentoapi.ItemGroups(request) as proxy:
         try:
             webshop_ids = proxy.create(appstructs)
+            utils.set_webshop_ids(item_groups, webshop_ids)
             proxy.update_shops(webshop_ids, appstructs)
+            proxy.link_item_parents(webshop_ids, appstructs)
         except exceptions.WebshopAPIErrors as e:
             proxy.delete([x for x in e.success if isinstance(x, int)])
             raise exceptions._500(msg=e.errors)
@@ -237,9 +241,9 @@ def items_post(request):
     with magentoapi.Items(request) as proxy:
         try:
             webshop_ids = proxy.create(appstructs)
+            utils.set_webshop_ids(items, webshop_ids)
             proxy.update_shops(webshop_ids, appstructs)
-            for item, webshop_id in zip(items, webshop_ids):
-                item.webshop_id = webshop_id
+            proxy.link_item_parents(webshop_ids, appstructs)
         except exceptions.WebshopAPIErrors as e:
             proxy.delete([x for x in e.success if isinstance(x, int)])
             raise exceptions._500(msg=e.errors)
