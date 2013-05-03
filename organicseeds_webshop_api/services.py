@@ -33,17 +33,9 @@ categories = Service(name='categories',
 def categories_post(request):
     """Create new category entities
 
-       method : POST
+       request body :
 
-       content_type: text/json
-
-       path : categories
-
-       body :
-
-       * Sequence of Category
-
-       return codes: 200, 400, 500
+           * Sequence of Category
     """
 
     appstructs = request.validated["categories"]
@@ -61,12 +53,6 @@ def categories_post(request):
 @categories.get()
 def categories_get(request):
     """Get all category webshop data
-
-       method : GET
-
-       path : categories
-
-       return codes: 200, 400, 500
     """
 
     with magentoapi.Categories(request) as proxy:
@@ -80,16 +66,6 @@ def categories_get(request):
 def categories_delete(request):
     """Delete category entities.
        You should delete item_group children first.
-
-       method : DELETE
-
-       content_type: text/json
-
-       path : categories
-
-       body :
-
-       return codes: 200, 400, 500
     """
 
     utils.delete_all("categories", request)
@@ -120,17 +96,9 @@ item_groups = Service(name='item_groups',
 def item_groups_post(request):
     """Create new item group entities
 
-       method : POST
-
-       content_type: text/json
-
-       path : item_groups
-
-       body :
+       request body :
 
        * item_groups : Sequence of ItemGroup
-
-       return codes: 200, 400, 500
     """
 
     appstructs = request.validated["item_groups"]
@@ -148,16 +116,6 @@ def item_groups_post(request):
 @item_groups.delete(accept="text/json")
 def item_groups_delete(request):
     """Delete item group entities
-
-       method : DELETE
-
-       content_type: text/json
-
-       path : item_groups
-
-       body :
-
-       return codes: 200, 400, 500
     """
 
     utils.delete_all("item_groups", request)
@@ -184,17 +142,9 @@ unit_of_measures = Service(name='unit_of_measures',
 def unit_of_measures_post(request):
     """Create new unit of measure data (for items)
 
-       method : POST
-
-       content_type: text/json
-
-       path : unit_of_measures
-
-       body :
+       reqeust body :
 
        * Sequence of UnitOfMeasure
-
-       return codes: 200, 400, 500
     """
 
     utils.store(request.validated["unit_of_measures"], models.EntityData,
@@ -207,16 +157,6 @@ def unit_of_measures_post(request):
     validators=validators.validate_unit_of_measure_no_item_references_exist)
 def unit_of_measures_delete(request):
     """Delete unit of measure data
-
-       method : DELETE
-
-       content_type: text/json
-
-       path : unit_of_measures
-
-       body :
-
-       return codes: 200, 400, 500
     """
 
     utils.delete_all("unit_of_measures", request)
@@ -241,17 +181,9 @@ def vpe_types_post(request):
     """Create new vpe type data (for items).
        You should delete referencing items first.
 
-       method : POST
-
-       content_type: text/json
-
-       path : vpe_types
-
-       body :
+       request body :
 
        * Sequence of VPEType
-
-       return codes: 200, 400, 500
     """
 
     utils.store(request.validated["vpe_types"], models.EntityData,
@@ -265,16 +197,6 @@ def vpe_types_post(request):
 def vpe_types_delete(request):
     """Delete vpe type data (for items).
        You should delete referencing items first.
-
-       method : DELETE
-
-       content_type: text/json
-
-       path : vpe_types
-
-       body :
-
-       return codes: 200, 400, 500
     """
 
     utils.delete_all("vpe_types", request)
@@ -306,17 +228,9 @@ items = Service(name='items',
 def items_post(request):
     """Create new item entities
 
-       method : POST
-
-       content_type: text/json
-
-       path : items
-
        body :
 
        * Sequence of Item
-
-       return codes: 200, 400, 500
     """
     appstructs = request.validated["items"]
     items = utils.store(appstructs, models.Item, "items", request)
@@ -342,17 +256,9 @@ def items_post(request):
 def items_put(request):
     """Update existing item entities
 
-       method : PUT
-
-       content_type: text/json
-
-       path : items
-
-       body :
+       request body :
 
        * Sequence of ItemUpdate
-
-       return codes: 200, 400, 500
     """
     appstructs = utils.remove_none_values(request.validated["items"])
     utils.store(appstructs, models.Item, "items", request)
@@ -369,16 +275,6 @@ def items_put(request):
 @items.delete(accept="text/json")
 def items_delete(request):
     """Delete item entities
-
-       method : DELETE
-
-       content_type: text/json
-
-       path : items
-
-       body :
-
-       return codes: 200, 400, 500
     """
 
     utils.delete_all("items", request)
