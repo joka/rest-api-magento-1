@@ -61,6 +61,8 @@ class Entity(Data):
 
     __parent__ = None
     webshop_id = 0
+    unit_of_measure = None
+    vpe_type = None
 
 
 class Category(Entity):

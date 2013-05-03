@@ -153,6 +153,10 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
         assert len(items) == 1
         search_results = catalog.query(Eq('id', 'itemka32'))[0]
         assert(search_results == 1)
+        item = items[0]
+        assert item.__parent__ == None
+        assert item.unit_of_measure == None
+        assert item.vpe_type == None
 
     def test_utils_delete_items(self):
         from organicseeds_webshop_api import utils
@@ -178,6 +182,42 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
         utils.store(self.testdata["items"], models.Item, "items", self.request)
         item = self.app_root["items"]["itemka32"]
         assert item.__parent__ is parent
+
+    def test_utils_store_items_with_vpe_type(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        self.testdata["items"][0]["vpe_type_id"] = "portion"
+        vpe_type =  models.EntityData()
+        self.app_root["vpe_types"]["portion"] = vpe_type
+
+        utils.store(self.testdata["items"], models.Item, "items", self.request)
+        item = self.app_root["items"]["itemka32"]
+        assert item.vpe_type == vpe_type
+
+    def test_utils_store_items_with_vpe_type_missing(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        utils.store(self.testdata["items"], models.Item, "items", self.request)
+        item = self.app_root["items"]["itemka32"]
+        assert item.vpe_type == None
+
+    def test_utils_store_items_with_unit_of_measure(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        self.testdata["items"][0]["unit_of_measure_id"] = "unit"
+        unit =  models.EntityData()
+        self.app_root["unit_of_measures"]["unit"] = unit
+
+        utils.store(self.testdata["items"], models.Item, "items", self.request)
+        item = self.app_root["items"]["itemka32"]
+        assert item.unit_of_measure == unit
+
+    def test_utils_store_items_with_unit_of_measure_missing(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        utils.store(self.testdata["items"], models.Item, "items", self.request)
+        item = self.app_root["items"]["itemka32"]
+        assert item.unit_of_measure == None
 
     def test_utils_store_items_with_parent_missing(self):
         from organicseeds_webshop_api import utils

@@ -28,16 +28,21 @@ def store(appstructs, itemtype, data_key, request):
         catalog_id = document_map.add(obj_path)
         catalog.index_doc(catalog_id, obj)
         #link parent
-        if "parent_id" in obj:
-            parent_id = obj["parent_id"]
-            if data_key == "items":
-                category_parent = app_root["categories"].get(parent_id, None)
-                item_group_parent = \
-                    app_root["item_groups"].get(parent_id, None)
-                obj.__parent__ = category_parent or item_group_parent
-            if data_key in ["item_groups", "categories"]:
-                category_parent = app_root["categories"].get(parent_id, None)
-                obj.__parent__ = category_parent
+        parent_id = obj.get("parent_id", None)
+        if parent_id:
+            category_parent = app_root["categories"].get(parent_id, None)
+            item_group_parent = app_root["item_groups"].get(parent_id, None)
+            obj.__parent__ = category_parent or item_group_parent
+        # link vpe type
+        vpe_type_id = obj.get("vpe_type_id", None)
+        if vpe_type_id:
+            obj.vpe_type = app_root["vpe_types"].get(vpe_type_id, None)
+        # link unit_of_measure
+        unit_of_measure = obj.get("unit_of_measure_id", None)
+        if unit_of_measure:
+            obj.unit_of_measure = app_root["unit_of_measures"].get(
+                unit_of_measure, None)
+
     return entities
 
 
