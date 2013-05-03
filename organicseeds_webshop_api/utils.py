@@ -83,6 +83,20 @@ def set_webshop_ids(items, webshop_ids):
         item.webshop_id = webshop_id
 
 
+def get_entities_item_children(entities, request):
+    items_webshop_ids = []
+    items = []
+    for entity in entities:
+        for item in request.root.app_root["items"].values():
+            if item["parent_id"] == entity["id"]:
+                items.append(item)
+                items_webshop_ids.append(item.webshop_id)
+        for item_group in request.root.app_root["item_groups"].values():
+            if item_group["parent_id"] == entity["id"]:
+                items.append(item_group)
+                items_webshop_ids.append(item_group.webshop_id)
+    return items_webshop_ids, items
+
 #def find_element(path, context):
     #subpaths = path.split("/")
     #ob = context

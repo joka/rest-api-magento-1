@@ -64,6 +64,32 @@ class TestUtilsCategoriesIntegration(IntegrationTestCase):
         assert root.__parent__ is None
         assert child.__parent__ is None
 
+    def test_get_entities_item_children_none(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        category = models.Category()
+        item_webshop_ids, items = utils.get_entities_item_children(
+            [category], self.request)
+        assert item_webshop_ids == items == []
+
+    def test_get_entities_item_children(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        category = models.Category()
+        category.from_appstruct({"id": "parent"})
+
+        item = models.Item()
+        item.from_appstruct({"id": "child1", "parent_id": "parent"})
+        self.request.root.app_root["items"]["child"] = item
+        item_group = models.ItemGroup()
+        item_group.from_appstruct({"id": "child2", "parent_id": "parent"})
+        self.request.root.app_root["item_groups"]["child"] = item_group
+
+        item_webshop_ids, items = utils.get_entities_item_children(
+            [category], self.request)
+        assert item_webshop_ids == [0, 0]
+        assert items == [item, item_group]
+
 
 class TestUtilsItemGroupsIntegration(IntegrationTestCase):
 

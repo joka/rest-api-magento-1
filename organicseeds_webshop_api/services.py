@@ -43,9 +43,15 @@ def categories_post(request):
                              request)
     with magentoapi.Categories(request) as proxy:
         try:
+            # create categories in webshop
             webshop_ids = proxy.create(appstructs)
             utils.set_webshop_ids(categories, webshop_ids)
+            # activate categories in webshop shops
             proxy.update_shops(webshop_ids, appstructs)
+            # link category children in webshop
+            item_webshop_ids, items = utils.get_entities_item_children(
+                categories, request)
+            proxy.link_item_parents(item_webshop_ids, items)
         except exceptions.WebshopAPIErrors as e:
             proxy.delete([x for x in e.success if isinstance(x, int)])
             raise exceptions._500(msg=e.errors)
@@ -62,9 +68,7 @@ def categories_get(request):
         return {"categories": result}
 
 
-@categories.delete(
-    accept="text/json",
-    validators=(validators.validate_no_item_group_references_exist))
+@categories.delete(accept="text/json",)
 def categories_delete(request):
     """Delete category entities.
        You should delete item_group children first.
@@ -108,10 +112,17 @@ def item_groups_post(request):
                               "item_groups", request)
     with magentoapi.ItemGroups(request) as proxy:
         try:
+            # create item_groups in webshop
             webshop_ids = proxy.create(appstructs)
             utils.set_webshop_ids(item_groups, webshop_ids)
+            # activate categories in webshop shops
             proxy.update_shops(webshop_ids, appstructs)
+            # link item_group parents in webshop
             proxy.link_item_parents(webshop_ids, appstructs)
+            # link item_group children in webshop
+            item_webshop_ids, items = utils.get_entities_item_children(
+                item_groups, request)
+            proxy.link_item_parents(item_webshop_ids, items)
         except exceptions.WebshopAPIErrors as e:
             proxy.delete([x for x in e.success if isinstance(x, int)])
             raise exceptions._500(msg=e.errors)
