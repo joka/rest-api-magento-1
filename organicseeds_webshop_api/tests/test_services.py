@@ -54,6 +54,14 @@ class TestServicesVPETypesIntegration(IntegrationTestCase):
         response = vpe_types_post(self.request)
         assert(response == {'status': 'succeeded'})
 
+    def test_vpe_types_put(self):
+        from organicseeds_webshop_api.services import vpe_types_post
+        from organicseeds_webshop_api.services import vpe_types_put
+        self.request.validated = self.testdata
+        response = vpe_types_post(self.request)
+        response = vpe_types_put(self.request)
+        assert(response == {'status': 'succeeded'})
+
     def test_vpe_type_delete(self):
         from organicseeds_webshop_api.services import vpe_types_delete
         from organicseeds_webshop_api.services import vpe_types_post
@@ -72,6 +80,14 @@ class TestServicesUnitOfMeasuresIntegration(IntegrationTestCase):
         from organicseeds_webshop_api.services import unit_of_measures_post
         self.request.validated = self.testdata
         response = unit_of_measures_post(self.request)
+        assert(response == {'status': 'succeeded'})
+
+    def test_unit_of_measures_put(self):
+        from organicseeds_webshop_api.services import unit_of_measures_post
+        from organicseeds_webshop_api.services import unit_of_measures_put
+        self.request.validated = self.testdata
+        unit_of_measures_post(self.request)
+        response = unit_of_measures_put(self.request)
         assert(response == {'status': 'succeeded'})
 
     def test_unit_of_measures_delete(self):

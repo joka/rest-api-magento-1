@@ -37,17 +37,18 @@ and add some Items::
 Update Items:
 -------------
 
-We can update existing items, exept the parent_id, __type__, vpe_type_id and unit_of_measure_id fields::
+We can update existing items, exept the parent_id, __type__, category_ids::
 
     >>> app.put_json('/items', {"items": [{"id": "itemka32", 'default': u'New Description' }]})
     <200 OK application/json body=...
 
-and existing vpe_types::
+and existing vpe_types (mind to set all fields)::
 
-    >>> app.put_json('/vpe_types', {"vpe_types": [{"id": "saatscheibe", 'title': {"default": u'Neue Saatscheibe'}}]})
+    >>> app.put_json('/vpe_types', {"vpe_types": [{"id": "saatscheibe", 'title': {"default": u'Neue Saatscheibe'}, "legend": {"default": "Legend"}}]})
+    <200 OK application/json body=...
 
-and unit_of_measures::
+
+and unit_of_measures (mind to set all fields)::
 
     >>> app.put_json('/unit_of_measures', {"unit_of_measures": [{"id": "portion", 'title': {'default': u'New Portion'}}]})
-
-TODO: Update items, link parents und vpe/units?
+    <200 OK application/json body=...

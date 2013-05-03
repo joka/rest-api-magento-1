@@ -860,7 +860,7 @@ class ItemUpdate(colander.Schema):
     """Webshop update Item entity
 
        The value fields are similar to the Item fields.
-       The sku, __type__, parent_id, vpe_type_id, unit_of_measure_id,
+       The sku, __type__, parent_id, and category_ids
        fields are not allowed.
        All other fields exists, but are optional.
     """
@@ -878,10 +878,10 @@ class ItemUpdate(colander.Schema):
     #sku = String(missing=None, required=False)
     group = ItemTypeGroup(missing=None, required=False)
     vpe_default = Bool(missing=None, required=False)
-    #vpe_type_id = Identifier(missing=None, required=False)
+    vpe_type_id = Identifier(missing=None, required=False)
     weight_brutto = Float(missing=None, required=False)
     weight_netto = Float(missing=None, required=False)
-    #unit_of_measure_id = Identifier(missing=None, required=False)
+    unit_of_measure_id = Identifier(missing=None, required=False)
     price = WebsitePrices(missing=None, required=False)
     tierprices = TierPrices(missing=None, required=False)
     tax_class = TaxClass(missing=None, required=False)

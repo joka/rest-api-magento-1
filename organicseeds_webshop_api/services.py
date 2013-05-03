@@ -153,10 +153,25 @@ unit_of_measures = Service(name='unit_of_measures',
 @unit_of_measures.post(
     schema=schemata.UnitOfMeasuresList, accept="text/json",
     validators=(validators.validate_unit_of_measure_id_unique,
-                validators.validate_unit_of_measure_id_does_not_exists,
-                ))
+                validators.validate_unit_of_measure_id_does_not_exists))
 def unit_of_measures_post(request):
     """Create new unit of measure data (for items)
+
+       reqeust body :
+
+       * Sequence of UnitOfMeasure
+    """
+
+    utils.store(request.validated["unit_of_measures"], models.EntityData,
+                "unit_of_measures", request)
+    return {"status": "succeeded"}
+
+
+@unit_of_measures.put(
+    schema=schemata.UnitOfMeasuresList, accept="text/json",
+    validators=(validators.validate_unit_of_measure_id_does_exists))
+def unit_of_measures_put(request):
+    """Update unit of measure data (for items)
 
        reqeust body :
 
@@ -191,11 +206,25 @@ vpe_types = Service(name='vpe_types',
 
 @vpe_types.post(schema=schemata.VPETypesList, accept="text/json",
                 validators=(validators.validate_vpe_type_id_unique,
-                            validators.validate_vpe_type_id_does_not_exists
-                            ))
+                            validators.validate_vpe_type_id_does_not_exists))
 def vpe_types_post(request):
     """Create new vpe type data (for items).
        You should delete referencing items first.
+
+       request body :
+
+       * Sequence of VPEType
+    """
+
+    utils.store(request.validated["vpe_types"], models.EntityData,
+                "vpe_types", request)
+    return {"status": "succeeded"}
+
+
+@vpe_types.put(schema=schemata.VPETypesList, accept="text/json",
+               validators=(validators.validate_vpe_type_id_does_exists))
+def vpe_types_put(request):
+    """Update vpe type data (for items).
 
        request body :
 

@@ -212,6 +212,10 @@ def validate_unit_of_measure_id_does_not_exists(request):
     validate_id_does_not_exists("unit_of_measures", request)
 
 
+def validate_unit_of_measure_id_does_exists(request):
+    validate_id_does_exists("unit_of_measures", request)
+
+
 def validate_unit_of_measure_no_item_references_exist(request):
     validate_no_reference_ids_exist("unit_of_measures", "items",
                                     "unit_of_measure_id", request)
@@ -228,6 +232,10 @@ def validate_vpe_type_id_unique(request):
 
 def validate_vpe_type_id_does_not_exists(request):
     validate_id_does_not_exists("vpe_types", request)
+
+
+def validate_vpe_type_id_does_exists(request):
+    validate_id_does_exists("vpe_types", request)
 
 
 def validate_vpe_type_no_item_references_exist(request):
