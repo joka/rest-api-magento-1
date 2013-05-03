@@ -18,10 +18,10 @@ class TestUtilsCategoriesIntegration(IntegrationTestCase):
         from organicseeds_webshop_api import models
         from repoze.catalog.query import Eq
 
-        utils.store(self.testdata["categories"], models.Category,
-                    "categories", self.request)
-        categories = [x for x in self.app_root["categories"].keys()]
-        assert(len(categories) == 5)
+        categories = utils.store(self.testdata["categories"], models.Category,
+                                 "categories", self.request)
+        assert len(categories) == 5
+        assert len(self.app_root["categories"]) == 5
         catalog = self.app_root["catalog"]
         search1 = catalog.query(Eq('__type__', 'category'))[0]
         search2 = catalog.query(Eq('__type__', 'sortenuebersicht'))[0]
@@ -72,10 +72,9 @@ class TestUtilsItemGroupsIntegration(IntegrationTestCase):
     def test_utils_store_item_groups(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
-        utils.store(self.testdata["item_groups"], models.ItemGroup,
-                    "item_groups", self.request)
-        item_groups = [x for x in self.app_root["item_groups"].items()]
-        assert(len(item_groups) == 1)
+        groups = utils.store(self.testdata["item_groups"], models.ItemGroup,
+                             "item_groups", self.request)
+        assert len(groups) == 1
 
     def test_utils_delete_item_groups(self):
         from organicseeds_webshop_api import utils
@@ -95,10 +94,9 @@ class TestUtilsVPETypesIntegration(IntegrationTestCase):
     def test_utils_store_vpe_types(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
-        utils.store(self.testdata["vpe_types"], models.EntityData,
-                    "vpe_types", self.request)
-        vpe_types = [x for x in self.app_root["vpe_types"].items()]
-        assert(len(vpe_types) == 1)
+        vpe_types = utils.store(self.testdata["vpe_types"], models.EntityData,
+                                "vpe_types", self.request)
+        assert len(vpe_types) == 1
 
 
 class TestUtilsUnitOfMeasuresIntegration(IntegrationTestCase):
@@ -108,10 +106,10 @@ class TestUtilsUnitOfMeasuresIntegration(IntegrationTestCase):
     def test_store_unit_of_measures(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
-        utils.store(self.testdata["unit_of_measures"], models.EntityData,
-                    "unit_of_measures", self.request)
-        units = [x for x in self.app_root["unit_of_measures"].items()]
-        assert(len(units) == 1)
+        units = utils.store(self.testdata["unit_of_measures"],
+                            models.EntityData,
+                            "unit_of_measures", self.request)
+        assert len(units) == 1
 
 
 class TestUtilsItemsIntegration(IntegrationTestCase):
@@ -124,9 +122,9 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
         from repoze.catalog.query import Eq
         catalog = self.app_root["catalog"]
 
-        utils.store(self.testdata["items"], models.Item, "items", self.request)
-        items = [x for x in self.app_root["items"].items()]
-        assert(len(items) == 1)
+        items = utils.store(self.testdata["items"], models.Item,
+                            "items", self.request)
+        assert len(items) == 1
         search_results = catalog.query(Eq('id', 'itemka32'))[0]
         assert(search_results == 1)
 

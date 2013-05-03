@@ -5,6 +5,7 @@
 
 
 def store(appstructs, itemtype, data_key, request):
+    entities = []
     app_root = request.root.app_root
     folder = app_root[data_key]
     catalog = app_root["catalog"]
@@ -17,6 +18,7 @@ def store(appstructs, itemtype, data_key, request):
             obj = itemtype()
             obj.from_appstruct(appstruct)
             folder[obj_id] = obj
+            entities.append(obj)
         # updated existing object
         else:
             obj = folder[obj_id]
@@ -36,6 +38,7 @@ def store(appstructs, itemtype, data_key, request):
             if data_key in ["item_groups", "categories"]:
                 category_parent = app_root["categories"].get(parent_id, None)
                 obj.__parent__ = category_parent
+    return entities
 
 
 def delete(appstructs, data_key, request):
