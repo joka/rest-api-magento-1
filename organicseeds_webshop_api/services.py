@@ -39,7 +39,8 @@ def categories_post(request):
     """
 
     appstructs = request.validated["categories"]
-    categories = utils.store(appstructs, models.Category, "categories", request)
+    categories = utils.store(appstructs, models.Category, "categories",
+                             request)
     with magentoapi.Categories(request) as proxy:
         try:
             webshop_ids = proxy.create(appstructs)
