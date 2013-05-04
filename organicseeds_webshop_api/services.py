@@ -312,7 +312,6 @@ def items_put(request):
             webshop_ids = proxy.update(appstructs)
             proxy.update_shops(webshop_ids, appstructs)
         except exceptions.WebshopAPIErrors as e:
-            proxy.delete([x for x in e.success if isinstance(x, int)])
             raise exceptions._500(msg=e.errors)
     return {"status": "succeeded"}
 
