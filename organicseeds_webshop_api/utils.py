@@ -105,10 +105,11 @@ def get_entities_item_children(entities, request):
                 items_webshop_ids.append(item_group.webshop_id)
     return items_webshop_ids, items
 
+
 def get_url_slug(title, unique_suffix, request):
     catalog = request.root.app_root["catalog"]
     url_slug = url_normalizer.url_normalizer(title)
-    existing= catalog.query(Eq('title_url_slugs', url_slug))[0]
+    existing = catalog.query(Eq('title_url_slugs', url_slug))[0]
     if existing >= 1:
         url_slug += unique_suffix
     return url_slug
