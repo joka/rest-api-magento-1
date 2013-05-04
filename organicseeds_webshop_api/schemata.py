@@ -145,7 +145,7 @@ class CustomerGroup(colander.SchemaNode):
          - 0 = Not logged in
          - 1 = General
          - 2 = Wholesale
-         - 3 = Reailer
+         - 3 = Retailer
     """
 
     schema_type = colander.Integer
@@ -521,16 +521,16 @@ class TierPrice(colander.MappingSchema):
 
           website : WebsiteID
 
-          customer_group : CustomerGroup
+          customer_group_id : CustomerGroup
 
-          min_sale_qty : Integer
+          qty : Integer
 
           price : Float
     """
 
     website = WebsiteID()
-    customer_group = CustomerGroup()
-    min_sale_qty = Integer()
+    customer_group_id = CustomerGroup()
+    qty = Integer()
     price = Float()
 
 

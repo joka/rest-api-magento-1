@@ -97,6 +97,19 @@ class TestMagentoAPIHelpersIntegration(IntegrationTestCase):
         websites = magentoapi.get_all_website_ids()
         assert websites == ["ch_website", "de_website", "fr_website"]
 
+    def test_magentoapi_get_tier_price_data(self):
+        from organicseeds_webshop_api import magentoapi
+        appstruct = {"tierprices": [{"website": "de_website",
+                                     "customer_group_id": 0,
+                                     "qty": 100,
+                                     "price": 4.20}]}
+        data = magentoapi.get_tier_price_data(appstruct)
+        assert data == [{'customer_group_id': 0, 'website': 'de_website',
+                         'qty': 100, 'price': 4.20}]
+        appstruct = {}
+        data = magentoapi.get_tier_price_data(appstruct)
+        assert data == None
+
 
 class TestMagentoAPIMagentoAPIIntegration(MagentoIntegrationTestCase):
 
@@ -154,6 +167,8 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         appstruct = {}
         data = self.items_proxy._to_update_data(appstruct)
         assert data == {}
+
+
 
     def test_magentoapi_items_to_create_data(self):
         appstruct = {}

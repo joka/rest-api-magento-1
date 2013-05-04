@@ -78,6 +78,10 @@ def get_website_value(appstruct, key, country):
     value = values and values[0] or None
     return value
 
+def get_tier_price_data(appstruct):
+    return appstruct.get("tierprices", None)
+
+
 #def get_magento_inventory_status(data):
     #status = data["inventory_status"]
     #magento_status = 1 if status == 2 else 0
@@ -260,7 +264,7 @@ class Items(MagentoAPI):
         extradata_tuples = [
             ("weight", appstruct.get("weight_brutto", None)),
             ("tax_class_id", appstruct.get("tax_class", None))]
-            #"tier_price": get_tier_prices(item),
+            #"tier_price": get_tier_price_data(appstruct),
             #"stock_appstruct": get_stock_appstruct(item),
         data.update(dict([x for x in extradata_tuples if x[1] is not None]))
         return data

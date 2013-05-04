@@ -38,8 +38,8 @@ items:
     tierprices: # sequence of TierPrice # Staffelpreise
           -
             website: de_website # WebsiteID
-            customer_group:  0 # CustomerGroup
-            min_sale_qty: 100 # integer ohne null
+            customer_group_id: 0 # CustomerGroup
+            qty: 100 # integer ohne null
             price: 4.20 # decimal
     tax_class: 2 # TaxGroup, Magento berechnet Tax abhänging von tax_class, Kundengruppe, Lieferort, Website 
     quality_id: sortenquality1 # reference
