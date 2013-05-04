@@ -27,8 +27,6 @@ categories = Service(name='categories',
                  validators=(validators.validate_category_parent_id,
                              validators.validate_category_id_unique,
                              validators.validate_category_id_does_not_exists,
-                             validators.validate_category_title_unique,
-                             validators.validate_category_title_does_not_exists
                              ))
 def categories_post(request):
     """Create new category entities
@@ -294,10 +292,7 @@ def items_post(request):
 
 
 @items.put(schema=schemata.ItemsUpdateList, accept="text/json",
-           validators=(validators.validate_item_id_does_exists,
-                       validators.validate_items_title_unique,
-                       validators.validate_items_title_does_not_exists,
-                       ))
+           validators=(validators.validate_item_id_does_exists))
 def items_put(request):
     """Update existing item entities
 

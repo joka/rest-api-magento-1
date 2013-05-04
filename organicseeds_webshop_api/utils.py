@@ -1,3 +1,6 @@
+from repoze.catalog.query import Eq
+
+from organicseeds_webshop_api import url_normalizer
 
 #####################################
 #  Helpers to create/delete models  #
@@ -101,6 +104,15 @@ def get_entities_item_children(entities, request):
                 items.append(item_group)
                 items_webshop_ids.append(item_group.webshop_id)
     return items_webshop_ids, items
+
+def get_url_slug(title, unique_suffix, request):
+    catalog = request.root.app_root["catalog"]
+    url_slug = url_normalizer.url_normalizer(title)
+    existing= catalog.query(Eq('title_url_slugs', url_slug))[0]
+    if existing >= 1:
+        url_slug += unique_suffix
+    return url_slug
+
 
 #def find_element(path, context):
     #subpaths = path.split("/")

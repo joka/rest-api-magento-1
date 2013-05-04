@@ -4,9 +4,11 @@ from BTrees.OOBTree import OOBTree
 import transaction
 from pyramid.security import Everyone, Authenticated, Allow
 from repoze.catalog.indexes.field import CatalogFieldIndex
+from repoze.catalog.indexes.keyword import CatalogKeywordIndex
 from repoze.catalog.catalog import Catalog
 from repoze.catalog.document import DocumentMap
 
+from organicseeds_webshop_api.url_normalizer import url_normalizer
 
 #################################
 #  Pyramid routing root object  #
@@ -63,6 +65,7 @@ class Entity(Data):
     webshop_id = 0
     unit_of_measure = None
     vpe_type = None
+    url_slugs = {}
 
 
 class Category(Entity):
@@ -115,7 +118,15 @@ def get_vpe_default(obj, default):
 
 
 def get_quality_id(obj, default):
-    return obj.get("vpe_default", default)
+    return obj.get("quality_id", default)
+
+
+def get_title_url_slugs(obj, default):
+    keywords = default
+    title = obj.get("title", None)
+    if title:
+        keywords = [url_normalizer(t) for t in title.values()]
+    return keywords
 
 
 ##################################
@@ -146,6 +157,8 @@ def bootstrap(zodb_root, app_root_id, request):
             CatalogFieldIndex(get_unit_of_measure_id)
         app_root["catalog"]['quality_id'] = CatalogFieldIndex(get_quality_id)
         app_root["catalog"]['vpe_default'] = CatalogFieldIndex(get_vpe_default)
+        app_root["catalog"]['title_url_slugs'] = CatalogKeywordIndex(
+            get_title_url_slugs)
         app_root["document_map"] = DocumentMap()
         transaction.commit()
     return Root(request, zodb_root[app_root_id])

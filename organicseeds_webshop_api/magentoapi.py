@@ -6,7 +6,7 @@ import magento
 
 from organicseeds_webshop_api import exceptions
 from organicseeds_webshop_api import schemata
-from organicseeds_webshop_api import url_normaliser
+from organicseeds_webshop_api import utils
 
 
 rpc_user = u"webshop_api"
@@ -269,8 +269,12 @@ class Items(MagentoAPI):
         """transforms item appstruct to magento update appstruct dictionary.
            returns only StringTranslation values
         """
+
         name = get_translation(appstruct, "title", lang)
-        url_key = url_normaliser.url_normalizer(name) if name else None
+        url_key = None
+        if name:
+            slug_identifier = u"_%s_%s" % (appstruct["id"], lang)
+            url_key = utils.get_url_slug(name, slug_identifier, self.request)
         data_tuples = [
             ("name", name),
             ("url_key", url_key),
@@ -356,7 +360,10 @@ class Categories(MagentoAPI):
            returns only StringTranslation values
         """
         name = get_translation(appstruct, "title", lang)
-        url_key = url_normaliser.url_normalizer(name) if name else None
+        url_key = None
+        if name:
+            slug_identifier = u"_%s_%s" % (appstruct["id"], lang)
+            url_key = utils.get_url_slug(name, slug_identifier, self.request)
         data_tuples = [("name", name),
                        ("url_key", url_key),
                        ("short_description",

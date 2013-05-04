@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
 )
@@ -16,6 +17,7 @@ class TestUtilsCategoriesIntegration(IntegrationTestCase):
     def test_utils_store_categories(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
+        from organicseeds_webshop_api.url_normalizer import url_normalizer
         from repoze.catalog.query import Eq
 
         categories = utils.store(self.testdata["categories"], models.Category,
@@ -26,6 +28,9 @@ class TestUtilsCategoriesIntegration(IntegrationTestCase):
         search1 = catalog.query(Eq('__type__', 'category'))[0]
         search2 = catalog.query(Eq('__type__', 'sortenuebersicht'))[0]
         assert(search1 + search2 == 5)
+        search3 = catalog.query(Eq('title_url_slugs',
+                                   url_normalizer('Aktuelle Aussaten')))[0]
+        assert(search3 == 1)
 
     def test_utils_delete_categories(self):
         from organicseeds_webshop_api import utils
@@ -89,6 +94,18 @@ class TestUtilsCategoriesIntegration(IntegrationTestCase):
             [category], self.request)
         assert item_webshop_ids == [0, 0]
         assert items == [item, item_group]
+
+    def test_utils_get_url_slug(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        appstructs = [{"id": "cat1",
+                       "title": {"default": u"existingÜ", "fr": "titlé_fr"}}]
+        utils.store(appstructs, models.Category,
+                    "categories", self.request)
+        slug = utils.get_url_slug(u"newÜ", u"_cat2_default", self.request)
+        assert slug == u'newu'
+        slug = utils.get_url_slug(u"existingÜ", u"_cat2_default", self.request)
+        assert slug == u'existingu_cat2_default'
 
 
 class TestUtilsItemGroupsIntegration(IntegrationTestCase):
@@ -154,9 +171,9 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
         search_results = catalog.query(Eq('id', 'itemka32'))[0]
         assert(search_results == 1)
         item = items[0]
-        assert item.__parent__ == None
-        assert item.unit_of_measure == None
-        assert item.vpe_type == None
+        assert item.__parent__ is None
+        assert item.unit_of_measure is None
+        assert item.vpe_type is None
 
     def test_utils_delete_items(self):
         from organicseeds_webshop_api import utils
@@ -187,7 +204,7 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
         self.testdata["items"][0]["vpe_type_id"] = "portion"
-        vpe_type =  models.EntityData()
+        vpe_type = models.EntityData()
         self.app_root["vpe_types"]["portion"] = vpe_type
 
         utils.store(self.testdata["items"], models.Item, "items", self.request)
@@ -199,13 +216,13 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
         from organicseeds_webshop_api import models
         utils.store(self.testdata["items"], models.Item, "items", self.request)
         item = self.app_root["items"]["itemka32"]
-        assert item.vpe_type == None
+        assert item.vpe_type is None
 
     def test_utils_store_items_with_unit_of_measure(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
         self.testdata["items"][0]["unit_of_measure_id"] = "unit"
-        unit =  models.EntityData()
+        unit = models.EntityData()
         self.app_root["unit_of_measures"]["unit"] = unit
 
         utils.store(self.testdata["items"], models.Item, "items", self.request)
@@ -217,7 +234,7 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
         from organicseeds_webshop_api import models
         utils.store(self.testdata["items"], models.Item, "items", self.request)
         item = self.app_root["items"]["itemka32"]
-        assert item.unit_of_measure == None
+        assert item.unit_of_measure is None
 
     def test_utils_store_items_with_parent_missing(self):
         from organicseeds_webshop_api import utils

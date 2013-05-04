@@ -8,8 +8,6 @@ Changelog
 
 - schema: use Float instead of Decimal
 
-- Item schema: title field/title translations have to be unique
-
 - Item schema:  price field is now a sequence of WebsitePrice.
     [("de_website", 1)] instead of {default: 1, "websites": [("de_website", 1)]}
 
