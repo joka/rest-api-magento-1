@@ -263,9 +263,10 @@ class Items(MagentoAPI):
         data = self._to_update_shops_data(appstruct, "default")
         extradata_tuples = [
             ("weight", appstruct.get("weight_brutto", None)),
-            ("tax_class_id", appstruct.get("tax_class", None))]
-            #"tier_price": get_tier_price_data(appstruct),
+            ("tax_class_id", appstruct.get("tax_class", None)),
+            ("tier_price", get_tier_price_data(appstruct)),
             #"stock_appstruct": get_stock_appstruct(item),
+             ]
         data.update(dict([x for x in extradata_tuples if x[1] is not None]))
         return data
 

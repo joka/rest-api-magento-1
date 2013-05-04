@@ -164,6 +164,8 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         data = self.items_proxy._to_update_data(appstruct)
         assert ('weight', 0.25) in data.items()
         assert ('url_key', u'title') in data.items()
+        assert ('tier_price', [{'customer_group_id': 0, 'website': 'de_website',
+                                 'qty': 100, 'price': 4.20}]) in data.items()
         appstruct = {}
         data = self.items_proxy._to_update_data(appstruct)
         assert data == {}
@@ -186,6 +188,7 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         assert result["websites"] == ['2', '3', '5']
         assert result["price"] is None
         assert result["status"] == '1'
+        assert len(result["tier_price"]) == 1
 
     def test_magentoapi_link_item_with_item_group_parents(self):
         proxy = self.items_proxy
