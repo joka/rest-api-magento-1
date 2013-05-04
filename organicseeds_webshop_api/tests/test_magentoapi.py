@@ -110,6 +110,60 @@ class TestMagentoAPIHelpersIntegration(IntegrationTestCase):
         data = magentoapi.get_tier_price_data(appstruct)
         assert data == None
 
+    def test_magentoapi_get_stock_data_none(self):
+        from organicseeds_webshop_api import magentoapi
+        appstruct = {}
+        data = magentoapi.get_stock_data(appstruct)
+        assert data is None
+
+    def test_magentoapi_get_stock_data_is_in_stock(self):
+        from organicseeds_webshop_api import magentoapi
+        appstruct = {"inventory_status": 2, "inventory_qty": 300}
+        data = magentoapi.get_stock_data(appstruct)
+        assert data == {'qty': 300, 'is_in_stock': 1}
+
+    def test_magentoapi_get_stock_data_is_not_in_stock(self):
+        from organicseeds_webshop_api import magentoapi
+        appstruct = {"inventory_status": 3 , "inventory_qty": -3}
+        data = magentoapi.get_stock_data(appstruct)
+        assert data == {'qty': -3, 'is_in_stock': 0}
+        appstruct = {"inventory_status": 1 , "inventory_qty": -3}
+        data = magentoapi.get_stock_data(appstruct)
+        assert data == {'qty': -3, 'is_in_stock': 0}
+
+    def test_magentoapi_get_stock_data_min_sale(self):
+        from organicseeds_webshop_api import magentoapi
+        appstruct = {"min_sale_qty": 5}
+        data = magentoapi.get_stock_data(appstruct)
+        assert data == {'use_config_min_sale_qty': 0, 'min_sale_qty': 5}
+
+    def test_magentoapi_get_stock_data_max_sale(self):
+        from organicseeds_webshop_api import magentoapi
+        appstruct = {"max_sale_qty": 1000}
+        data = magentoapi.get_stock_data(appstruct)
+        assert data == {'use_config_max_sale_qty': 0, 'max_sale_qty': 1000}
+
+    def test_magentoapi_get_stock_data_qty_increments(self):
+        from organicseeds_webshop_api import magentoapi
+        appstruct = {"inventory_qty_increments": 5}
+        data = magentoapi.get_stock_data(appstruct)
+        assert data == {'use_config_enable_qty_inc': 0,
+                        'use_config_qty_increments': 0,
+                        'enable_qty_increments': 1, 'qty_increments': 5}
+
+    def test_magentoapi_get_stock_data_backorders_enable(self):
+        from organicseeds_webshop_api import magentoapi
+        appstruct = {"backorders_allow": True}
+        data = magentoapi.get_stock_data(appstruct)
+        assert data == {'use_config_backorders': 0, "backorders": 2,
+                        "min_qty":  -10000000}
+
+    def test_magentoapi_get_stock_data_backorders_disable(self):
+        from organicseeds_webshop_api import magentoapi
+        appstruct = {"backorders_allow": False}
+        data = magentoapi.get_stock_data(appstruct)
+        assert data == {'use_config_backorders': 0, "backorders": 0,
+                        "min_qty": 0}
 
 class TestMagentoAPIMagentoAPIIntegration(MagentoIntegrationTestCase):
 
@@ -170,8 +224,6 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         data = self.items_proxy._to_update_data(appstruct)
         assert data == {}
 
-
-
     def test_magentoapi_items_to_create_data(self):
         appstruct = {}
         data = self.items_proxy._to_create_data(appstruct)
@@ -189,6 +241,9 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         assert result["price"] is None
         assert result["status"] == '1'
         assert len(result["tier_price"]) == 1
+        result = proxy.single_call("cataloginventory_stock_item.list", [webshop_id])[0]
+        assert result['is_in_stock'] == '1'
+        assert result['qty'] == '5.0000'
 
     def test_magentoapi_link_item_with_item_group_parents(self):
         proxy = self.items_proxy

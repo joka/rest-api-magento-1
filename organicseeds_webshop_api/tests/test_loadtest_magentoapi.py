@@ -40,8 +40,10 @@ class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
             items[i].webshop_id = webshop_id
         print("\nupdateing items")
         proxy.update_shops(webshop_ids, appstructs)
+        print("\nlinking item parents")
+        proxy.link_item_parents(webshop_ids, appstructs)
         end = time.time()
-        print("\n\nTime to create and delete 10 items:")
+        print("\n\nTime to create 10 items:")
         print(end - start)
         print("\n")
 

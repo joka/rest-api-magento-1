@@ -43,32 +43,18 @@ items:
             price: 4.20 # decimal
     tax_class: 2 # TaxGroup, Magento berechnet Tax abhänging von tax_class, Kundengruppe, Lieferort, Website 
     quality_id: sortenquality1 # reference
-    min_sale_qty: 1 # IntegerGtNull # ==  mindestbestellmenge, # optional
-    max_sale_qty: 100 # IntegerGtNull # ==  höchstbestellmenge,  # optional
+    
+    # inventory 
     inventory_status: 2 # 1|2|3|4|5|6|7|8 
+    inventory_qty : 5 # Integer # Lagerbestand
 
-    # magento Lagerverwaltungs features, zu klären ob/wie nutzen
+    # Bestellmengen
+    min_sale_qty: 1 # IntegerGtNull # ==  mindestbestellmenge, # optional # default 1
+    max_sale_qty: 100 # IntegerGtNull # ==  höchstbestellmenge,  # optional # default 1000000
+    inventory_qty_increments: 5 # IntegerGtNull # == größe Verpackunseinheit # default 1  
 
-    #inventory_qty : 5 # integer, negativ möglich # Lagerbestand
-    #min_inventory_qty: # integer, negative möglich # Laberbestand ab dem der Status zu "Out of Stock" wechselt" # Default 0
-    #backorders: 0 # <allow_backorders> # Default 0
-                    # 0 = keine Nachbestellungen
-                    # 1 = erlaube Nachbestellungen wenn Lagerbestand < 1
-                    # 2 = erlaube Nachbestellungen und Sende Nachricht an Kunden
-
-
-    # Spezielle Bestellabläufe, zu klären ob/wie nutzen
-
-    # Verpackungseinheiten bestellen:
-    #vpe: 5 # integer ohne 0, optional == sale qty increments bei Magento
-    #vpe_enabled: True # Bool, optional, default False,  == enable qty increments
-                       # bei Magento, verkaufe nur Mengen die in Verpackunseinheiten abbildbar sind.
-
-    # Freie Mengen (gramm bestellen):
-    #custom_max_sale_qty: 300 # integer ohne 0, maximaler Wert in Gramm ohne
-                              # überprüfung bestellt werden kann # optional
-    #custom_min_sale_qty: 300 # int, maximaler Wert in Gramm der ohne
-                              # überprüfung bestellt werden kann  # optional
+    # Vorbestellungen
+    backorders_allow: True # Bool # default False, erlaube Bestellungen wenn Lagerbestand < 1, Sende Nachricht an Kunden 
 
 
 # default_vpe:

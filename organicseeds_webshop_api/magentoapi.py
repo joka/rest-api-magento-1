@@ -81,11 +81,38 @@ def get_website_value(appstruct, key, country):
 def get_tier_price_data(appstruct):
     return appstruct.get("tierprices", None)
 
-
-#def get_magento_inventory_status(data):
-    #status = data["inventory_status"]
-    #magento_status = 1 if status == 2 else 0
-    #return magento_status
+def get_stock_data(appstruct):
+    stock_data = {}
+    status = appstruct.get("inventory_status", None)
+    if status:
+        stock_data["is_in_stock"] = 1 if status == 2 else 0
+    inventory_qty = appstruct.get("inventory_qty", None)
+    if inventory_qty:
+        stock_data['qty'] = inventory_qty
+    min_sale_qty = appstruct.get("min_sale_qty", None)
+    if min_sale_qty:
+        stock_data["use_config_min_sale_qty"] = 0
+        stock_data["min_sale_qty"] = min_sale_qty
+    max_sale_qty = appstruct.get("max_sale_qty", None)
+    if max_sale_qty:
+        stock_data["use_config_max_sale_qty"] = 0
+        stock_data["max_sale_qty"] = max_sale_qty
+    increment = appstruct.get("inventory_qty_increments", None)
+    if increment:
+        stock_data['use_config_enable_qty_inc'] = 0
+        stock_data['use_config_qty_increments'] = 0
+        stock_data['enable_qty_increments'] = 1
+        stock_data['qty_increments'] = increment
+    backorder = appstruct.get("backorders_allow", None)
+    if backorder is True:
+        stock_data["use_config_backorders"] = 0
+        stock_data["backorders"] = 2
+        stock_data["min_qty"] = -10000000
+    if backorder is False:
+        stock_data["use_config_backorders"] = 0
+        stock_data["backorders"] = 0
+        stock_data["min_qty"] = 0
+    return stock_data or None
 
 
 ##############################
@@ -265,7 +292,7 @@ class Items(MagentoAPI):
             ("weight", appstruct.get("weight_brutto", None)),
             ("tax_class_id", appstruct.get("tax_class", None)),
             ("tier_price", get_tier_price_data(appstruct)),
-            #"stock_appstruct": get_stock_appstruct(item),
+            ("stock_data", get_stock_data(appstruct)),
              ]
         data.update(dict([x for x in extradata_tuples if x[1] is not None]))
         return data
