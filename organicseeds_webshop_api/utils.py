@@ -55,9 +55,11 @@ def store(appstructs, itemtype, data_key, request):
         qualities = obj.get("qualities", None)
         if qualities:
             items = app_root["items"]
-            children = [i for i in items.values() if i["parent_id"] == obj["id"]]
+            children = [i for i in items.values()
+                        if i["parent_id"] == obj["id"]]
             for i in children:
-                quality = [q for q in qualities if q["id"] == i["quality_id"]][0]
+                quality = [q for q in qualities
+                           if q["id"] == i["quality_id"]][0]
                 i.quality = quality
 
     return entities

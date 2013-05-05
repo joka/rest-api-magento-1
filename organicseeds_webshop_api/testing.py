@@ -13,7 +13,7 @@ def testconfig():
     config = {"zodbconn.uri": "memory://",
               "magento_whiz_script": whiz,
               "magento_rpc_user": u"webshop_api",
-              "magento_rpc_secret":  u"oxXCcvIAhdXcw",
+              "magento_rpc_secret": u"oxXCcvIAhdXcw",
               "magento_apiurl": "http://hobby.developlocal.sativa.jokasis.de/"
               }
     return config
