@@ -10,12 +10,6 @@ from organicseeds_webshop_api import schemata
 from organicseeds_webshop_api import utils
 
 
-rpc_user = u"webshop_api"
-rpc_secret = u"oxXCcvIAhdXcw"
-apiurl = "http://hobby.developlocal.sativa.jokasis.de/"
-magento_whiz_script = "/home/joka/dev/php/saatgut/bin/whiz"
-
-
 #############
 #  helpers  #
 #############
@@ -156,6 +150,10 @@ class MagentoAPI(magento.api.API):
     entities = None
 
     def __init__(self, request):
+        settings = request.registry.settings
+        apiurl = settings["magento_apiurl"]
+        rpc_user = settings["magento_rpc_user"]
+        rpc_secret = settings["magento_rpc_secret"]
         super(MagentoAPI, self).__init__(apiurl, rpc_user, rpc_secret)
         self.request = request
         self.items = request.root.app_root["items"]

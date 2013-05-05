@@ -11,7 +11,11 @@ def testconfig():
     module = organicseeds_webshop_api.__path__[0]
     whiz = module + "/../../../bin/whiz"
     config = {"zodbconn.uri": "memory://",
-              "magento_whiz_script": whiz}
+              "magento_whiz_script": whiz,
+              "magento_rpc_user": u"webshop_api",
+              "magento_rpc_secret":  u"oxXCcvIAhdXcw",
+              "magento_apiurl": "http://hobby.developlocal.sativa.jokasis.de/"
+              }
     return config
 
 
@@ -19,6 +23,7 @@ def yaml_to_json(yamlstring):
     yamldata = yaml.load(yamlstring)
     jsondata = yaml2json.convertArrays(yamldata)
     return jsondata
+
 
 def setup_integration():
     import organicseeds_webshop_api
