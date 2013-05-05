@@ -36,15 +36,29 @@ def store(appstructs, itemtype, data_key, request):
             category_parent = app_root["categories"].get(parent_id, None)
             item_group_parent = app_root["item_groups"].get(parent_id, None)
             obj.__parent__ = category_parent or item_group_parent
-        # link vpe type
+        # link item vpe type
         vpe_type_id = obj.get("vpe_type_id", None)
         if vpe_type_id:
             obj.vpe_type = app_root["vpe_types"].get(vpe_type_id, None)
-        # link unit_of_measure
+        # link item unit_of_measure
         unit_of_measure = obj.get("unit_of_measure_id", None)
         if unit_of_measure:
             obj.unit_of_measure = app_root["unit_of_measures"].get(
                 unit_of_measure, None)
+        # link item quality child -> parent
+        quality_id = obj.get("quality_id", None)
+        if quality_id and obj.__parent__:
+            qualities = obj.__parent__["qualities"]
+            quality = [q for q in qualities if q["id"] == quality_id][0]
+            obj.quality = quality
+        # link item quality parent -> child
+        qualities = obj.get("qualities", None)
+        if qualities:
+            items = app_root["items"]
+            children = [i for i in items.values() if i["parent_id"] == obj["id"]]
+            for i in children:
+                quality = [q for q in qualities if q["id"] == i["quality_id"]][0]
+                i.quality = quality
 
     return entities
 

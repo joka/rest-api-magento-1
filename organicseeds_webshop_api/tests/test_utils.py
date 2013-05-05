@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytest
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
 )
@@ -118,6 +119,18 @@ class TestUtilsItemGroupsIntegration(IntegrationTestCase):
         groups = utils.store(self.testdata["item_groups"], models.ItemGroup,
                              "item_groups", self.request)
         assert len(groups) == 1
+
+    def test_utils_store_item_groups_update_item_quality(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        quality = {"id": "quality"}
+        child = models.Item()
+        child.from_appstruct({"parent_id": "parent", "quality_id": "quality"})
+        self.app_root["items"]["child"] = child
+
+        utils.store([{"id": "parent", "qualities": [quality]}],
+                    models.ItemGroup, "item_groups", self.request)
+        assert child.quality is quality
 
     def test_utils_delete_item_groups(self):
         from organicseeds_webshop_api import utils
@@ -245,6 +258,39 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
         utils.store(self.testdata["items"], models.Item, "items", self.request)
         item = self.app_root["items"]["itemka32"]
         assert item.__parent__ is None
+
+    def test_utils_store_items_with_quality(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        quality = {"id": "quality"}
+        parent = {"qualities": [quality]}
+        self.app_root["item_groups"]["parent"] = parent
+
+        self.testdata["items"][0]["parent_id"] = "parent"
+        self.testdata["items"][0]["quality_id"] = "quality"
+        utils.store(self.testdata["items"], models.Item, "items", self.request)
+        item = self.app_root["items"]["itemka32"]
+        assert item.quality is quality
+
+    def test_utils_store_items_with_quality_parent_missing(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        utils.store(self.testdata["items"], models.Item, "items", self.request)
+        item = self.app_root["items"]["itemka32"]
+        assert item.quality is None
+
+    def test_utils_store_items_with_quality_wrong_id(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        quality = {"id": "quality"}
+        parent = {"qualities": [quality]}
+        self.app_root["item_groups"]["parent"] = parent
+
+        self.testdata["items"][0]["parent_id"] = "parent"
+        self.testdata["items"][0]["wrong_quality_id"] = "quality"
+        with pytest.raises(IndexError):
+            utils.store(self.testdata["items"], models.Item, "items",
+                        self.request)
 
     def test_utils_store_items_existing(self):
         from organicseeds_webshop_api import utils

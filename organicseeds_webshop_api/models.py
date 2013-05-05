@@ -63,8 +63,6 @@ class Entity(Data):
 
     __parent__ = None
     webshop_id = 0
-    unit_of_measure = None
-    vpe_type = None
     url_slugs = {}
 
 
@@ -78,6 +76,10 @@ class ItemGroup(Entity):
 
 class Item(Entity):
     """Webshop entity item"""
+
+    unit_of_measure = None
+    vpe_type = None
+    quality = None
 
 
 class EntityData(Data):
