@@ -146,8 +146,8 @@ class MagentoAPI(magento.api.API):
         """Send magento api v.1 multiCall"""
         # slice calls to make magento happy and send
         results = []
-        for i in range(0, len(calls), 8):
-            calls_chunk = calls[i:i + 8]
+        for i in range(0, len(calls), 100):
+            calls_chunk = calls[i:i + 100]
             results_chunk = self.multiCall(calls_chunk)
             results += results_chunk
         # raise error if something went wrong
