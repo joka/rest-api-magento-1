@@ -165,6 +165,21 @@ class TestMagentoAPIHelpersIntegration(IntegrationTestCase):
         assert data == {'use_config_backorders': 0, "backorders": 0,
                         "min_qty": 0}
 
+    def test_indexing_reindex(self):
+        from organicseeds_webshop_api import magentoapi
+        result = magentoapi.indexing_reindex(self.request)
+        assert "Reindexing" in result
+
+    def test_indexing_enable_manual(self):
+        from organicseeds_webshop_api import magentoapi
+        result = magentoapi.indexing_enable_manual(self.request)
+        assert "Manual" in result
+
+    def test_indexing_enable_auto(self):
+        from organicseeds_webshop_api import magentoapi
+        result = magentoapi.indexing_enable_auto(self.request)
+        assert "Update on Save" in result
+
 class TestMagentoAPIMagentoAPIIntegration(MagentoIntegrationTestCase):
 
     def test_magentoapi_magentoapi_multi_call(self):

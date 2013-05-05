@@ -1,5 +1,6 @@
 """Module to mange the magento soap api"""
 from __future__ import absolute_import
+import subprocess
 from xmlrpclib import Fault
 import magento.api
 import magento
@@ -12,11 +13,33 @@ from organicseeds_webshop_api import utils
 rpc_user = u"webshop_api"
 rpc_secret = u"oxXCcvIAhdXcw"
 apiurl = "http://hobby.developlocal.sativa.jokasis.de/"
+magento_whiz_script = "/home/joka/dev/php/saatgut/bin/whiz"
 
 
 #############
 #  helpers  #
 #############
+
+
+def indexing_enable_manual(request):
+    magento_whiz_script = request.registry.settings.get('magento_whiz_script')
+    response = subprocess.check_output([magento_whiz_script,
+                                        "indexer-manual", "all"])
+    return response
+
+
+def indexing_reindex(request):
+    magento_whiz_script = request.registry.settings.get('magento_whiz_script')
+    response = subprocess.check_output([magento_whiz_script,
+                                        "indexer-reindex", "all"])
+    return response
+
+
+def indexing_enable_auto(request):
+    magento_whiz_script = request.registry.settings.get('magento_whiz_script')
+    response = subprocess.check_output([magento_whiz_script,
+                                        "indexer-realtime", "all"])
+    return response
 
 
 def get_storeviews(appstruct):
@@ -78,8 +101,10 @@ def get_website_value(appstruct, key, country):
     value = values and values[0] or None
     return value
 
+
 def get_tier_price_data(appstruct):
     return appstruct.get("tierprices", None)
+
 
 def get_stock_data(appstruct):
     stock_data = {}
@@ -292,8 +317,7 @@ class Items(MagentoAPI):
             ("weight", appstruct.get("weight_brutto", None)),
             ("tax_class_id", appstruct.get("tax_class", None)),
             ("tier_price", get_tier_price_data(appstruct)),
-            ("stock_data", get_stock_data(appstruct)),
-             ]
+            ("stock_data", get_stock_data(appstruct))]
         data.update(dict([x for x in extradata_tuples if x[1] is not None]))
         return data
 

@@ -53,6 +53,7 @@ def categories_post(request):
         except exceptions.WebshopAPIErrors as e:
             proxy.delete([x for x in e.success if isinstance(x, int)])
             raise exceptions._500(msg=e.errors)
+    magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
 
@@ -75,6 +76,7 @@ def categories_delete(request):
     utils.delete_all("categories", request)
     with magentoapi.Categories(request) as proxy:
         proxy.delete_all()
+    magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
 
@@ -124,6 +126,7 @@ def item_groups_post(request):
         except exceptions.WebshopAPIErrors as e:
             proxy.delete([x for x in e.success if isinstance(x, int)])
             raise exceptions._500(msg=e.errors)
+    magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
 
@@ -135,6 +138,7 @@ def item_groups_delete(request):
     utils.delete_all("item_groups", request)
     with magentoapi.ItemGroups(request) as proxy:
         proxy.delete_all()
+    magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
 
@@ -277,6 +281,7 @@ def items_post(request):
     """
     appstructs = request.validated["items"]
     items = utils.store(appstructs, models.Item, "items", request)
+    magentoapi.indexing_enable_manual(request)
     with magentoapi.Items(request) as proxy:
         try:
             webshop_ids = proxy.create(appstructs)
@@ -286,8 +291,7 @@ def items_post(request):
         except exceptions.WebshopAPIErrors as e:
             proxy.delete([x for x in e.success if isinstance(x, int)])
             raise exceptions._500(msg=e.errors)
-    #TODO update parent links
-    #TODO update item_group/category children
+    magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
 
@@ -302,10 +306,12 @@ def items_put(request):
     """
     appstructs = utils.remove_none_values(request.validated["items"])
     utils.store(appstructs, models.Item, "items", request)
+    magentoapi.indexing_enable_manual(request)
     with magentoapi.Items(request) as proxy:
         try:
             webshop_ids = proxy.update(appstructs)
             proxy.update_shops(webshop_ids, appstructs)
+            magentoapi.indexing_reindex(request)
         except exceptions.WebshopAPIErrors as e:
             raise exceptions._500(msg=e.errors)
     return {"status": "succeeded"}
@@ -317,6 +323,8 @@ def items_delete(request):
     """
 
     utils.delete_all("items", request)
+    magentoapi.indexing_enable_manual(request)
     with magentoapi.Items(request) as proxy:
         proxy.delete_all()
+    magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}

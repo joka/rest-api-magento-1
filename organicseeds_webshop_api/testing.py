@@ -6,11 +6,19 @@ from pyramid import testing
 from cornice.errors import Errors
 
 
+def testconfig():
+    import organicseeds_webshop_api
+    module = organicseeds_webshop_api.__path__[0]
+    whiz = module + "/../../../bin/whiz"
+    config = {"zodbconn.uri": "memory://",
+              "magento_whiz_script": whiz}
+    return config
+
+
 def yaml_to_json(yamlstring):
     yamldata = yaml.load(yamlstring)
     jsondata = yaml2json.convertArrays(yamldata)
     return jsondata
-
 
 def setup_integration():
     import organicseeds_webshop_api
@@ -18,7 +26,7 @@ def setup_integration():
     request.context = testing.DummyResource()
     request.errors = Errors(request)
     config = testing.setUp(request=request,
-                           settings={"zodbconn.uri": "memory://"})
+                           settings=testconfig())
     config.include("pyramid_zodbconn")
     request.root = organicseeds_webshop_api.root_factory(request)
     app_root = request.root.app_root
@@ -95,7 +103,7 @@ class FunctionalTestCase(unittest.TestCase):
 
     def setUp(self):
         from organicseeds_webshop_api import main
-        self.app = TestApp(main({"zodbconn.uri": "memory://"}))
+        self.app = TestApp(main(testconfig()))
         self.__dict__.update(set_testfile(self.testdatafilepath))
 
     def tearDown(self):

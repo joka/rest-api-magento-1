@@ -19,8 +19,9 @@ class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
 
     @pytest.mark.loadtest
     def test_load_create_items_time_10(self):
-        proxy = self.items_proxy
         import time
+        from organicseeds_webshop_api import magentoapi
+        proxy = self.items_proxy
         start = time.time()
         appstruct = self.testdata["items"][0]
         appstructs = []
@@ -35,6 +36,7 @@ class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
             appstructs.append(appstruct_)
             items.append(create_item(appstruct_, self.request))
         print("\ncreating items")
+        magentoapi.indexing_enable_manual(self.request)
         webshop_ids = proxy.create(appstructs)
         for i, webshop_id in enumerate(webshop_ids):
             items[i].webshop_id = webshop_id
@@ -43,6 +45,7 @@ class TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):
         print("\nlinking item parents")
         proxy.link_item_parents(webshop_ids, appstructs)
         end = time.time()
+        magentoapi.indexing_reindex(self.request)
         print("\n\nTime to create 10 items:")
         print(end - start)
         print("\n")
