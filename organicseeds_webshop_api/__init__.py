@@ -2,9 +2,7 @@
 # vim: set ts=4 sw=4:
 from pyramid.config import Configurator
 from pyramid_zodbconn import get_connection
-#from cornice.tests.support import CatchErrors
 
-import organicseeds_webshop_api.models
 from organicseeds_webshop_api.models import bootstrap
 
 
@@ -23,15 +21,14 @@ def includeme(config):
 
 # pyramid application main
 def main(global_config, **settings):
-    if not "zodbconn.uri" in settings:
-        settings.update({"zodbconn.uri": "memory://"})
-    config = Configurator(settings=settings)
+    if settings:
+        global_config.update(settings)
+    config = Configurator(settings=global_config)
     config.set_root_factory(root_factory)
     config.include("pyramid_zodbconn")
     config.include("pyramid_tm")
     config.include(includeme)
 
-    #return CatchErrors(config.make_wsgi_app())
     return config.make_wsgi_app()
 
 

@@ -8,8 +8,8 @@ Setup
     >>> import pytest
     >>> from webtest import TestApp, AppError
     >>> from organicseeds_webshop_api import main
-    >>> from organicseeds_webshop_api.testing import get_file
-    >>> app = TestApp(main({}))
+    >>> from organicseeds_webshop_api.testing import get_file, testconfig
+    >>> app = TestApp(main(testconfig()))
 
 We also need some dictionaries to post test data::
 
