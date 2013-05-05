@@ -108,7 +108,7 @@ class TestMagentoAPIHelpersIntegration(IntegrationTestCase):
                          'qty': 100, 'price': 4.20}]
         appstruct = {}
         data = magentoapi.get_tier_price_data(appstruct)
-        assert data == None
+        assert data is None
 
     def test_magentoapi_get_stock_data_none(self):
         from organicseeds_webshop_api import magentoapi
@@ -124,10 +124,10 @@ class TestMagentoAPIHelpersIntegration(IntegrationTestCase):
 
     def test_magentoapi_get_stock_data_is_not_in_stock(self):
         from organicseeds_webshop_api import magentoapi
-        appstruct = {"inventory_status": 3 , "inventory_qty": -3}
+        appstruct = {"inventory_status": 3, "inventory_qty": -3}
         data = magentoapi.get_stock_data(appstruct)
         assert data == {'qty': -3, 'is_in_stock': 0}
-        appstruct = {"inventory_status": 1 , "inventory_qty": -3}
+        appstruct = {"inventory_status": 1, "inventory_qty": -3}
         data = magentoapi.get_stock_data(appstruct)
         assert data == {'qty': -3, 'is_in_stock': 0}
 
@@ -156,7 +156,7 @@ class TestMagentoAPIHelpersIntegration(IntegrationTestCase):
         appstruct = {"backorders_allow": True}
         data = magentoapi.get_stock_data(appstruct)
         assert data == {'use_config_backorders': 0, "backorders": 2,
-                        "min_qty":  -10000000}
+                        "min_qty": -10000000}
 
     def test_magentoapi_get_stock_data_backorders_disable(self):
         from organicseeds_webshop_api import magentoapi
@@ -179,6 +179,7 @@ class TestMagentoAPIHelpersIntegration(IntegrationTestCase):
         from organicseeds_webshop_api import magentoapi
         result = magentoapi.indexing_enable_auto(self.request)
         assert "Update on Save" in result
+
 
 class TestMagentoAPIMagentoAPIIntegration(MagentoIntegrationTestCase):
 
@@ -233,8 +234,9 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         data = self.items_proxy._to_update_data(appstruct)
         assert ('weight', 0.25) in data.items()
         assert ('url_key', u'title') in data.items()
-        assert ('tier_price', [{'customer_group_id': 0, 'website': 'de_website',
-                                 'qty': 100, 'price': 4.20}]) in data.items()
+        assert ('tier_price', [{'customer_group_id': 0,
+                                'website': 'de_website',
+                                'qty': 100, 'price': 4.20}]) in data.items()
         appstruct = {}
         data = self.items_proxy._to_update_data(appstruct)
         assert data == {}
@@ -256,7 +258,8 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         assert result["price"] is None
         assert result["status"] == '1'
         assert len(result["tier_price"]) == 1
-        result = proxy.single_call("cataloginventory_stock_item.list", [webshop_id])[0]
+        result = proxy.single_call("cataloginventory_stock_item.list",
+                                   [webshop_id])[0]
         assert result['is_in_stock'] == '1'
         assert result['qty'] == '5.0000'
 
