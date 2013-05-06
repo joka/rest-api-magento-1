@@ -265,7 +265,7 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         assert result['webshopapi_type'] == appstruct["__type__"]
         result = proxy.single_call("cataloginventory_stock_item.list",
                                    [webshop_id])[0]
-        assert result['is_in_stock'] == '1'
+        assert result['is_in_stock'] == True
         assert result['qty'] == '5.0000'
 
     def test_magentoapi_link_item_with_item_group_parents(self):
