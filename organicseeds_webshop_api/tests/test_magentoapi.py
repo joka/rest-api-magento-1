@@ -237,6 +237,9 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         assert ('tier_price', [{'customer_group_id': 0,
                                 'website': 'de_website',
                                 'qty': 100, 'price': 4.20}]) in data.items()
+        assert data['additional_attributes'] == \
+            {'single_data': {'webshopapi_type': 'sortendetail_vpe',
+                             'webshopapi_id': 'itemka32'}}
         appstruct = {}
         data = self.items_proxy._to_update_data(appstruct)
         assert data == {}
@@ -258,6 +261,8 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         assert result["price"] is None
         assert result["status"] == '1'
         assert len(result["tier_price"]) == 1
+        assert result['webshopapi_id'] == appstruct["id"]
+        assert result['webshopapi_type'] == appstruct["__type__"]
         result = proxy.single_call("cataloginventory_stock_item.list",
                                    [webshop_id])[0]
         assert result['is_in_stock'] == '1'
@@ -412,6 +417,16 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
                         "include_in_menu": 1,
                         "is_active": 0}
         assert data == default_data
+
+    def test_magentoapi_items_to_update_data(self):
+        appstruct = self.testdata["categories"][0]
+        data = self.categories_proxy._to_update_data(appstruct)
+        assert data['additional_attributes'] ==\
+            {'single_data': {'webshopapi_type': 'category',
+                             'webshopapi_id': 1000}}
+        appstruct = {}
+        data = self.categories_proxy._to_update_data(appstruct)
+        assert data == {}
 
     def test_magentoapi_categories_create(self):
         proxy = self.categories_proxy

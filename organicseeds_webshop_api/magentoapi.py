@@ -317,6 +317,13 @@ class Items(MagentoAPI):
             ("tier_price", get_tier_price_data(appstruct)),
             ("stock_data", get_stock_data(appstruct))]
         data.update(dict([x for x in extradata_tuples if x[1] is not None]))
+        additional = {}
+        if "__type__" in appstruct:
+            additional["webshopapi_type"] = appstruct["__type__"]
+        if "id" in appstruct:
+            additional["webshopapi_id"] = appstruct["id"]
+        if additional:
+            data["additional_attributes"] = {"single_data": additional}
         return data
 
     def _to_update_shops_data(self, appstruct, lang, country="default"):
@@ -405,8 +412,13 @@ class Categories(MagentoAPI):
     def _to_update_data(self, appstruct):
         """transforms category appstruct to magento update data"""
         data = self._to_update_shops_data(appstruct, "default")
-        extradata_tuples = []
-        data.update(dict([x for x in extradata_tuples if x[1] is not None]))
+        additional = {}
+        if "__type__" in appstruct:
+            additional["webshopapi_type"] = appstruct["__type__"]
+        if "id" in appstruct:
+            additional["webshopapi_id"] = appstruct["id"]
+        if additional:
+            data["additional_attributes"] = {"single_data": additional}
         return data
 
     def _to_update_shops_data(self, appstruct, lang, country="default"):
