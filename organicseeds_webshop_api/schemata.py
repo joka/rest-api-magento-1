@@ -818,11 +818,19 @@ class Item(BasicNode):
 
            quality_id = Identifier # reference to item_group quality
 
+           inventory_status = Integer # 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+
+           inventory_qty = Integer
+
            min_sale_qty = Integer # default 1
 
            max_sale_qty = Integer # default 1000000
 
-           inventory_status = Integer # 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+           inventory_qty_increments: IntegerGtNull # default 1,
+             == größe Verpackunseinheit
+
+           backorders_allow: Bool # default False,
+             erlaube Bestellungen wenn Lagerbestand < 1
     """
 
     __type__ = String(validator=OneOf(["sortendetail_vpe",
@@ -840,10 +848,14 @@ class Item(BasicNode):
     tierprices = TierPrices()
     tax_class = TaxClass()
     quality_id = String()
+    inventory_status = InventoryStatus()
+    inventory_qty = Integer()
     min_sale_qty = IntegerGtNull(default=1, missing=1, required=False)
     max_sale_qty = IntegerGtNull(default=1000000, missing=1000000,
                                  required=False)
-    inventory_status = InventoryStatus()
+    inventory_qty_increments = IntegerGtNull(default=1, missing=1,
+                                             required=False)
+    backorders_allow = Bool(default=False, missing=False, required=False)
 
 
 class Items(colander.SequenceSchema):
@@ -886,9 +898,12 @@ class ItemUpdate(colander.Schema):
     tierprices = TierPrices(missing=None, required=False)
     tax_class = TaxClass(missing=None, required=False)
     quality_id = String(missing=None, required=False)
+    inventory_status = InventoryStatus(missing=None, required=False)
+    inventory_qty = Integer(missing=None, required=False)
     min_sale_qty = IntegerGtNull(missing=None, required=False)
     max_sale_qty = IntegerGtNull(missing=None, required=False)
-    inventory_status = InventoryStatus(missing=None, required=False)
+    inventory_qty_increments = IntegerGtNull(missing=None, required=False)
+    backorders_allow = Bool(missing=None, required=False)
 
 
 class ItemsUpdate(colander.SequenceSchema):

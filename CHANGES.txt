@@ -4,6 +4,8 @@ Changelog
 0.2
 ---
 
+- Item schema: added inventory_qty, backorders_allow, inventory_qty_increments    
+
 - schema TierPrice: renamed min_sale_qty to qty, renamed customer_group to customer_group_id 
 
 - schema: renamed shortdescription to short_description
