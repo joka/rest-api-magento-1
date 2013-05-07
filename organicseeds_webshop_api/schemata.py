@@ -914,3 +914,15 @@ class ItemsUpdate(colander.SequenceSchema):
 class ItemsUpdateList(colander.MappingSchema):
 
     items = ItemsUpdate()
+
+
+class ItemGet(colander.MappingSchema):
+    """Get Webshop Item entity data
+
+       * lang: "default" | "fr" | "de" | "it" ... # default = "default"
+
+       * id: Identifier # Item id
+    """
+
+    lang = Identifier(default="default", missing="default", required=False, location="querystring")
+    id = Identifier(location="path")

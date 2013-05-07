@@ -326,3 +326,36 @@ def items_delete(request):
         proxy.delete_all()
     magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
+
+
+######################
+# /item/<id> service #
+######################
+
+
+item = Service(name='item',
+                path='/item/{id}',
+                description="Service to get item data")
+
+
+#TODO use validators here
+@item.get(schema=schemata.ItemGet)
+def item_get(request):
+    """Get item data
+
+       url param :
+
+       * lang: language # default = "default"
+    """
+
+    item_id = request.validated["id"]
+    lang = request.validated["lang"]
+    try:
+        item = request.root.app_root["items"][item_id]
+        data = item.to_data(lang)
+    except KeyError:
+        error="%s does not exists"
+        raise exceptions._500(msg=error % (item_id))
+    return data
+
+

@@ -32,6 +32,21 @@ class Root(object):
 ######################################
 
 
+def translate(data, lang):
+    if not isinstance(data, dict):
+        return data
+    for key in data:
+        if isinstance(data[key], dict):
+            value = data[key].get(lang, None)\
+                or data[key].get("default",  None)\
+                or data[key]
+            data[key] = value
+        if isinstance(data[key], list):
+            for i in data[key]:
+                translate(i, lang)
+    return data
+
+
 class WebshopAPI(PersistentMapping):
     """Application root object"""
 
@@ -50,12 +65,14 @@ class Data(PersistentMapping):
         """
         self.update(appstruct)
 
-    def to_appstruct(self, appstruct):
+    def to_data(self, lang=None):
         """"
-        :rtype appstruct: Dictionary, keys are string, (colander appstruct)
+        :return dictionary with all data
         """
-        appstruct = deepcopy(self.data)
-        return appstruct
+        data = deepcopy(self.data)
+        if lang:
+            data = translate(data, lang)
+        return data
 
 
 class Entity(Data):
@@ -81,6 +98,20 @@ class Item(Entity):
     vpe_type = None
     quality = None
 
+    def to_data(self, lang=None):
+        """"
+        :return dictionary with all data
+        """
+        data = deepcopy(self.data)
+        if lang:
+            data = translate(data, lang)
+        if self.vpe_type:
+            data["vpe_type"] = self.vpe_type.to_data(lang)
+        if self.unit_of_measure:
+            data["unit_of_measure"] = self.unit_of_measure.to_data(lang)
+        if self.quality:
+            data["quality"] = translate(self.quality, lang)
+        return data
 
 class EntityData(Data):
     """Additional data for Entities"""
