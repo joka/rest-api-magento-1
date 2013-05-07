@@ -3,45 +3,11 @@ import pytest
 from organicseeds_webshop_api.exceptions import _500
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
-    MagentoIntegrationTestCase
+    MagentoIntegrationTestCase,
+    create_vpe_type,
+    create_unit_of_measure,
+    create_item_group,
 )
-
-
-def create_item(appstruct, request, itemsproxy=None):
-    from organicseeds_webshop_api.models import Item
-    item = Item()
-    item.from_appstruct(appstruct)
-    request.root.app_root["items"][appstruct["id"]] = item
-    if itemsproxy:
-        item.webshop_id = itemsproxy.create([appstruct])[0]
-    return item
-
-
-def create_item_group(appstruct, request, itemgroupsproxy=None):
-    from organicseeds_webshop_api.models import ItemGroup
-    item_group = ItemGroup()
-    item_group.from_appstruct(appstruct)
-    request.root.app_root["item_groups"][appstruct["id"]] = item_group
-    if itemgroupsproxy:
-        item_group.webshop_id = itemgroupsproxy.create([appstruct])[0]
-    return item_group
-
-
-def create_vpe_type(appstruct, request):
-    from organicseeds_webshop_api.models import EntityData
-    vpe_type = EntityData()
-    vpe_type.from_appstruct(appstruct)
-    request.root.app_root["vpe_types"][appstruct["id"]] = vpe_type
-    return vpe_type
-
-
-def create_unit_of_measure(appstruct, request):
-    from organicseeds_webshop_api.models import EntityData
-    unit_of_measure = EntityData()
-    unit_of_measure.from_appstruct(appstruct)
-    request.root.app_root["unit_of_measures"][appstruct["id"]] =\
-        unit_of_measure
-    return unit_of_measure
 
 
 class TestServicesCategoriesIntegration(MagentoIntegrationTestCase):

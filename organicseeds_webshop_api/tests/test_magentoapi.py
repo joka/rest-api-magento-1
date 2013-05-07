@@ -3,38 +3,11 @@ import pytest
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
     MagentoIntegrationTestCase,
+    create_item,
+    create_category,
+    create_item_group,
 )
 from organicseeds_webshop_api import magentoapi
-
-
-def create_item(appstruct, request, itemsproxy=None):
-    from organicseeds_webshop_api.models import Item
-    item = Item()
-    item.from_appstruct(appstruct)
-    request.root.app_root["items"][appstruct["id"]] = item
-    if itemsproxy:
-        item.webshop_id = itemsproxy.create([appstruct])[0]
-    return item
-
-
-def create_item_group(appstruct, request, itemgroupsproxy=None):
-    from organicseeds_webshop_api.models import ItemGroup
-    item_group = ItemGroup()
-    item_group.from_appstruct(appstruct)
-    request.root.app_root["item_groups"][appstruct["id"]] = item_group
-    if itemgroupsproxy:
-        item_group.webshop_id = itemgroupsproxy.create([appstruct])[0]
-    return item_group
-
-
-def create_category(appstruct, request, categoriesproxy=None):
-    from organicseeds_webshop_api.models import Category
-    cat = Category()
-    cat.from_appstruct(appstruct)
-    request.root.app_root["categories"][appstruct["id"]] = cat
-    if categoriesproxy:
-        cat.webshop_id = categoriesproxy.create([appstruct])[0]
-    return cat
 
 
 class TestMagentoAPIHelpersIntegration(IntegrationTestCase):
