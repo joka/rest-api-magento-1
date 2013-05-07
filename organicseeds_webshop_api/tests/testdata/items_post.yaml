@@ -42,7 +42,7 @@ items:
             qty: 100 # integer ohne null
             price: 4.20 # decimal
     tax_class: 2 # TaxGroup, Magento berechnet Tax abhänging von tax_class, Kundengruppe, Lieferort, Website 
-    quality_id: sortenquality1 # reference
+    quality_id: 1 # reference
     
     # inventory 
     inventory_status: 2 # 1|2|3|4|5|6|7|8 
