@@ -258,7 +258,6 @@ def vpe_types_delete(request):
 items = Service(name='items',
                 path='/items',
                 description="Service to upload items")
-#TODO validate item quality_id
 
 
 @items.post(schema=schemata.ItemsList, accept="text/json",
@@ -329,12 +328,12 @@ def items_delete(request):
 
 
 ######################
-# /item/<id> service #
+# /items/<id> service #
 ######################
 
 
 item = Service(name='item',
-                path='/item/{id}',
+                path='/items/{id}',
                 description="Service to get item data")
 
 
@@ -357,5 +356,3 @@ def item_get(request):
         error="%s does not exists"
         raise exceptions._500(msg=error % (item_id))
     return data
-
-

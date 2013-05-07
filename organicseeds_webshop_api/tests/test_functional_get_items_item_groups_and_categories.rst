@@ -39,11 +39,11 @@ Get Item data:
 
 If we now the item id/webshopapi_id we can get the item default translation data with a simple get request::
 
-    >>> app.get('/item/itemka32')
+    >>> app.get('/items/itemka32')
     <200 OK application/json body=...
 
 to get a specific language we need to set the request parameter "lang"::
 
-    >>> resp = app.get('/item/itemka32', {"lang": "fr"})
+    >>> resp = app.get('/items/itemka32', {"lang": "fr"})
     >>> resp.json_body["title"]
     u'titlefr'
