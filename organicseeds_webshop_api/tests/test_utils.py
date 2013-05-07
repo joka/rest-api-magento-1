@@ -132,6 +132,33 @@ class TestUtilsItemGroupsIntegration(IntegrationTestCase):
                     models.ItemGroup, "item_groups", self.request)
         assert child.quality is quality
 
+    def test_utils_store_item_groups_update_item_quality_wrong_id(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        from organicseeds_webshop_api.exceptions import _500
+        quality = {"id": "quality"}
+        child = models.Item()
+        child.from_appstruct({"id": "child", "parent_id": "parent",
+                              "quality_id": "wrong_quality"})
+        self.app_root["items"]["child"] = child
+
+        with pytest.raises(_500):
+            quality = {"id": "quality"}
+            utils.store([{"id": "parent", "qualities": [quality]}],
+                        models.ItemGroup, "item_groups", self.request)
+
+    def test_utils_store_item_groups_update_item_quality_missing(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        child = models.Item()
+        child.from_appstruct({"id": "child",
+                              "parent_id": "parent", "quality_id": "quality"})
+        self.app_root["items"]["child"] = child
+
+        utils.store([{"id": "parent", "qualities": []}],
+                    models.ItemGroup, "item_groups", self.request)
+        assert child.quality is None
+
     def test_utils_delete_item_groups(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
@@ -206,7 +233,7 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
         from organicseeds_webshop_api import models
         self.testdata["items"][0]["parent_id"] = "karotten"
         self.testdata["items"][0]["id"] = "itemka32"
-        parent = object()
+        parent = models.ItemGroup()
         self.app_root["item_groups"]["karotten"] = parent
 
         utils.store(self.testdata["items"], models.Item, "items", self.request)
@@ -282,13 +309,14 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
     def test_utils_store_items_with_quality_wrong_id(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
+        from organicseeds_webshop_api.exceptions import _500
         quality = {"id": "quality"}
         parent = {"qualities": [quality]}
         self.app_root["item_groups"]["parent"] = parent
 
         self.testdata["items"][0]["parent_id"] = "parent"
         self.testdata["items"][0]["wrong_quality_id"] = "quality"
-        with pytest.raises(IndexError):
+        with pytest.raises(_500):
             utils.store(self.testdata["items"], models.Item, "items",
                         self.request)
 
