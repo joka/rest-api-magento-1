@@ -327,9 +327,9 @@ def items_delete(request):
     return {"status": "succeeded"}
 
 
-######################
+#######################
 # /items/<id> service #
-######################
+#######################
 
 
 item = Service(name='item',
@@ -355,4 +355,35 @@ def item_get(request):
     except KeyError:
         error="%s does not exists"
         raise exceptions._500(msg=error % (item_id))
+    return data
+
+
+#############################
+# /item_groups/<id> service #
+#############################
+
+
+item_group = Service(name='item_group',
+                path='/item_groups/{id}',
+                description="Service to get item_group data")
+
+
+#TODO use validators here
+@item_group.get(schema=schemata.ItemGet)
+def item_group_get(request):
+    """Get item_group data
+
+       url param :
+
+       * lang: language # default = "default"
+    """
+
+    item_group_id = request.validated["id"]
+    lang = request.validated["lang"]
+    try:
+        item_group = request.root.app_root["item_groups"][item_group_id]
+        data = item_group.to_data(lang)
+    except KeyError:
+        error="%s does not exists"
+        raise exceptions._500(msg=error % (item_group_id))
     return data

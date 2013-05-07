@@ -164,8 +164,6 @@ class TestServicesItemIntegration(IntegrationTestCase):
         self.request.validated = {"id": item["id"], "lang": "default"}
         response = item_get(self.request)
         assert response["title"] == item["title"]["default"]
-        assert response["description"] == item["description"]["default"]
-        assert response["short_description"] == item["short_description"]["default"]
         assert response["vpe_type"] == vpe.to_data("default")
         assert response["unit_of_measure"] == unit.to_data("default")
         assert response["quality"] == item_group["qualities"][0]
@@ -176,3 +174,31 @@ class TestServicesItemIntegration(IntegrationTestCase):
         self.request.validated = {"id": "wrong_id", "lang": "default"}
         with pytest.raises(_500):
             item_get(self.request)
+
+
+class TestServicesItemGroupIntegration(IntegrationTestCase):
+
+    testdatafilepath = ("/testdata/item_groups_post.yaml")
+
+    def test_item_group_get(self):
+        from organicseeds_webshop_api.testing import set_testfile
+        from organicseeds_webshop_api.services import item_group_get
+        from organicseeds_webshop_api import models
+        from organicseeds_webshop_api import utils
+        categories_appstructs = set_testfile("/testdata/categories_post.yaml")["testdata"]
+        categories = utils.store(categories_appstructs["categories"], models.Category,
+                                 "categories", self.request)
+        category = categories[0]
+        item_groups = utils.store(self.testdata["item_groups"], models.ItemGroup, "item_groups", self.request)
+        item_group = item_groups[0]
+
+        self.request.validated = {"id": item_group["id"], "lang": "default"}
+        response = item_group_get(self.request)
+        assert response["title"] == item_group["title"]["default"]
+
+    def test_item_group_get_missing(self):
+        from organicseeds_webshop_api.services import item_group_get
+
+        self.request.validated = {"id": "wrong_id", "lang": "default"}
+        with pytest.raises(_500):
+            item_group_get(self.request)

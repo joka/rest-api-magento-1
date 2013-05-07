@@ -58,3 +58,17 @@ class TestModels(unittest.TestCase):
         data.from_appstruct(appstruct)
         assert data.to_data("default") == {"title": "test",
                                            "ids": [{"value": [{"text": "text"}]}]}
+
+    def test_models_item_group_to_data_inherited_attributes(self):
+        from organicseeds_webshop_api import models
+        child = models.ItemGroup()
+        parent1 = models.Category()
+        parent2 = models.Category()
+        child.__parent__ = parent1
+        parent1.__parent__ = parent2
+        child["text_attributes"] = [{"id": 1, "test": 1}]
+        parent2["text_attributes"] = [{"id": 1, "text": 2}]
+        parent2["bool_attributes"] = [{"id": 2}]
+
+        assert child.to_data()["text_attributes"] == [{"id": 1, "test": 1}]
+        assert child.to_data()["bool_attributes"] == [{"id": 2}]

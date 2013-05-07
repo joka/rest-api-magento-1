@@ -3,12 +3,14 @@ from persistent.mapping import PersistentMapping
 from BTrees.OOBTree import OOBTree
 import transaction
 from pyramid.security import Everyone, Authenticated, Allow
+from pyramid.location import lineage
 from repoze.catalog.indexes.field import CatalogFieldIndex
 from repoze.catalog.indexes.keyword import CatalogKeywordIndex
 from repoze.catalog.catalog import Catalog
 from repoze.catalog.document import DocumentMap
 
 from organicseeds_webshop_api.url_normalizer import url_normalizer
+from organicseeds_webshop_api.schemata import attributes_with_inheritance
 
 #################################
 #  Pyramid routing root object  #
@@ -32,7 +34,7 @@ class Root(object):
 ######################################
 
 
-def translate(data, lang):
+def _translate(data, lang):
     if not isinstance(data, dict):
         return data
     for key in data:
@@ -43,8 +45,21 @@ def translate(data, lang):
             data[key] = value
         if isinstance(data[key], list):
             for i in data[key]:
-                translate(i, lang)
+                _translate(i, lang)
     return data
+
+
+def _add_inherited_attributes(entity, attributename):
+    entities = [x for x in lineage(entity)]
+    attribute_values = []
+    attribute_ids = set()
+    for e in entities:
+        attrs = deepcopy(e.get(attributename, []))
+        for a in attrs:
+            if a["id"] not in attribute_ids:
+                attribute_ids.add(a["id"])
+                attribute_values.append(a)
+    return attribute_values
 
 
 class WebshopAPI(PersistentMapping):
@@ -71,7 +86,7 @@ class Data(PersistentMapping):
         """
         data = deepcopy(self.data)
         if lang:
-            data = translate(data, lang)
+            data = _translate(data, lang)
         return data
 
 
@@ -91,6 +106,18 @@ class ItemGroup(Entity):
     """Webshop entity item group"""
 
 
+    def to_data(self, lang=None):
+        """"
+        :return dictionary with all data
+        """
+        data = deepcopy(self.data)
+        for key in attributes_with_inheritance:
+            data[key] = _add_inherited_attributes(self, key)
+        if lang:
+            data = _translate(data, lang)
+        return data
+
+
 class Item(Entity):
     """Webshop entity item"""
 
@@ -104,13 +131,13 @@ class Item(Entity):
         """
         data = deepcopy(self.data)
         if lang:
-            data = translate(data, lang)
+            data = _translate(data, lang)
         if self.vpe_type:
             data["vpe_type"] = self.vpe_type.to_data(lang)
         if self.unit_of_measure:
             data["unit_of_measure"] = self.unit_of_measure.to_data(lang)
         if self.quality:
-            data["quality"] = translate(self.quality, lang)
+            data["quality"] = _translate(self.quality, lang)
         return data
 
 class EntityData(Data):

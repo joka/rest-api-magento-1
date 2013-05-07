@@ -47,3 +47,18 @@ to get a specific language we need to set the request parameter "lang"::
     >>> resp = app.get('/items/itemka32', {"lang": "fr"})
     >>> resp.json_body["title"]
     u'titlefr'
+
+
+Get ItemGroup data:
+-------------------
+
+If we now the item_group id/webshopapi_id we can get the item_group default translation data with a simple get request::
+
+    >>> app.get('/item_groups/33333_karottensorte')
+    <200 OK application/json body=...
+
+to get a specific language we need to set the request parameter "lang"::
+
+    >>> resp = app.get('/item_groups/33333_karottensorte', {"lang": "fr"})
+    >>> resp.json_body["title"]
+    u'carotte'

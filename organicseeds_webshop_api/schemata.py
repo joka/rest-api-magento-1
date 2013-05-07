@@ -576,6 +576,7 @@ class BasicNode(colander.MappingSchema):
 # Categories #
 ##############
 
+
 class Synonym(colander.TupleSchema):
 
     id = Identifier()
@@ -657,6 +658,11 @@ class Categories(colander.SequenceSchema):
 class CategoriesList(colander.MappingSchema):
 
     categories = Categories()
+
+
+attributes_with_inheritance = ["text_attributes", "measure_attributes",
+                               "bool_attributes", "weekmatrix_attributes",
+                               "file_attributes", "link_attributes"]
 
 
 ##############################################
