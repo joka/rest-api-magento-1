@@ -1,7 +1,10 @@
-import unittest
+from organicseeds_webshop_api.testing import (
+    IntegrationTestCase,
+    create_all_testdata_items,
+)
 
 
-class TestModels(unittest.TestCase):
+class TestModelsIntegration(IntegrationTestCase):
 
     def test_models_data_from_appstruct(self):
         from organicseeds_webshop_api import models
@@ -72,3 +75,15 @@ class TestModels(unittest.TestCase):
 
         assert child.to_data()["text_attributes"] == [{"id": 1, "test": 1}]
         assert child.to_data()["bool_attributes"] == [{"id": 2}]
+
+    def test_models_item_group_to_data_item_children(self):
+        vpe, unit, item, group = create_all_testdata_items(self.request)
+        data = group.to_data()
+        quality = data["qualities"][0]
+        vpe_id = vpe["id"]
+        quality_id = quality["id"]
+        assert vpe_id in data["children_vpe_types"]
+        assert quality_id in data["children_qualities"]
+        assert vpe_id in data["children_grouped"]
+        assert quality_id in data["children_grouped"][vpe_id]
+        assert item["sku"] in data["children_grouped"][vpe_id][quality_id]

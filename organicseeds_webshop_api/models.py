@@ -122,6 +122,24 @@ class ItemGroup(Entity):
             data[key] = _add_inherited_attributes(self, key)
         if lang:
             data = _translate(data, lang)
+        data["children_vpe_types"] = {}
+        data["children_qualities"] = {}
+        data["children_grouped"] = {}
+        for child in self.__children__:
+            child_ = child.to_data(lang)
+            vpe = child_["vpe_type"]
+            vpe_id = vpe["id"]
+            quality = child_["quality"]
+            quality_id = quality["id"]
+            if vpe_id not in data["children_grouped"]:
+                data["children_grouped"][vpe_id] = {}
+                data["children_vpe_types"][vpe_id] = vpe
+            del(child_["vpe_type"])
+            if quality_id not in data["children_grouped"][vpe_id]:
+                data["children_grouped"][vpe_id][quality_id] = {}
+                data["children_qualities"][quality_id] = quality
+            del(child_["quality"])
+            data["children_grouped"][vpe_id][quality_id][child_["sku"]] = child_
         return data
 
 
@@ -145,7 +163,7 @@ class Item(Entity):
             data["unit_of_measure"] = self.unit_of_measure.to_data(lang)
         if self.quality:
             data["quality"] = _translate(self.quality, lang)
-        data.webshop_id = self.webshop_id
+        data["webshop_id"] = self.webshop_id
         return data
 
 class EntityData(Data):

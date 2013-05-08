@@ -52,6 +52,22 @@ def create_unit_of_measure(appstruct, request):
         unit_of_measure
     return unit_of_measure
 
+def create_all_testdata_items(request):
+    from organicseeds_webshop_api.testing import set_testfile
+    vpes_ = set_testfile("/testdata/vpe_types_post.yaml")["testdata"]
+    units_ = set_testfile("/testdata/unit_of_measures_post.yaml")["testdata"]
+    groups_ = set_testfile("/testdata/item_groups_post.yaml")["testdata"]
+    items_ = set_testfile("/testdata/items_post.yaml")["testdata"]
+    vpe = create_vpe_type(vpes_["vpe_types"][0], request)
+    unit = create_unit_of_measure(units_["unit_of_measures"][0], request)
+    item = create_item(items_["items"][0], request)
+    group = create_item_group(groups_["item_groups"][0], request)
+    item.__parent__ = group
+    group.__children__.append(item)
+    item.vpe_type = vpe
+    item.unit_of_measure = unit
+    item.quality = group["qualities"][0]
+    return vpe, unit, item, group
 
 def testconfig():
     import organicseeds_webshop_api
