@@ -21,7 +21,6 @@ class TestServicesCategoriesIntegration(MagentoIntegrationTestCase):
     def test_categories_delete(self):
         from organicseeds_webshop_api.services import categories_delete
         from organicseeds_webshop_api.services import categories_post
-
         self.request.validated = self.testdata
         categories_post(self.request)
         response = categories_delete(self.request)

@@ -152,6 +152,7 @@ def get_entities_item_children(entities, request):
         for child in entity.__children__:
             items.append(child)
             items_webshop_ids.append(child.webshop_id)
+    return items_webshop_ids, items
 
 
 def get_url_slug(title, unique_suffix, request):

@@ -100,19 +100,31 @@ class Entity(Data):
 
     __parent__ = None
     webshop_id = 0
-    url_slugs = PersistentMapping()
+    url_slugs = {}
+
+    def __init__(self, appstruct={}):
+        super(Entity, self).__init__(appstruct)
+        self.url_slugs = PersistentMapping()
 
 
 class Category(Entity):
     """Webshop entity category"""
 
-    __children__ = PersistentList()
+    __children__ = []
+
+    def __init__(self, appstruct={}):
+        super(Category, self).__init__(appstruct)
+        self.__children__ = PersistentList()
 
 
 class ItemGroup(Entity):
     """Webshop entity item group"""
 
-    __children__ = PersistentList()
+    __children__ = []
+
+    def __init__(self, appstruct={}):
+        super(ItemGroup, self).__init__(appstruct)
+        self.__children__ = PersistentList()
 
     def to_data(self, lang=None):
         """"

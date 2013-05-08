@@ -51,7 +51,7 @@ class TestUtilsStoreEntitiesIntegration(IntegrationTestCase):
         utils.store(self.testdata["items"], models.Item, "items", self.request)
         item = self.app_root["items"]["itemka32"]
         assert item.__parent__ is parent
-        assert item in parent.__children__
+        assert parent.__children__ == [item]
 
     def test_utils_store_entities_with_parent_missing(self):
         from organicseeds_webshop_api import utils
@@ -60,10 +60,11 @@ class TestUtilsStoreEntitiesIntegration(IntegrationTestCase):
         self.testdata["items"][0]["id"] = "itemka32"
         parent = models.ItemGroup()
         self.app_root["item_groups"]["karotten"] = parent
-
+        models.ItemGroup().__children__
         utils.store(self.testdata["items"], models.Item, "items", self.request)
         item = self.app_root["items"]["itemka32"]
         assert item.__parent__ is None
+        assert parent.__children__ == []
 
     def test_utils_store_entities_update_parent(self):
         from organicseeds_webshop_api import utils
@@ -73,10 +74,10 @@ class TestUtilsStoreEntitiesIntegration(IntegrationTestCase):
         item = utils.store(self.testdata["items"], models.Item, "items",
                            self.request)[0]
 
-        parent = utils.store([{"id": "karotten"}], models.ItemGroup, "item_groups",
-                           self.request)[0]
+        parent = utils.store([{"id": "karotten"}], models.ItemGroup,
+                             "item_groups", self.request)[0]
         assert item.__parent__ is parent
-        assert item in parent.__children__
+        assert parent.__children__ == [item]
 
     def test_utils_store_entities_with_vpe_type(self):
         from organicseeds_webshop_api import utils
@@ -156,7 +157,8 @@ class TestUtilsStoreEntitiesIntegration(IntegrationTestCase):
         quality = {"id": "quality"}
         child_appstruct = {"id": "child", "parent_id": "parent",
                            "quality_id": "quality"}
-        childs = utils.store([child_appstruct], models.Item, "items", self.request)
+        childs = utils.store([child_appstruct], models.Item, "items",
+                             self.request)
         child = childs[0]
         utils.store([{"id": "parent", "qualities": [quality]}],
                     models.ItemGroup, "item_groups", self.request)
@@ -242,20 +244,14 @@ class TestUtilsGetEntitiesItemChildren(IntegrationTestCase):
     def test_get_entities_item_children(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
-        category = models.Category()
-        category.from_appstruct({"id": "parent"})
-
-        item = models.Item()
-        item.from_appstruct({"id": "child1", "parent_id": "parent"})
-        self.request.root.app_root["items"]["child"] = item
-        item_group = models.ItemGroup()
-        item_group.from_appstruct({"id": "child2", "parent_id": "parent"})
-        self.request.root.app_root["item_groups"]["child"] = item_group
+        category = models.Category({"id": "parent"})
+        item = models.Item({"id": "child1", "parent_id": "parent"})
+        category.__children__.append(item)
 
         item_webshop_ids, items = utils.get_entities_item_children(
             [category], self.request)
-        assert item_webshop_ids == [0, 0]
-        assert items == [item, item_group]
+        assert item_webshop_ids == [0]
+        assert items == [item]
 
     def test_get_entities_item_children_missing(self):
         from organicseeds_webshop_api import utils
