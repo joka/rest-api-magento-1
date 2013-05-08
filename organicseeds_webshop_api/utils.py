@@ -77,13 +77,11 @@ def store(appstructs, itemtype, data_key, request):
             for i in obj.__children__:
                 try:
                     quality = [q for q in qualities
-                        if q["id"] == i["quality_id"]][0]
+                               if q["id"] == i["quality_id"]][0]
                     i.quality = quality
                 except IndexError:
                     error = "Child %s of %s has non existing quality_id"
                     raise _500(msg=error % (i["id"], obj["id"]))
-
-
     return entities
 
 

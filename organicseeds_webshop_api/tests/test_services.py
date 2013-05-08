@@ -4,9 +4,7 @@ from organicseeds_webshop_api.exceptions import _500
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
     MagentoIntegrationTestCase,
-    create_vpe_type,
-    create_unit_of_measure,
-    create_item_group,
+    create_all_testdata_items
 )
 
 
@@ -145,29 +143,16 @@ class TestServicesItemIntegration(IntegrationTestCase):
     testdatafilepath = ("/testdata/items_post.yaml")
 
     def test_item_get(self):
-        from organicseeds_webshop_api.testing import set_testfile
         from organicseeds_webshop_api.services import item_get
-        from organicseeds_webshop_api import models
-        from organicseeds_webshop_api import utils
-        vpes = set_testfile("/testdata/vpe_types_post.yaml")["testdata"]
-        vpe_appstruct = vpes["vpe_types"][0]
-        vpe = create_vpe_type(vpe_appstruct, self.request)
-        units = set_testfile("/testdata/unit_of_measures_post.yaml")["testdata"]
-        unit_appstruct = units["unit_of_measures"][0]
-        unit = create_unit_of_measure(unit_appstruct, self.request)
-        item_groups = set_testfile("/testdata/item_groups_post.yaml")["testdata"]
-        item_group_appstruct = item_groups["item_groups"][0]
-        item_group = create_item_group(item_group_appstruct, self.request)
-        items = utils.store(self.testdata["items"], models.Item, "items", self.request)
-        item = items[0]
+        vpe, unit, item, group = create_all_testdata_items(self.request)
 
         self.request.validated = {"id": item["id"], "lang": "default"}
         response = item_get(self.request)
         assert response["title"] == item["title"]["default"]
         assert response["vpe_type"] == vpe.to_data("default")
         assert response["unit_of_measure"] == unit.to_data("default")
-        assert response["quality"] == item_group["qualities"][0]
-        assert response["webshop_id"] == item_group.webshop_id
+        assert response["quality"] == group["qualities"][0]
+        assert response["webshop_id"] == group.webshop_id
 
     def test_item_get_missing(self):
         from organicseeds_webshop_api.services import item_get
@@ -186,11 +171,12 @@ class TestServicesItemGroupIntegration(IntegrationTestCase):
         from organicseeds_webshop_api.services import item_group_get
         from organicseeds_webshop_api import models
         from organicseeds_webshop_api import utils
-        categories_appstructs = set_testfile("/testdata/categories_post.yaml")["testdata"]
-        categories = utils.store(categories_appstructs["categories"], models.Category,
-                                 "categories", self.request)
-        category = categories[0]
-        item_groups = utils.store(self.testdata["item_groups"], models.ItemGroup, "item_groups", self.request)
+        cattests = set_testfile("/testdata/categories_post.yaml")["testdata"]
+        utils.store(cattests["categories"], models.Category,
+                    "categories", self.request)
+        item_groups = utils.store(self.testdata["item_groups"],
+                                  models.ItemGroup, "item_groups",
+                                  self.request)
         item_group = item_groups[0]
 
         self.request.validated = {"id": item_group["id"], "lang": "default"}

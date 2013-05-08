@@ -52,6 +52,7 @@ def create_unit_of_measure(appstruct, request):
         unit_of_measure
     return unit_of_measure
 
+
 def create_all_testdata_items(request):
     from organicseeds_webshop_api.testing import set_testfile
     vpes_ = set_testfile("/testdata/vpe_types_post.yaml")["testdata"]
@@ -68,6 +69,7 @@ def create_all_testdata_items(request):
     item.unit_of_measure = unit
     item.quality = group["qualities"][0]
     return vpe, unit, item, group
+
 
 def testconfig():
     import organicseeds_webshop_api

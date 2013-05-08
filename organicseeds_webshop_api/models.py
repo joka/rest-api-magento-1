@@ -108,6 +108,7 @@ class Category(Entity):
 
     __children__ = PersistentList()
 
+
 class ItemGroup(Entity):
     """Webshop entity item group"""
 
@@ -139,7 +140,8 @@ class ItemGroup(Entity):
                 data["children_grouped"][vpe_id][quality_id] = {}
                 data["children_qualities"][quality_id] = quality
             del(child_["quality"])
-            data["children_grouped"][vpe_id][quality_id][child_["sku"]] = child_
+            data["children_grouped"][vpe_id][quality_id][child_["sku"]] =\
+                child_
         return data
 
 
@@ -165,6 +167,7 @@ class Item(Entity):
             data["quality"] = _translate(self.quality, lang)
         data["webshop_id"] = self.webshop_id
         return data
+
 
 class EntityData(Data):
     """Additional data for Entities"""

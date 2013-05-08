@@ -45,7 +45,7 @@ class TestModelsIntegration(IntegrationTestCase):
         data.from_appstruct(appstruct)
         assert data.to_data("fr") == {"title": "test", "ids": [1, 2]}
 
-    def test_models_data_to_data_with_lang_default_with_attribute_lists(self):
+    def test_models_data_to_data_with_lang_default_with_attributs(self):
         from organicseeds_webshop_api import models
         data = models.Data()
         appstruct = ({"title": {"default": "test"},
@@ -53,14 +53,15 @@ class TestModelsIntegration(IntegrationTestCase):
         data.from_appstruct(appstruct)
         assert data.to_data("default") == {"title": "test", "ids": [{"id": 1}]}
 
-    def test_models_data_to_data_with_lang_default_with_text_attribute_lists(self):
+    def test_models_data_to_data_with_lang_default_with_text_attributes(self):
         from organicseeds_webshop_api import models
         data = models.Data()
         appstruct = ({"title": {"default": "test"},
                       "ids": [{"value": [{"text": {"default": "text"}}]}]})
         data.from_appstruct(appstruct)
         assert data.to_data("default") == {"title": "test",
-                                           "ids": [{"value": [{"text": "text"}]}]}
+                                           "ids": [{"value": [{"text": "text"}
+                                                              ]}]}
 
     def test_models_item_group_to_data_inherited_attributes(self):
         from organicseeds_webshop_api import models
