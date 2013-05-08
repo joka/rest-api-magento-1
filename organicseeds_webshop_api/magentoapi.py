@@ -264,6 +264,9 @@ class MagentoAPI(magento.api.API):
                 parent_webshop_id = self.categories[parent_id].webshop_id
                 calls.append(['catalog_category.move',
                               [webshop_id, parent_webshop_id]])
+            else:
+                calls.append([self.magento_method + "update",
+                              [webshop_id, {"is_anchor": 1}]])
         self.multi_call(calls)
 
     def _create_arguments(self, appstruct):

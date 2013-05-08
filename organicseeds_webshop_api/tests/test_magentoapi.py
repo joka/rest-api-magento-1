@@ -461,6 +461,9 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
         proxy.link_category_parents([category_c.webshop_id,
                                      category_p.webshop_id],
                                     [appstruct_c, appstruct_p])
+        root = proxy.single_call("catalog_category.info",
+                                 [category_p.webshop_id])
+        assert root["is_anchor"] == '1'
         level1 = proxy.single_call("catalog_category.level", [None, None, 2])
         assert category_p.webshop_id == int(level1[0]["category_id"])
         level2 = proxy.single_call("catalog_category.level",
