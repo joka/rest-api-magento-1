@@ -130,11 +130,18 @@ class IntegrationTestCase(unittest.TestCase):
     def tearDown(self):
         testing.tearDown()
         self.testfile.close()
-        self.request.root.app_root["categories"].clear()
-        self.request.root.app_root["items"].clear()
-        self.request.root.app_root["item_groups"].clear()
-        self.request.root.app_root["vpe_types"].clear()
-        self.request.root.app_root["unit_of_measures"].clear()
+        def clear_entities(key, request):
+            for x in self.request.root.app_root[key].values():
+                if hasattr(x, "__parent__"):
+                    x.__parent__ == None
+                if hasattr(x, "__children__"):
+                    x.__children__ == []
+            request.root.app_root[key].clear()
+        clear_entities("categories", self.request)
+        clear_entities("items", self.request)
+        clear_entities("item_groups", self.request)
+        clear_entities("vpe_types", self.request)
+        clear_entities("unit_of_measures", self.request)
         self.request = None
 
 
