@@ -228,6 +228,18 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
         search_results = catalog.query(Eq('id', 'itemka32'))[0]
         assert(search_results == 0)
 
+    def test_utils_delete_items_with_parents(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        item = utils.store(self.testdata["items"], models.Item, "items",
+                           self.request)[0]
+        parent = models.ItemGroup()
+        item.__parent__ = parent
+        parent.__children__.append(item)
+        utils.delete(self.testdata["items"], "items", self.request)
+        assert item.__parent__ == None
+        assert parent.__children__ == []
+
     def test_utils_store_items_with_parent(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
@@ -239,6 +251,7 @@ class TestUtilsItemsIntegration(IntegrationTestCase):
         utils.store(self.testdata["items"], models.Item, "items", self.request)
         item = self.app_root["items"]["itemka32"]
         assert item.__parent__ is parent
+        assert item not in parent.__children__
 
     def test_utils_store_items_with_vpe_type(self):
         from organicseeds_webshop_api import utils

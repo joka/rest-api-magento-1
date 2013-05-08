@@ -36,7 +36,10 @@ def store(appstructs, itemtype, data_key, request):
         if parent_id:
             category_parent = app_root["categories"].get(parent_id, None)
             item_group_parent = app_root["item_groups"].get(parent_id, None)
-            obj.__parent__ = category_parent or item_group_parent
+            parent = category_parent or item_group_parent
+            if parent:
+                obj.__parent__ = parent
+                parent.__children__.append(obj)
         # link item vpe type
         vpe_type_id = obj.get("vpe_type_id", None)
         if vpe_type_id:
@@ -87,6 +90,11 @@ def delete(appstructs, data_key, request):
         catalog.unindex_doc(catalog_id)
         # delete objects
         if i in folder:
+            item = folder[i]
+            parent = item.__parent__
+            if parent is not None:
+                parent.__children__.remove(item)
+                item.__parent__ = None
             del(folder[i])
 
 

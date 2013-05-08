@@ -94,6 +94,7 @@ class Entity(Data):
     """Webshop entity"""
 
     __parent__ = None
+    __children__ = []
     webshop_id = 0
     url_slugs = {}
 
