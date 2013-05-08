@@ -167,6 +167,7 @@ class TestServicesItemIntegration(IntegrationTestCase):
         assert response["vpe_type"] == vpe.to_data("default")
         assert response["unit_of_measure"] == unit.to_data("default")
         assert response["quality"] == item_group["qualities"][0]
+        assert response["webshop_id"] == item_group.webshop_id
 
     def test_item_get_missing(self):
         from organicseeds_webshop_api.services import item_get
