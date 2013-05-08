@@ -41,7 +41,7 @@ def _translate(data, lang):
     for key in data:
         if isinstance(data[key], dict):
             value = data[key].get(lang, None)\
-                or data[key].get("default",  None)\
+                or data[key].get("default", None)\
                 or data[key]
             data[key] = value
         if isinstance(data[key], list):
