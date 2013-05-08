@@ -49,7 +49,7 @@ def categories_post(request):
             # link category children in webshop
             item_webshop_ids, items = utils.get_entities_item_children(
                 categories, request)
-            proxy.link_item_parents(item_webshop_ids, items)
+            proxy.link_category_parents(item_webshop_ids, items)
         except exceptions.WebshopAPIErrors as e:
             proxy.delete([x for x in e.success if isinstance(x, int)])
             raise exceptions._500(msg=e.errors)
