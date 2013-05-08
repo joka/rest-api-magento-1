@@ -4,11 +4,14 @@ Changelog
 0.2
 ---
 
+- Item schema: new __type__ "sortendetail_xbestellung_vpe", renamed
+  sortendetail_vpe to sortendetail_default_vpe
+
 - Item schema: added inventory_qty, backorders_allow, inventory_qty_increments    
 
-- schema TierPrice: renamed min_sale_qty to qty, renamed customer_group to customer_group_id 
+- Item schema TierPrice: renamed min_sale_qty to qty, renamed customer_group to customer_group_id 
 
-- schema: renamed shortdescription to short_description
+- BasicNode schema: renamed shortdescription to short_description
 
 - schema: use Float instead of Decimal
 

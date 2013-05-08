@@ -796,7 +796,8 @@ class Item(BasicNode):
 
            <BasicNode> fields
 
-           __type__ : String # sortendetail_vpe | default_vpe
+           __type__ : String # sortendetail_xbestellung_vpe
+                               | sortendetail_default_vpe | default_vpe
 
            category_ids : sequence of IDList
 
@@ -839,7 +840,8 @@ class Item(BasicNode):
              erlaube Bestellungen wenn Lagerbestand < 1
     """
 
-    __type__ = String(validator=OneOf(["sortendetail_vpe",
+    __type__ = String(validator=OneOf(["sortendetail_default_vpe",
+                                       "sortendetail_xbestellung_vpe",
                                        "default_vpe"]))
     category_ids = IDList(default=[], missing=[], required=False)
     description = StringTranslation()
@@ -930,5 +932,6 @@ class ItemGet(colander.MappingSchema):
        * id: Identifier # Item id
     """
 
-    lang = Identifier(default="default", missing="default", required=False, location="querystring")
+    lang = Identifier(default="default", missing="default", required=False,
+                      location="querystring")
     id = Identifier(location="path")
