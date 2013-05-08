@@ -1,5 +1,6 @@
 from copy import deepcopy
 from persistent.mapping import PersistentMapping
+from persistent.list import PersistentList
 from BTrees.OOBTree import OOBTree
 import transaction
 from pyramid.security import Everyone, Authenticated, Allow
@@ -73,6 +74,10 @@ class Folder(OOBTree):
 class Data(PersistentMapping):
     """Dictionary to store colander appstruct data"""
 
+    def __init__(self, appstruct={}):
+        super(Data, self).__init__()
+        self.from_appstruct(appstruct)
+
     def from_appstruct(self, appstruct):
         """"
         :param appstruct: Mapping to updated object data
@@ -94,18 +99,19 @@ class Entity(Data):
     """Webshop entity"""
 
     __parent__ = None
-    __children__ = []
     webshop_id = 0
-    url_slugs = {}
+    url_slugs = PersistentMapping()
 
 
 class Category(Entity):
     """Webshop entity category"""
 
+    __children__ = PersistentList()
 
 class ItemGroup(Entity):
     """Webshop entity item group"""
 
+    __children__ = PersistentList()
 
     def to_data(self, lang=None):
         """"
