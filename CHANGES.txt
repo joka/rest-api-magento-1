@@ -4,6 +4,9 @@ Changelog
 0.2
 ---
 
+
+- Item schema: added max_sale_qty_without_verification (for X-Bestellungen)
+
 - Item schema: new __type__ "sortendetail_xbestellung_vpe", renamed
   sortendetail_vpe to sortendetail_default_vpe
 

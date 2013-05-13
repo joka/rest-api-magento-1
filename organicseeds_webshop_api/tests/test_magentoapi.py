@@ -116,6 +116,7 @@ class TestMagentoAPIHelpersIntegration(IntegrationTestCase):
         data = magentoapi.get_stock_data(appstruct)
         assert data == {'use_config_max_sale_qty': 0, 'max_sale_qty': 1000}
 
+
     def test_magentoapi_get_stock_data_qty_increments(self):
         from organicseeds_webshop_api import magentoapi
         appstruct = {"inventory_qty_increments": 5}
@@ -211,7 +212,7 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
                                 'website': 'de_website',
                                 'qty': 100, 'price': 4.20}]) in data.items()
         assert data['additional_attributes'] == \
-            {'single_data': {'webshopapi_type': 'sortendetail_vpe',
+            {'single_data': {'webshopapi_type': 'sortendetail_default_vpe',
                              'webshopapi_id': 'itemka32'}}
         appstruct = {}
         data = self.items_proxy._to_update_data(appstruct)
@@ -489,3 +490,11 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
 
         results = proxy.delete([category.webshop_id])
         assert results == [category.webshop_id]
+
+
+#class TestMagentoAPIOrdersIntegration(MagentoIntegrationTestCase):
+
+    #testdatafilepath = ("/testdata/items_post.yaml")
+
+    #def test_magentoapi_get_orders(self):
+        #import ipdb; ipdb.set_trace()

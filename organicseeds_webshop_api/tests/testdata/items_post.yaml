@@ -51,7 +51,8 @@ items:
     # Bestellmengen
     min_sale_qty: 1 # IntegerGtNull # ==  mindestbestellmenge, # optional # default 1
     max_sale_qty: 100 # IntegerGtNull # ==  höchstbestellmenge,  # optional # default 1000000
-    inventory_qty_increments: 5 # IntegerGtNull # == größe Verpackunseinheit # default 1  
+    max_sale_qty_without_verification: 50 # IntegerGtNull # ==  Bestellmenge ab der manuelle Auftragsbestätigung nötig ist # optional 
+    inventory_qty_increments: 5 # IntegerGtNull # == größe Verpackungs/X-Bestellungseinheit # default 1  
 
     # Vorbestellungen
     backorders_allow: True # Bool # default False, erlaube Bestellungen wenn Lagerbestand < 1, Sende Nachricht an Kunden 

@@ -1,0 +1,158 @@
+[1mdiff --git a/organicseeds_webshop_api/magentoapi.py b/organicseeds_webshop_api/magentoapi.py[m
+[1mindex 2759ae1..42b79ff 100644[m
+[1m--- a/organicseeds_webshop_api/magentoapi.py[m
+[1m+++ b/organicseeds_webshop_api/magentoapi.py[m
+[36m@@ -1,5 +1,6 @@[m
+ """Module to mange the magento soap api"""[m
+ from __future__ import absolute_import[m
+[32m+[m[32mimport subprocess[m
+ from xmlrpclib import Fault[m
+ import magento.api[m
+ import magento[m
+[36m@@ -12,6 +13,7 @@[m [mfrom organicseeds_webshop_api import utils[m
+ rpc_user = u"webshop_api"[m
+ rpc_secret = u"oxXCcvIAhdXcw"[m
+ apiurl = "http://hobby.developlocal.sativa.jokasis.de/"[m
+[32m+[m[32mmagento_whiz_script =  "/home/joka/dev/php/saatgut/bin/whiz"[m
+ [m
+ [m
+ #############[m
+[36m@@ -19,6 +21,21 @@[m [mapiurl = "http://hobby.developlocal.sativa.jokasis.de/"[m
+ #############[m
+ [m
+ [m
+[32m+[m[32mdef indexing_enable_manual(request):[m
+[32m+[m[32m    response = subprocess.check_output([magento_whiz_script,[m
+[32m+[m[32m                                        "indexer-manual", "all"])[m
+[32m+[m[32m    return response[m
+[32m+[m
+[32m+[m[32mdef indexing_reindex(request):[m
+[32m+[m[32m    response = subprocess.check_output([magento_whiz_script,[m
+[32m+[m[32m                                        "indexer-reindex", "all"])[m
+[32m+[m[32m    return response[m
+[32m+[m
+[32m+[m[32mdef indexing_enable_auto(request):[m
+[32m+[m[32m    response = subprocess.check_output([magento_whiz_script,[m
+[32m+[m[32m                                        "indexer-realtime", "all"])[m
+[32m+[m[32m    return response[m
+[32m+[m
+ def get_storeviews(appstruct):[m
+     storeviews = [][m
+     name_tmpl = "%s_%s_%s"[m
+[1mdiff --git a/organicseeds_webshop_api/services.py b/organicseeds_webshop_api/services.py[m
+[1mindex 1926735..d19246c 100644[m
+[1m--- a/organicseeds_webshop_api/services.py[m
+[1m+++ b/organicseeds_webshop_api/services.py[m
+[36m@@ -53,6 +53,7 @@[m [mdef categories_post(request):[m
+         except exceptions.WebshopAPIErrors as e:[m
+             proxy.delete([x for x in e.success if isinstance(x, int)])[m
+             raise exceptions._500(msg=e.errors)[m
+[32m+[m[32m    magentoapi.indexing_reindex(request)[m
+     return {"status": "succeeded"}[m
+ [m
+ [m
+[36m@@ -75,6 +76,7 @@[m [mdef categories_delete(request):[m
+     utils.delete_all("categories", request)[m
+     with magentoapi.Categories(request) as proxy:[m
+         proxy.delete_all()[m
+[32m+[m[32m    magentoapi.indexing_reindex(request)[m
+     return {"status": "succeeded"}[m
+ [m
+ [m
+[36m@@ -124,6 +126,7 @@[m [mdef item_groups_post(request):[m
+         except exceptions.WebshopAPIErrors as e:[m
+             proxy.delete([x for x in e.success if isinstance(x, int)])[m
+             raise exceptions._500(msg=e.errors)[m
+[32m+[m[32m    magentoapi.indexing_reindex(request)[m
+     return {"status": "succeeded"}[m
+ [m
+ [m
+[36m@@ -135,6 +138,7 @@[m [mdef item_groups_delete(request):[m
+     utils.delete_all("item_groups", request)[m
+     with magentoapi.ItemGroups(request) as proxy:[m
+         proxy.delete_all()[m
+[32m+[m[32m    magentoapi.indexing_reindex(request)[m
+     return {"status": "succeeded"}[m
+ [m
+ [m
+[36m@@ -286,8 +290,7 @@[m [mdef items_post(request):[m
+         except exceptions.WebshopAPIErrors as e:[m
+             proxy.delete([x for x in e.success if isinstance(x, int)])[m
+             raise exceptions._500(msg=e.errors)[m
+[31m-    #TODO update parent links[m
+[31m-    #TODO update item_group/category children[m
+[32m+[m[32m    magentoapi.indexing_reindex(request)[m
+     return {"status": "succeeded"}[m
+ [m
+ [m
+[36m@@ -306,6 +309,7 @@[m [mdef items_put(request):[m
+         try:[m
+             webshop_ids = proxy.update(appstructs)[m
+             proxy.update_shops(webshop_ids, appstructs)[m
+[32m+[m[32m            magentoapi.indexing_reindex(request)[m
+         except exceptions.WebshopAPIErrors as e:[m
+             raise exceptions._500(msg=e.errors)[m
+     return {"status": "succeeded"}[m
+[36m@@ -319,4 +323,5 @@[m [mdef items_delete(request):[m
+     utils.delete_all("items", request)[m
+     with magentoapi.Items(request) as proxy:[m
+         proxy.delete_all()[m
+[32m+[m[32m    magentoapi.indexing_reindex(request)[m
+     return {"status": "succeeded"}[m
+[1mdiff --git a/organicseeds_webshop_api/tests/test_loadtest_magentoapi.py b/organicseeds_webshop_api/tests/test_loadtest_magentoapi.py[m
+[1mindex 2f20f4e..91069bc 100644[m
+[1m--- a/organicseeds_webshop_api/tests/test_loadtest_magentoapi.py[m
+[1m+++ b/organicseeds_webshop_api/tests/test_loadtest_magentoapi.py[m
+[36m@@ -19,8 +19,9 @@[m [mclass TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):[m
+ [m
+     @pytest.mark.loadtest[m
+     def test_load_create_items_time_10(self):[m
+[31m-        proxy = self.items_proxy[m
+         import time[m
+[32m+[m[32m        from organicseeds_webshop_api import magentoapi[m
+[32m+[m[32m        proxy = self.items_proxy[m
+         start = time.time()[m
+         appstruct = self.testdata["items"][0][m
+         appstructs = [][m
+[36m@@ -35,6 +36,7 @@[m [mclass TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):[m
+             appstructs.append(appstruct_)[m
+             items.append(create_item(appstruct_, self.request))[m
+         print("\ncreating items")[m
+[32m+[m[32m        magentoapi.indexing_enable_manual(self.request)[m
+         webshop_ids = proxy.create(appstructs)[m
+         for i, webshop_id in enumerate(webshop_ids):[m
+             items[i].webshop_id = webshop_id[m
+[36m@@ -43,6 +45,7 @@[m [mclass TestMagentoProxyIntegrationServerload(MagentoIntegrationTestCase):[m
+         print("\nlinking item parents")[m
+         proxy.link_item_parents(webshop_ids, appstructs)[m
+         end = time.time()[m
+[32m+[m[32m        magentoapi.indexing_reindex(self.request)[m
+         print("\n\nTime to create 10 items:")[m
+         print(end - start)[m
+         print("\n")[m
+[1mdiff --git a/organicseeds_webshop_api/tests/test_magentoapi.py b/organicseeds_webshop_api/tests/test_magentoapi.py[m
+[1mindex e06a2e8..f68c0eb 100644[m
+[1m--- a/organicseeds_webshop_api/tests/test_magentoapi.py[m
+[1m+++ b/organicseeds_webshop_api/tests/test_magentoapi.py[m
+[36m@@ -165,6 +165,21 @@[m [mclass TestMagentoAPIHelpersIntegration(IntegrationTestCase):[m
+         assert data == {'use_config_backorders': 0, "backorders": 0,[m
+                         "min_qty": 0}[m
+ [m
+[32m+[m[32m    def test_indexing_reindex(self):[m
+[32m+[m[32m        from organicseeds_webshop_api import magentoapi[m
+[32m+[m[32m        result = magentoapi.indexing_reindex(self.request)[m
+[32m+[m[32m        assert "Reindexing" in result[m
+[32m+[m
+[32m+[m[32m    def test_indexing_enable_manual(self):[m
+[32m+[m[32m        from organicseeds_webshop_api import magentoapi[m
+[32m+[m[32m        result = magentoapi.indexing_enable_manual(self.request)[m
+[32m+[m[32m        assert "Manual" in result[m
+[32m+[m
+[32m+[m[32m    def test_indexing_enable_auto(self):[m
+[32m+[m[32m        from organicseeds_webshop_api import magentoapi[m
+[32m+[m[32m        result = magentoapi.indexing_enable_auto(self.request)[m
+[32m+[m[32m        assert "Update on Save" in result[m
+[32m+[m
+ class TestMagentoAPIMagentoAPIIntegration(MagentoIntegrationTestCase):[m
+ [m
+     def test_magentoapi_magentoapi_multi_call(self):[m

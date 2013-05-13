@@ -829,9 +829,12 @@ class Item(BasicNode):
 
            inventory_qty = Integer
 
-           min_sale_qty = Integer # default 1
+           min_sale_qty = IntegerGtNull # default 1
 
-           max_sale_qty = Integer # default 1000000
+           max_sale_qty = IntegerGtNull # default 1000000
+
+           max_sale_qty_without_verification= IntegerGtNull # Bestellmenge ab
+                der imanuelle Auftragsbestätigung nötig ist # optional
 
            inventory_qty_increments: IntegerGtNull # default 1,
              == größe Verpackunseinheit
@@ -861,6 +864,9 @@ class Item(BasicNode):
     min_sale_qty = IntegerGtNull(default=1, missing=1, required=False)
     max_sale_qty = IntegerGtNull(default=1000000, missing=1000000,
                                  required=False)
+    max_sale_qty_without_verification = IntegerGtNull(default=1000000,
+                                                      missing=1000000,
+                                                      required=False)
     inventory_qty_increments = IntegerGtNull(default=1, missing=1,
                                              required=False)
     backorders_allow = Bool(default=False, missing=False, required=False)
@@ -910,6 +916,8 @@ class ItemUpdate(colander.Schema):
     inventory_qty = Integer(missing=None, required=False)
     min_sale_qty = IntegerGtNull(missing=None, required=False)
     max_sale_qty = IntegerGtNull(missing=None, required=False)
+    max_sale_qty_without_verification = IntegerGtNull(missing=None,
+                                                      required=False)
     inventory_qty_increments = IntegerGtNull(missing=None, required=False)
     backorders_allow = Bool(missing=None, required=False)
 
