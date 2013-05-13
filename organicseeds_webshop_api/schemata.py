@@ -5,7 +5,8 @@ from colander import (
     OneOf,
     Range,
     Regex,
-    url
+    url,
+    Length,
 )
 
 
@@ -184,6 +185,24 @@ class InventoryStatus(colander.SchemaNode):
     """
     schema_type = colander.Integer
     validator = OneOf([1, 2, 3, 4, 5, 6, 7, 8])
+
+
+class KW(colander.TupleSchema):
+    """ Kalendarwoche, Tuple (KW, Year)
+
+        value: [IntegerGtNull, IntegerGtNull]
+
+        Example values: [6, 2013]
+    """
+
+    kw = IntegerGtNull()
+    year = IntegerGtNull()
+
+
+class KWS(colander.SequenceSchema):
+
+    kw = KW()
+    validator = Length(max=2)
 
 
 class StringTranslation(colander.MappingSchema):
@@ -829,6 +848,8 @@ class Item(BasicNode):
 
            inventory_qty = Integer
 
+           delivery_period = sequence of KW (max length 2)
+
            min_sale_qty = IntegerGtNull # default 1
 
            max_sale_qty = IntegerGtNull # default 1000000
@@ -861,6 +882,7 @@ class Item(BasicNode):
     quality_id = String()
     inventory_status = InventoryStatus()
     inventory_qty = Integer()
+    delivery_period = KWS(default=[], missing=[], required=False)
     min_sale_qty = IntegerGtNull(default=1, missing=1, required=False)
     max_sale_qty = IntegerGtNull(default=1000000, missing=1000000,
                                  required=False)
@@ -914,6 +936,7 @@ class ItemUpdate(colander.Schema):
     quality_id = String(missing=None, required=False)
     inventory_status = InventoryStatus(missing=None, required=False)
     inventory_qty = Integer(missing=None, required=False)
+    delivery_period = KWS(missing=None, required=False)
     min_sale_qty = IntegerGtNull(missing=None, required=False)
     max_sale_qty = IntegerGtNull(missing=None, required=False)
     max_sale_qty_without_verification = IntegerGtNull(missing=None,
