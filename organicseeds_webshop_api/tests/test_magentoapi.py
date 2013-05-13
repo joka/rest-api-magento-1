@@ -116,7 +116,6 @@ class TestMagentoAPIHelpersIntegration(IntegrationTestCase):
         data = magentoapi.get_stock_data(appstruct)
         assert data == {'use_config_max_sale_qty': 0, 'max_sale_qty': 1000}
 
-
     def test_magentoapi_get_stock_data_qty_increments(self):
         from organicseeds_webshop_api import magentoapi
         appstruct = {"inventory_qty_increments": 5}
