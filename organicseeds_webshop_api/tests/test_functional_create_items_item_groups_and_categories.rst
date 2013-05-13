@@ -4,6 +4,8 @@ Create and delete Webshop Items, ItemGroups or Categories
 Setup
 -----
 
+::
+
     >>> import yaml
     >>> import pytest
     >>> from webtest import TestApp, AppError
@@ -100,4 +102,3 @@ and categories::
 
 
 TODO: Deleting items with referenced orders possible in Magento?
-TODO: Create items, link parents und vpe/units?
