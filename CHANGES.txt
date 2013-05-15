@@ -5,6 +5,8 @@ Changelog
 ---
 
 
+- Added service /orders
+
 - Item schema: added delivery_period (vors. Lieferzeitraum in KW)
 
 - Item schema: added max_sale_qty_without_verification (for X-Bestellungen)
