@@ -387,3 +387,27 @@ def item_group_get(request):
         error = "%s does not exists"
         raise exceptions._500(msg=error % (item_group_id))
     return data
+
+
+#########################
+# /orders service       #
+#########################
+
+
+orders = Service(name='orders',
+                 path='/orders',
+                 description="Service to get order data")
+
+
+@orders.get(schema=schemata.OrdersList)
+def orders_get(request):
+    """Get order data
+    """
+    orders = []
+    with magentoapi.SalesOrders(request) as proxy:
+        try:
+            orders = proxy.list()
+        except exceptions.WebshopAPIErrors as e:
+            raise exceptions._500(msg=e.errors)
+    return {"orders": orders}
+

@@ -16,6 +16,7 @@ requires = ['cornice',
             'repoze.catalog',
             'waitress',
             'unidecode',
+            'python-dateutil',
             'magento'
             ]
 test_requires = ["webtest",
@@ -23,6 +24,10 @@ test_requires = ["webtest",
                  "pytest-cov",
                  "pytest-capturelog",
                  "yaml2json",
+                 'wsgi_intercept',
+                 'zope.testbrowser',
+                 'selenium',
+                 'splinter',
                  ]
 
 setup(name='organicseeds_webshop_api',

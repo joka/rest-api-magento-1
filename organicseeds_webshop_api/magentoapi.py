@@ -10,9 +10,9 @@ from organicseeds_webshop_api import schemata
 from organicseeds_webshop_api import utils
 
 
-#############
-#  helpers  #
-#############
+##############################
+# magento api proxy helpers  #
+##############################
 
 
 def indexing_enable_manual(request):
@@ -36,6 +36,54 @@ def indexing_enable_auto(request):
     return response
 
 
+##############################
+#  magento api proxy         #
+##############################
+
+
+class MagentoAPI(magento.api.API):
+
+    magento_method = u""
+
+    def __init__(self, request):
+        settings = request.registry.settings
+        apiurl = settings["magento_apiurl"]
+        rpc_user = settings["magento_rpc_user"]
+        rpc_secret = settings["magento_rpc_secret"]
+        super(MagentoAPI, self).__init__(apiurl, rpc_user, rpc_secret)
+        self.request = request
+
+    def single_call(self, resource_path, arguments=[]):
+        """Send magento api v.1 call"""
+        return self.call(resource_path, arguments)
+
+    def multi_call(self, calls):
+        """Send magento api v.1 multiCall"""
+        # slice calls to make magento happy and send
+        results = []
+        for i in range(0, len(calls), 100):
+            calls_chunk = calls[i:i + 100]
+            results_chunk = self.multiCall(calls_chunk)
+            results += results_chunk
+        # raise error if something went wrong
+        errors = []
+        success = []
+        for x in results:
+            if isinstance(x, dict) and "faultCode" in x:
+                errors.append(x)
+            else:
+                success.append(x)
+        if errors:
+            raise exceptions.WebshopAPIErrors(errors, success)
+        # return results
+        return success
+
+
+######################################
+# magento catalog api proxy helpers  #
+######################################
+
+
 def get_storeviews(appstruct):
     storeviews = []
     name_tmpl = "%s_%s_%s"
@@ -51,30 +99,6 @@ def get_storeviews(appstruct):
             name = name_tmpl % (lang, country, type_)
             storeviews.append((name, enabled, lang, country))
     return storeviews
-
-
-def get_category_ids(data, request):
-    """returns category magento ids of item data"""
-    categories = request.root.app_root["categories"]
-    category_ids = data.get("category_ids") or []
-    category_webshop_ids = []
-    for cat in category_ids:
-        if cat in categories:
-            webshop_id = categories[cat].webshop_id
-            if webshop_id != 0:
-                category_webshop_ids.append(webshop_id)
-    return category_webshop_ids
-
-
-def get_website_ids(data):
-    """returns item data specific website ids"""
-    shops = [shop[0] for shop in data["shops"] if shop[1]]
-    website_ids = set()
-    for shop in shops:
-        shop_lang = shop[:2]
-        website_name = u"%s_website" % (shop_lang)
-        website_ids.add(website_name)
-    return [w for w in website_ids]
 
 
 def get_all_website_ids():
@@ -135,10 +159,11 @@ def get_stock_data(appstruct):
 
 
 ##############################
-#  magento api proxies       #
+#  magento catalog api proxy #
 ##############################
 
-class MagentoAPI(magento.api.API):
+
+class MagentoCatalogAPI(MagentoAPI):
 
     entity_data_key = u""
     magento_type = u""
@@ -150,41 +175,12 @@ class MagentoAPI(magento.api.API):
     entities = None
 
     def __init__(self, request):
-        settings = request.registry.settings
-        apiurl = settings["magento_apiurl"]
-        rpc_user = settings["magento_rpc_user"]
-        rpc_secret = settings["magento_rpc_secret"]
-        super(MagentoAPI, self).__init__(apiurl, rpc_user, rpc_secret)
+        super(MagentoCatalogAPI, self).__init__(request)
         self.request = request
         self.items = request.root.app_root["items"]
         self.categories = request.root.app_root["categories"]
         self.item_groups = request.root.app_root["item_groups"]
         self.entities = getattr(self, self.entity_data_key, [])
-
-    def single_call(self, resource_path, arguments=[]):
-        """Send magento api v.1 call"""
-        return self.call(resource_path, arguments)
-
-    def multi_call(self, calls):
-        """Send magento api v.1 multiCall"""
-        # slice calls to make magento happy and send
-        results = []
-        for i in range(0, len(calls), 100):
-            calls_chunk = calls[i:i + 100]
-            results_chunk = self.multiCall(calls_chunk)
-            results += results_chunk
-        # raise error if something went wrong
-        errors = []
-        success = []
-        for x in results:
-            if isinstance(x, dict) and "faultCode" in x:
-                errors.append(x)
-            else:
-                success.append(x)
-        if errors:
-            raise exceptions.WebshopAPIErrors(errors, success)
-        # return results
-        return success
 
     def delete(self, webshop_ids):
         for webshop_id in webshop_ids:
@@ -285,7 +281,7 @@ class MagentoAPI(magento.api.API):
         pass
 
 
-class Items(MagentoAPI):
+class Items(MagentoCatalogAPI):
 
     entity_data_key = u"items"
     magento_type = u"simple"
@@ -362,7 +358,7 @@ class ItemGroups(Items):
                 self._to_create_data(appstruct)]
 
 
-class Categories(MagentoAPI):
+class Categories(MagentoCatalogAPI):
 
     entity_data_key = u"categories"
     magento_type = u"category"
@@ -440,6 +436,60 @@ class Categories(MagentoAPI):
                        ]
         return dict([x for x in data_tuples if x[1] is not None])
 
-# todo docu inventory status
-# todo validate unique title, sku(items and item_groups), id,
-#      title translations
+
+###############################
+#  magento sales api helpers  #
+###############################
+
+
+def order_data_to_appstruct(data):
+    schema = schemata.Order()
+    data.update(data["payment"])
+    data["website"] = data["store_name"].splitlines()[0]
+    data["shop"] = data["store_name"].splitlines()[1]
+    data["customer_is_guest"] = bool(int(data["customer_is_guest"]))
+    data["order_increment_id"] = bool(int(data["increment_id"]))
+    for item in data["items"]:
+        item["title"] = item["name"]
+        item["free_shipping"] = bool(int(item["free_shipping"]))
+        item["order_item_id"] = item["item_id"]
+    order = schema.deserialize(data)
+    return order
+
+
+######################
+#  magento sales api #
+######################
+
+
+class MagentoSalesAPI(MagentoAPI):
+
+    magento_method = u""
+    colander_schema = None
+
+    def create(self, appstructs):
+        """to be implemented in subclass"""
+        pass
+
+    def list(self):
+        """to be implemented in subclass"""
+        pass
+
+    def update(self, appstructs):
+        """to be implemented in subclass"""
+        pass
+
+
+class SalesOrders(MagentoSalesAPI):
+
+    def list(self):
+        orders = []
+        orders_data = self.single_call("sales_order.list")
+        for order_data in orders_data:
+            increment_id = order_data["increment_id"]
+            order_data = self.single_call("sales_order.info", [increment_id])
+            order = order_data_to_appstruct(order_data)
+            orders.append(order)
+        return orders
+
+# TODO docu inventory status

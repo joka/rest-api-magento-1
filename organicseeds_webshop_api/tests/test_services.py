@@ -188,3 +188,14 @@ class TestServicesItemGroupIntegration(IntegrationTestCase):
         self.request.validated = {"id": "wrong_id", "lang": "default"}
         with pytest.raises(_500):
             item_group_get(self.request)
+
+
+class TestServicesSalesOrdersIntegration(IntegrationTestCase):
+
+    def test_orders_get(self):
+        from organicseeds_webshop_api.services import orders_get
+        self.request.validated = {}
+        response = orders_get(self.request)
+        assert isinstance(response["orders"], list)
+        # see test_functional_magento_checkout_get_and_update_orders.rst for more detailed tests
+

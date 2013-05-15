@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # vim: set ts=4 sw=4:
+import decimal
 import colander
 from colander import (
     OneOf,
@@ -684,6 +685,49 @@ attributes_with_inheritance = ["text_attributes", "measure_attributes",
                                "file_attributes", "link_attributes"]
 
 
+class Address(colander.MappingSchema):
+    """Customer address
+
+       value:
+
+           firstname : String # optional
+
+           lastname : String # optional
+
+           company : String # optional
+
+           country_id : String # optional
+
+           region : String # optional
+
+           street : String # optional # Newlines in String possible!
+
+           postcode : String # optional
+
+           email : String # optional
+
+           city : String # optional
+
+           email : String # optional
+
+           fax : String # optional
+
+           telephone : String # optional
+    """
+
+    firstname = String(missing=u"", default=u"", required=False)
+    lastname = String(missing=u"", default=u"", required=False)
+    company = String(missing=u"", default=u"", required=False)
+    country_id = String(missing=u"", default=u"", required=False)
+    region = String(missing=u"", default=u"", required=False)
+    street = String(missing=u"", default=u"", required=False)
+    city = String(missing=u"", default=u"", required=False)
+    email = String(missing=u"", default=u"", required=False)
+    fax = String(missing=u"", default=u"", required=False)
+    postcode = String(missing=u"", default=u"", required=False)
+    telephone = String(missing=u"", default=u"", required=False)
+
+
 ##############################################
 # ItemGroups (shop configuratable products)  #
 ##############################################
@@ -966,3 +1010,149 @@ class ItemGet(colander.MappingSchema):
     lang = Identifier(default="default", missing="default", required=False,
                       location="querystring")
     id = Identifier(location="path")
+
+
+############
+#  Orders  #
+############
+
+
+class OrderItem(colander.MappingSchema):
+    """Item assigned to an order.
+
+       See source code for details.
+    """
+
+    order_item_id = IntegerGtNull()
+    sku = Identifier()
+    discount_amount = Decimal(missing=decimal.Decimal(0))
+    discount_percent = Decimal(missing=decimal.Decimal(0))
+    title = String()
+    free_shipping = Bool()
+    qty_invoice = Decimal(missing=decimal.Decimal(0))
+    qty_backordered = Decimal(missing=decimal.Decimal(0))
+    qty_shipped = Decimal(missing=decimal.Decimal(0))
+    qty_ordered = Decimal()
+    weight = Decimal()
+    tax_amount = Decimal(missing=decimal.Decimal(0))
+    tax_percent = Decimal(missing=decimal.Decimal(0))
+    tax_before_discount = Decimal(missing=decimal.Decimal(0))
+    tax_invoiced = Decimal(missing=decimal.Decimal(0))
+    price = Decimal()
+    price_incl_tax = Decimal()
+    original_price = Decimal()
+
+
+class OrderItems(colander.SequenceSchema):
+
+    item = OrderItem()
+
+
+class Order(colander.MappingSchema):
+    """Webshop order with products, customer and addresses
+
+       See source code for details.
+    """
+
+    # Metadata
+    order_increment_id = IntegerGtNull()
+    state = String(validator=OneOf(["new", "pending_payment",
+                                    "processing", "complete",
+                                    "closed", "canceled", "holded"]))
+    website = WebsiteID()
+    shop = ShopID()
+    created_at = String()  # Format: '2013-05-14 12:29:03', not validated!
+    updated_at = String()  # Format: '2013-05-14 12:29:03', not validated!
+    ext_order_id = Identifier(missing=u"")  # TODO usefull?
+
+    # Customer
+    customer_id = IntegerGtNull(),
+    customer_email = String()
+    customer_firstname = String()
+    customer_lastname = String()
+    customer_group_id = CustomerGroup()
+    customer_is_guest = Bool()
+    customer_gender = Identifier(missing=u"", validator=OneOf(["Male",
+                                                               "Female"]))
+    customer_prefix = String(missing=u"")
+    customer_taxvat = String(missing=u"")  # TODO Validate VAT
+    customer_dob = String(missing=u"")  # Format: '2013-05-14' not validated!
+    ext_customer_id = Identifier(missing=u"")  # TODO usefull?
+
+    # billing address
+    billing_address = Address()
+
+    # shipping address
+    shipping_address = Address()
+
+    # Coupons
+    coupon_code = String(missing=u"")
+    coupon_rule_name = String(missing=u"")
+
+    # Items/Subtotal Price
+    items = OrderItems(missing=[])
+    total_item_count = IntegerGtEqNull()
+    total_qty_ordered = Decimal()
+    weight = Float()
+    discount_amount = Decimal(missing=decimal.Decimal(0))
+    discount_invoiced = Decimal(missing=decimal.Decimal(0))
+    tax_amount = Decimal()
+    tax_invoiced = Decimal(missing=decimal.Decimal(0))
+    subtotal = Decimal()
+    subtotal_incl_tax = Decimal()
+    subtotal_invoiced = Decimal(missing=decimal.Decimal(0))
+
+    # Shipping
+    shipping_method = Identifier(missing=u"")  # TODO define
+    shipping_amount = Decimal(missing=decimal.Decimal(0))
+    shipping_discount_amount = Decimal(missing=decimal.Decimal(0))
+    shipping_tax_amount = Decimal()
+    shipping_incl_tax = Decimal()
+    shipping_invoiced = Decimal(missing=decimal.Decimal(0))
+
+    # Total Price
+    order_currency_code = Identifier(missing=u"", default=u"")  # TODO define
+    grand_total = Decimal()
+    total_paid = Decimal(missing=decimal.Decimal(0))
+    total_invoiced = Decimal(missing=decimal.Decimal(0))
+
+    # Payment
+    payment_id = IntegerGtNull()
+    payment_method = Identifier(missing=u"")  # TODO define payment methods
+    payone_dunning_status = String(missing=u"")
+    payone_payment_method_type = String(missing=u"")
+    payone_transaction_status = String(missing=u"")
+    payone_account_number = IntegerGtEqNull()
+    payone_account_owner = IntegerGtEqNull()
+    payone_bank_code = IntegerGtEqNull()
+    payone_bank_country = String(missing=u"")
+    payone_bank_group = String(missing=u"")
+    payone_clearing_bank_account = String(missing=u"")
+    payone_clearing_bank_accountholder = String(missing=u"")
+    payone_clearing_bank_bic = String(missing=u"")
+    payone_clearing_bank_city = String(missing=u"")
+    payone_clearing_bank_code = IntegerGtEqNull()
+    payone_clearing_bank_country = String(missing=u"")
+    payone_clearing_bank_iban = String(missing=u"")
+    payone_clearing_bank_name = String(missing=u"")
+    payone_clearing_duedate = String(missing=u"")
+    payone_clearing_instructionnote = String(missing=u"")
+    payone_clearing_legalnote = String(missing=u"")
+    payone_clearing_reference = String(missing=u"")
+    payone_config_payment_method_id = IntegerGtEqNull()
+    payone_financing_type = String(missing=u"")
+    payone_onlinebanktransfer_type = String(missing=u"")
+    payone_payment_method_name = String(missing=u"")
+    payone_payment_method_type = String(missing=u"")
+    payone_pseudocardpan = String(missing=u"")
+    payone_safe_invoice_type = String(missing=u"")
+
+
+class Orders(colander.SequenceSchema):
+
+    order = Order()
+
+
+class OrdersList(colander.MappingSchema):
+
+    orders = Orders()

@@ -6,6 +6,16 @@ from pyramid import testing
 from cornice.errors import Errors
 
 
+def reset_database_with_testdata():
+    import subprocess
+    import os.path
+    import organicseeds_webshop_api
+    module_path = organicseeds_webshop_api.__path__[0]
+    buildout_path = os.path.join(module_path, "../", "../", "../")
+    os.chdir(buildout_path)
+    subprocess.check_output(["scripts/reset_database_with_testdata.sh"])
+
+
 def create_category(appstruct, request, categoriesproxy=None):
     from organicseeds_webshop_api.models import Category
     cat = Category()
