@@ -4,6 +4,7 @@ from organicseeds_webshop_api.exceptions import _500
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
     MagentoIntegrationTestCase,
+    MagentoTestdatabaseIntegrationTestCase,
     create_all_testdata_items
 )
 
@@ -190,12 +191,21 @@ class TestServicesItemGroupIntegration(IntegrationTestCase):
             item_group_get(self.request)
 
 
-class TestServicesSalesOrdersIntegration(IntegrationTestCase):
+class TestServicesSalesOrdersIntegration(MagentoTestdatabaseIntegrationTestCase):
 
     def test_orders_get(self):
         from organicseeds_webshop_api.services import orders_get
         self.request.validated = {}
         response = orders_get(self.request)
         assert isinstance(response["orders"], list)
-        # see test_functional_magento_checkout_get_and_update_orders.rst for more detailed tests
 
+    def test_orders_put(self):
+        from organicseeds_webshop_api.services import orders_put
+        appstruct = {"order_increment_id": 200000001,
+                     "status": "processing",
+                     "comment": "Ihre Bestellung wird jetzt bearbeitet",
+                     "notify": True,
+                     }
+        self.request.validated = {"orders": [appstruct]}
+        response = orders_put(self.request)
+        assert(response == {'status': 'succeeded'})

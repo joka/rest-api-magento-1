@@ -22,53 +22,53 @@ We start with a fresh database and testdata items/groups/categories::
     >>> reset_database_with_testdata()
 
 
-Checkout Items
---------------
+..Checkout Items
+..--------------
 
-Add item to shopping card::
+..Add item to shopping card::
 
-    >>> item_url = "http://hobby.developlocal.sativa.jokasis.de/titlede-itemka32-de.html"
-    >>> browser.visit(item_url)
-    >>> qty = browser.find_by_name('qty').first
-    >>> browser.find_by_css('.btn-cart').first.click()
-    >>> browser.is_text_present("Zur Kasse gehen")
-    True
+    ..>>> item_url = "http://hobby.developlocal.sativa.jokasis.de/titlede-itemka32-de.html"
+    ..>>> browser.visit(item_url)
+    ..>>> qty = browser.find_by_name('qty').first
+    ..>>> browser.find_by_css('.btn-cart').first.click()
+    ..>>> browser.is_text_present("Zur Kasse gehen")
+    ..True
 
-Checkout  as guest with required data::
+..Checkout  as guest with required data::
 
-    >>> browser.find_by_css(".btn-checkout").first.click()
-    >>> browser.is_text_present("Checkout Method")
-    True
-    >>> browser.check("checkout_method")
-    >>> browser.find_by_id("onepage-guest-register-button").first.click()
+    ..>>> browser.find_by_css(".btn-checkout").first.click()
+    ..>>> browser.is_text_present("Checkout Method")
+    ..True
+    ..>>> browser.check("checkout_method")
+    ..>>> browser.find_by_id("onepage-guest-register-button").first.click()
 
-Set billing addresss:
+..Set billing addresss:
 
-    >>> browser.fill("billing[firstname]", "billing_firstname")
-    >>> browser.fill("billing[lastname]", "billing_lastname")
-    >>> browser.fill("billing[email]", "joka@developlocal.sativa.jokasis.de")
-    >>> browser.fill("billing[street][]", "billing_street1")
-    >>> browser.fill("billing[city]", "billing_city")
-    >>> browser.fill("billing[postcode]", "billing_postcode")
-    >>> browser.fill("billing[telephone]", "billing_telephone")
-    >>> browser.select('billing[country_id]', 'CH')
-    >>> browser.select('billing[region_id]', '104')
-    >>> browser.find_by_css("#billing-buttons-container .button").first.click()
+    ..>>> browser.fill("billing[firstname]", "billing_firstname")
+    ..>>> browser.fill("billing[lastname]", "billing_lastname")
+    ..>>> browser.fill("billing[email]", "joka@developlocal.sativa.jokasis.de")
+    ..>>> browser.fill("billing[street][]", "billing_street1")
+    ..>>> browser.fill("billing[city]", "billing_city")
+    ..>>> browser.fill("billing[postcode]", "billing_postcode")
+    ..>>> browser.fill("billing[telephone]", "billing_telephone")
+    ..>>> browser.select('billing[country_id]', 'CH')
+    ..>>> browser.select('billing[region_id]', '104')
+    ..>>> browser.find_by_css("#billing-buttons-container .button").first.click()
 
-Choose shipping::
+..Choose shipping::
 
-   >>> browser.find_by_css("#shipping-method-buttons-container .button").first.click()
+   ..>>> browser.find_by_css("#shipping-method-buttons-container .button").first.click()
 
-Choose payment::
+..Choose payment::
 
-   >>> browser.check("payment[method]")
-   >>> browser.find_by_css("#payment-buttons-container .button").first.click()
+   ..>>> browser.check("payment[method]")
+   ..>>> browser.find_by_css("#payment-buttons-container .button").first.click()
 
-Review order::
+..Review order::
 
-   >>> browser.find_by_css("#review-buttons-container .button").first.click()
-   >>> "Vielen Dank" in browser.html
-   True
+   ..>>> browser.find_by_css("#review-buttons-container .button").first.click()
+   ..>>> "Vielen Dank" in browser.html
+   ..True
 
 
 Get Orders:

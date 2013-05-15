@@ -166,13 +166,17 @@ class MagentoIntegrationTestCase(IntegrationTestCase):
         items_proxy.__enter__()
         item_groups_proxy = magentoapi.ItemGroups(self.request)
         categories_proxy = magentoapi.Categories(self.request)
+        salesorders_proxy = magentoapi.SalesOrders(self.request)
         item_groups_proxy.client = items_proxy.client
         item_groups_proxy.session = items_proxy.session
         categories_proxy.client = items_proxy.client
         categories_proxy.session = items_proxy.session
+        salesorders_proxy.client = items_proxy.client
+        salesorders_proxy.session = items_proxy.session
         self.items_proxy = items_proxy
         self.item_groups_proxy = item_groups_proxy
         self.categories_proxy = categories_proxy
+        self.salesorders_proxy = salesorders_proxy
 
     def tearDown(self):
         from xmlrpclib import Fault
@@ -184,6 +188,16 @@ class MagentoIntegrationTestCase(IntegrationTestCase):
             pass
         self.items_proxy.__exit__(None, None, None)
         super(MagentoIntegrationTestCase, self).tearDown()
+
+
+class MagentoTestdatabaseIntegrationTestCase(MagentoIntegrationTestCase):
+
+    def setUp(self):
+        reset_database_with_testdata()
+        super(MagentoTestdatabaseIntegrationTestCase, self).setUp()
+
+    def tearDown(self):
+        pass
 
 
 class FunctionalTestCase(unittest.TestCase):

@@ -492,4 +492,10 @@ class SalesOrders(MagentoSalesAPI):
             orders.append(order)
         return orders
 
+    def add_comment(self, order_increment_id, status, comment=u"",
+                    notify=False):
+        resut = self.single_call('sales_order.addComment',
+                                  [order_increment_id, status, comment, notify])
+        return resut
+
 # TODO docu inventory status

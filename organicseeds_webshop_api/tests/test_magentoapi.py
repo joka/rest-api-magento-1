@@ -5,6 +5,7 @@ import unittest
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
     MagentoIntegrationTestCase,
+    MagentoTestdatabaseIntegrationTestCase,
     create_item,
     create_category,
     create_item_group,
@@ -482,10 +483,12 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
         assert results == [category.webshop_id]
 
 
-#class TestMagentoAPISalesOrderUnit(unittest.TestCase):
+class TestMagentoAPISalesOrderUnit(MagentoTestdatabaseIntegrationTestCase):
 
-    #def test_magentoapi_get_orders(self):
-        #import ipdb; ipdb.set_trace()
+    def test_magentoapi_salesorders_add_comment(self):
+        increment_id = 200000001
+        result = self.salesorders_proxy.add_comment(increment_id, "pending")
+        assert result
 
 
 TESTDATA_ORDER_GUEST_CUSTOMER = \
@@ -974,7 +977,7 @@ TESTDATA_ORDER_GUEST_CUSTOMER_EXPECTED = \
      'shipping_method': u'flatrate_flatrate',
      'shipping_tax_amount': Decimal('0.0000'),
      'shop': u'ch_hobby',
-     'state': u'new',
+     'status': u'pending',
      'subtotal': Decimal('20.0000'),
      'subtotal_incl_tax': Decimal('21.8000'),
      'subtotal_invoiced': Decimal('0'),

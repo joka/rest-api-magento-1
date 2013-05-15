@@ -1056,9 +1056,9 @@ class Order(colander.MappingSchema):
 
     # Metadata
     order_increment_id = IntegerGtNull()
-    state = String(validator=OneOf(["new", "pending_payment",
-                                    "processing", "complete",
-                                    "closed", "canceled", "holded"]))
+    status = String(validator=OneOf(["pending", "pending_payment",
+                                     "processing", "complete",
+                                     "closed", "canceled", "holded"]))
     website = WebsiteID()
     shop = ShopID()
     created_at = String()  # Format: '2013-05-14 12:29:03', not validated!
@@ -1156,3 +1156,35 @@ class Orders(colander.SequenceSchema):
 class OrdersList(colander.MappingSchema):
 
     orders = Orders()
+
+class OrderUpdate(colander.MappingSchema):
+    """ Add comment or new Status to order.
+
+        value:
+
+            order_increment_id: IntegerGtNull
+
+            status: pending | processing | complete # if you change the
+                order status, mind the right order:
+
+                pending -> processing -> complete
+
+            comment: String # Message for the costumer, # default empty string
+
+            notify: Bool # Send email message to customer # default True
+    """
+
+    order_increment_id = IntegerGtNull()
+    status = String(validator=OneOf(["pending", "processing", "complete"]))
+    comment = String(default=u"", missing=u"", required=False)
+    notify = Bool(default=True, missing=True, required=False)
+
+
+class OrderUpdates(colander.SequenceSchema):
+
+    orderupdate = OrderUpdate()
+
+
+class OrderUpdatesList(colander.MappingSchema):
+
+    orders = OrderUpdates()
