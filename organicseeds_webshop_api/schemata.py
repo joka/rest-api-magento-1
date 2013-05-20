@@ -159,13 +159,13 @@ class TaxClass(colander.SchemaNode):
 
        values:
 
-         - 0 = magento default tax group
          - 2 = Taxable goods
          - 4 = (Shipping) 
          - 5 = Reduces Taxable goods
+         - 6 = Non-Taxable goods
     """
     schema_type = colander.Integer
-    validator = OneOf([0, 2, 4, 5])
+    validator = OneOf([2, 4, 5, 6])
 
 
 class ItemTypeGroup(colander.SchemaNode):
@@ -183,6 +183,8 @@ class InventoryStatus(colander.SchemaNode):
     """Iventory status, Integer
 
        values: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+
+       You can buy only items with status 2, 7 or 8
     """
     schema_type = colander.Integer
     validator = OneOf([1, 2, 3, 4, 5, 6, 7, 8])

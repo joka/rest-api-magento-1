@@ -128,7 +128,7 @@ def get_stock_data(appstruct):
     stock_data = {}
     status = appstruct.get("inventory_status", None)
     if status:
-        stock_data["is_in_stock"] = 1 if status == 2 else 0
+        stock_data["is_in_stock"] = 1 if status in [2, 7, 8] else 0
     inventory_qty = appstruct.get("inventory_qty", None)
     if inventory_qty:
         stock_data['qty'] = inventory_qty

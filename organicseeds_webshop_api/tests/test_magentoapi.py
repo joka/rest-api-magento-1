@@ -93,6 +93,14 @@ class TestMagentoCatalogAPIHelpersIntegration(unittest.TestCase):
         data = magentoapi.get_stock_data(appstruct)
         assert data == {'qty': 300, 'is_in_stock': 1}
 
+        appstruct = {"inventory_status": 7, "inventory_qty": 300}
+        data = magentoapi.get_stock_data(appstruct)
+        assert data == {'qty': 300, 'is_in_stock': 1}
+
+        appstruct = {"inventory_status": 8, "inventory_qty": 300}
+        data = magentoapi.get_stock_data(appstruct)
+        assert data == {'qty': 300, 'is_in_stock': 1}
+
     def test_magentoapi_get_stock_data_is_not_in_stock(self):
         from organicseeds_webshop_api import magentoapi
         appstruct = {"inventory_status": 3, "inventory_qty": -3}
