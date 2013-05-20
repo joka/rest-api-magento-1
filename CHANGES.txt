@@ -5,6 +5,8 @@ Changelog
 ---
 
 
+- Item schema: new product tax class "6" (Non-Taxable goods), removed class 0
+
 - Added service /orders
 
 - Item schema: added delivery_period (vors. Lieferzeitraum in KW)
