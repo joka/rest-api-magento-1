@@ -275,3 +275,48 @@ class TestUtilsGetUrlSlug(IntegrationTestCase):
         assert slug == u'newu'
         slug = utils.get_url_slug(u"existingÜ", u"_cat2_default", self.request)
         assert slug == u'existingu_cat2_default'
+
+
+class TestUtilsSearch(IntegrationTestCase):
+
+    def test_utils_search_missing_kwargs(self):
+        from organicseeds_webshop_api import utils
+        kwargs = {}
+        results = utils.search(self.request, operator="AND", **kwargs)
+        assert len(results) == 0
+
+    def test_utils_search_AND(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        appstructs = [{"id": "item1",
+                       "__type__": "vpe",
+                       "title": {"default": "title"}},
+                      {"id": "item2",
+                       "__type__": "vpe",
+                       "title": {"default": "title"}}
+                      ]
+
+        utils.store(appstructs, models.Item,
+                    "items", self.request)
+        kwargs = {"__type__": "vpe", "id": "item2"}
+        results = utils.search(self.request, operator="AND", **kwargs)
+        assert len(results) == 1
+        kwargs = {"__type__": "vpe"}
+        results = utils.search(self.request, operator="AND", **kwargs)
+        assert len(results) == 2
+
+    def test_utils_search_OR(self):
+        from organicseeds_webshop_api import utils
+        from organicseeds_webshop_api import models
+        appstructs = [{"id": "item1",
+                       "__type__": "vpe1",
+                       "title": {"default": "title"}},
+                      {"id": "item2",
+                       "__type__": "vpe2",
+                       "title": {"default": "title"}}
+                      ]
+        utils.store(appstructs, models.Item,
+                    "items", self.request)
+        kwargs = {"id": "item1", "__type__": "vpe2"}
+        results = utils.search(self.request, operator="OR", **kwargs)
+        assert len(results) == 2

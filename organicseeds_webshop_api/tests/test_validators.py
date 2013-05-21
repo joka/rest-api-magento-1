@@ -221,3 +221,38 @@ class TestValidatorsUnitOfMeasuresIntegration(IntegrationTestCase):
         self.app_root["items"]["itemid"]["unit_of_measure_id"] = u"portion"
         validate_unit_of_measure_no_item_references_exist(self.request)
         assert(len(self.request.errors) == 1)
+
+
+class TestValidatorsSearchIntegration(IntegrationTestCase):
+
+    def test_validator_search_valid_set_defaults(self):
+        from organicseeds_webshop_api.validators import \
+            validate_search_parameters
+        self.request.GET = {}
+        validate_search_parameters(self.request)
+        assert self.request.validated == {"lang": "default", "operator": "AND"}
+        assert(len(self.request.errors) == 0)
+
+    def test_validator_search_invalid_valid_without_defaults(self):
+        from organicseeds_webshop_api.validators import \
+            validate_search_parameters
+        self.request.GET = {"lang": "fr", "operator": "OR",
+                            "parent_id": "cat1"}
+        validate_search_parameters(self.request)
+        assert self.request.validated == {"lang": "fr", "operator": "OR",
+                                          "parent_id": "cat1"}
+        assert(len(self.request.errors) == 0)
+
+    def test_validator_search_invalid_wrong_operator(self):
+        from organicseeds_webshop_api.validators import \
+            validate_search_parameters
+        self.request.GET = {"operator": "wrong_operator"}
+        validate_search_parameters(self.request)
+        assert(len(self.request.errors) == 1)
+
+    def test_validator_search_invalid_wrong_serch_keyword(self):
+        from organicseeds_webshop_api.validators import \
+            validate_search_parameters
+        self.request.GET = {"wrong_keyword": "value"}
+        validate_search_parameters(self.request)
+        assert(len(self.request.errors) == 1)

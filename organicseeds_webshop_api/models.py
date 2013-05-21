@@ -236,6 +236,14 @@ def get_title_url_slugs(obj, default):
     return keywords
 
 
+def get_shop_ids(obj, default):
+    shop_ids = default
+    shops = obj.get("shops", [])
+    if shops:
+        shop_ids = [shop[0] for shop in shops if shop[1]]
+    return shop_ids
+
+
 ##################################
 #  Create basic data sctructure  #
 ##################################
@@ -266,6 +274,7 @@ def bootstrap(zodb_root, app_root_id, request):
         app_root["catalog"]['vpe_default'] = CatalogFieldIndex(get_vpe_default)
         app_root["catalog"]['title_url_slugs'] = CatalogKeywordIndex(
             get_title_url_slugs)
+        app_root["catalog"]['shop_id'] = CatalogKeywordIndex(get_shop_ids)
         app_root["document_map"] = DocumentMap()
         transaction.commit()
     return Root(request, zodb_root[app_root_id])

@@ -4,6 +4,7 @@ Changelog
 0.2
 ---
 
+- Added service /search
 
 - Item schema: new product tax class "6" (Non-Taxable goods), removed class 0
 

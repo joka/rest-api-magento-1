@@ -316,3 +316,31 @@ def validate_item_unit_of_measure_id(request):
     if non_existing:
         request.errors.add('body', 'unit_of_measur_id',
                            error % ([x for x in non_existing].__str__()))
+
+
+############
+#  search  #
+############
+
+
+def validate_search_parameters(request):
+    parameters =  request.GET
+    request.validated = {}
+    catalog = request.root.app_root["catalog"]
+    allowed_search_keywords = catalog.keys() + ["lang", "operator"]
+    if "lang" not in parameters:
+        parameters["lang"] = "default"
+    if "operator" not in parameters:
+        parameters["operator"] = "AND"
+    if parameters["operator"] not in ["AND", "OR"]:
+        error = 'The operator value %s is not in ["AND", "OR"]'
+        request.errors.add('querystring', 'operator',
+                           error % (parameters["operator"]))
+    for key in parameters:
+        if key not in allowed_search_keywords:
+            error = 'The search key %s is not in allowed.'\
+                    'Valid search parameters are %s.'
+            request.errors.add('querystring', key,
+                               error % (key, allowed_search_keywords))
+    if not request.errors:
+        request.validated.update(parameters)

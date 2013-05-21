@@ -211,3 +211,13 @@ class TestServicesSalesOrdersIntegration(MagentoTestdatabaseIntegrationTestCase)
         self.request.validated = {"orders": [appstruct]}
         response = orders_put(self.request)
         assert(response == {'status': 'succeeded'})
+
+
+class TestServicesSearchIntegration(IntegrationTestCase):
+
+    def test_search_item_or_groups(self):
+        from organicseeds_webshop_api.services import search_get
+        self.request.GET = {}
+        self.request.validated = {"lang": "default", "operator": "AND"}
+        response = search_get(self.request)
+        assert response == []

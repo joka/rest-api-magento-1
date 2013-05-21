@@ -421,7 +421,7 @@ item_group = Service(name='item_group',
 def item_group_get(request):
     """Get item_group data
 
-       url param :
+       url parameters :
 
        * lang: language # default = "default"
     """
@@ -439,4 +439,35 @@ def item_group_get(request):
     return data
 
 
+#################################
+# /search                       #
+#################################
 
+search_ = Service(name='search',
+                        path='/search',
+                        description="Service to search for"\
+                                    "entities")
+
+
+@search_.get(validators=validators.validate_search_parameters)
+def search_get(request):
+    """Search for itemgroups
+
+       url parameters :
+
+       * lang: language # default = "default"
+
+       * operator: "AND" | "OR", default "AND"
+
+       * multiple search key/value pairs, allowed search keys are: "shop_id" | "parent_id" | ...
+
+    """
+    lang = request.validated.pop("lang")
+    operator = request.validated.pop("operator")
+    search_parameters = request.validated
+    result = []
+    search_result = utils.search(request, operator=operator, **search_parameters)
+    for entity in search_result:
+        entity_data = entity.to_data(lang=lang)
+        result.append(entity_data)
+    return result

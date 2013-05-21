@@ -1,4 +1,8 @@
-from repoze.catalog.query import Eq
+from repoze.catalog.query import (
+    Eq,
+    And,
+    Or,
+)
 
 from organicseeds_webshop_api import url_normalizer
 from organicseeds_webshop_api.exceptions import _500
@@ -162,6 +166,22 @@ def get_url_slug(title, unique_suffix, request):
     if existing >= 1:
         url_slug += unique_suffix
     return url_slug
+
+
+def search(request, operator="AND", **kwargs):
+    assert operator in ["AND", "OR"]
+    catalog = request.root.app_root["catalog"]
+    connector = And if operator == "AND" else Or
+    queries = []
+    results = []
+    for k,v in kwargs.items():
+        queries.append(Eq(k, v))
+    if queries:
+        result_set = catalog.query(connector(*queries))[1]
+        for docid in result_set:
+            entity = docid_to_entity(docid, request)
+            results.append(entity)
+    return results
 
 
 #def find_element(path, context):
