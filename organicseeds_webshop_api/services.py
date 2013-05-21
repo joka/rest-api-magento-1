@@ -36,24 +36,26 @@ def categories_post(request):
            * Sequence of Category
     """
 
+    save_in_webshop = request.validated.get("save_in_webshop", True)
     appstructs = request.validated["categories"]
     categories = utils.store(appstructs, models.Category, "categories",
                              request)
-    with magentoapi.Categories(request) as proxy:
-        try:
-            # create categories in webshop
-            webshop_ids = proxy.create(appstructs)
-            utils.set_webshop_ids(categories, webshop_ids)
-            # activate categories in webshop shops
-            proxy.update_shops(webshop_ids, appstructs)
-            # link category children in webshop
-            item_webshop_ids, items = utils.get_entities_item_children(
-                categories, request)
-            proxy.link_category_parents(item_webshop_ids, items)
-        except exceptions.WebshopAPIErrors as e:
-            proxy.delete([x for x in e.success if isinstance(x, int)])
-            raise exceptions._500(msg=e.errors)
-    magentoapi.indexing_reindex(request)
+    if save_in_webshop:
+        with magentoapi.Categories(request) as proxy:
+            try:
+                # create categories in webshop
+                webshop_ids = proxy.create(appstructs)
+                utils.set_webshop_ids(categories, webshop_ids)
+                # activate categories in webshop shops
+                proxy.update_shops(webshop_ids, appstructs)
+                # link category children in webshop
+                item_webshop_ids, items = utils.get_entities_item_children(
+                    categories, request)
+                proxy.link_category_parents(item_webshop_ids, items)
+            except exceptions.WebshopAPIErrors as e:
+                proxy.delete([x for x in e.success if isinstance(x, int)])
+                raise exceptions._500(msg=e.errors)
+        magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
 
@@ -107,26 +109,28 @@ def item_groups_post(request):
        * item_groups : Sequence of ItemGroup
     """
 
+    save_in_webshop = request.validated.get("save_in_webshop", True)
     appstructs = request.validated["item_groups"]
     item_groups = utils.store(appstructs, models.ItemGroup,
                               "item_groups", request)
-    with magentoapi.ItemGroups(request) as proxy:
-        try:
-            # create item_groups in webshop
-            webshop_ids = proxy.create(appstructs)
-            utils.set_webshop_ids(item_groups, webshop_ids)
-            # activate categories in webshop shops
-            proxy.update_shops(webshop_ids, appstructs)
-            # link item_group parents in webshop
-            proxy.link_item_parents(webshop_ids, appstructs)
-            # link item_group children in webshop
-            item_webshop_ids, items = utils.get_entities_item_children(
-                item_groups, request)
-            proxy.link_item_parents(item_webshop_ids, items)
-        except exceptions.WebshopAPIErrors as e:
-            proxy.delete([x for x in e.success if isinstance(x, int)])
-            raise exceptions._500(msg=e.errors)
-    magentoapi.indexing_reindex(request)
+    if save_in_webshop:
+        with magentoapi.ItemGroups(request) as proxy:
+            try:
+                # create item_groups in webshop
+                webshop_ids = proxy.create(appstructs)
+                utils.set_webshop_ids(item_groups, webshop_ids)
+                # activate categories in webshop shops
+                proxy.update_shops(webshop_ids, appstructs)
+                # link item_group parents in webshop
+                proxy.link_item_parents(webshop_ids, appstructs)
+                # link item_group children in webshop
+                item_webshop_ids, items = utils.get_entities_item_children(
+                    item_groups, request)
+                proxy.link_item_parents(item_webshop_ids, items)
+            except exceptions.WebshopAPIErrors as e:
+                proxy.delete([x for x in e.success if isinstance(x, int)])
+                raise exceptions._500(msg=e.errors)
+        magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
 
@@ -276,19 +280,21 @@ def items_post(request):
 
        * Sequence of Item
     """
+    save_in_webshop = request.validated.get("save_in_webshop", True)
     appstructs = request.validated["items"]
     items = utils.store(appstructs, models.Item, "items", request)
-    magentoapi.indexing_enable_manual(request)
-    with magentoapi.Items(request) as proxy:
-        try:
-            webshop_ids = proxy.create(appstructs)
-            utils.set_webshop_ids(items, webshop_ids)
-            proxy.update_shops(webshop_ids, appstructs)
-            proxy.link_item_parents(webshop_ids, appstructs)
-        except exceptions.WebshopAPIErrors as e:
-            proxy.delete([x for x in e.success if isinstance(x, int)])
-            raise exceptions._500(msg=e.errors)
-    magentoapi.indexing_reindex(request)
+    if save_in_webshop:
+        magentoapi.indexing_enable_manual(request)
+        with magentoapi.Items(request) as proxy:
+            try:
+                webshop_ids = proxy.create(appstructs)
+                utils.set_webshop_ids(items, webshop_ids)
+                proxy.update_shops(webshop_ids, appstructs)
+                proxy.link_item_parents(webshop_ids, appstructs)
+            except exceptions.WebshopAPIErrors as e:
+                proxy.delete([x for x in e.success if isinstance(x, int)])
+                raise exceptions._500(msg=e.errors)
+        magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
 
@@ -301,16 +307,18 @@ def items_put(request):
 
        * Sequence of ItemUpdate
     """
+    save_in_webshop = request.validated.get("save_in_webshop", True)
     appstructs = utils.remove_none_values(request.validated["items"])
     utils.store(appstructs, models.Item, "items", request)
-    magentoapi.indexing_enable_manual(request)
-    with magentoapi.Items(request) as proxy:
-        try:
-            webshop_ids = proxy.update(appstructs)
-            proxy.update_shops(webshop_ids, appstructs)
-            magentoapi.indexing_reindex(request)
-        except exceptions.WebshopAPIErrors as e:
-            raise exceptions._500(msg=e.errors)
+    if save_in_webshop:
+        magentoapi.indexing_enable_manual(request)
+        with magentoapi.Items(request) as proxy:
+            try:
+                webshop_ids = proxy.update(appstructs)
+                proxy.update_shops(webshop_ids, appstructs)
+                magentoapi.indexing_reindex(request)
+            except exceptions.WebshopAPIErrors as e:
+                raise exceptions._500(msg=e.errors)
     return {"status": "succeeded"}
 
 

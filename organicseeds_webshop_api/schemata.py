@@ -680,6 +680,7 @@ class Categories(colander.SequenceSchema):
 class CategoriesList(colander.MappingSchema):
 
     categories = Categories()
+    save_in_webshop = Bool(default=False, missing=False, required=False)
 
 
 attributes_with_inheritance = ["text_attributes", "measure_attributes",
@@ -795,7 +796,10 @@ class ItemGroups(colander.SequenceSchema):
 
 
 class ItemGroupsList(colander.MappingSchema):
+
     item_groups = ItemGroups()
+    save_in_webshop = Bool(default=False, missing=False, required=False)
+
 
 
 #########################
@@ -948,6 +952,7 @@ class Items(colander.SequenceSchema):
 class ItemsList(colander.MappingSchema):
 
     items = Items()
+    save_in_webshop = Bool(default=False, missing=False, required=False)
 
 
 class ItemUpdate(colander.Schema):
