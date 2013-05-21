@@ -417,7 +417,7 @@ item_group = Service(name='item_group',
 
 
 #TODO use validators here
-@item_group.get(schema=schemata.ItemGet)
+@item_group.get(schema=schemata.ItemGroupGet)
 def item_group_get(request):
     """Get item_group data
 
@@ -428,9 +428,11 @@ def item_group_get(request):
 
     item_group_id = request.validated["id"]
     lang = request.validated["lang"]
+    with_children =  request.validated["with_children"]
+    children_shop_id = request.validated["children_shop_id"]
     try:
         item_group = request.root.app_root["item_groups"][item_group_id]
-        data = item_group.to_data(lang)
+        data = item_group.to_data(lang, with_children, children_shop_id)
     except KeyError:
         error = "%s does not exists"
         raise exceptions._500(msg=error % (item_group_id))

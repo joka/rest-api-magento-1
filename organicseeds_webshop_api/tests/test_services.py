@@ -179,14 +179,16 @@ class TestServicesItemGroupIntegration(IntegrationTestCase):
                                   self.request)
         item_group = item_groups[0]
 
-        self.request.validated = {"id": item_group["id"], "lang": "default"}
+        self.request.validated = {"id": item_group["id"], "lang": "default",
+                                  "with_children": False, "children_shop_id": ""}
         response = item_group_get(self.request)
         assert response["title"] == item_group["title"]["default"]
 
     def test_item_group_get_missing(self):
         from organicseeds_webshop_api.services import item_group_get
 
-        self.request.validated = {"id": "wrong_id", "lang": "default"}
+        self.request.validated = {"id": "wrong_id", "lang": "default",
+                                  "with_children": False, "children_shop_id": ""}
         with pytest.raises(_500):
             item_group_get(self.request)
 

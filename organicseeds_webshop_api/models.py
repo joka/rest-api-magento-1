@@ -126,7 +126,7 @@ class ItemGroup(Entity):
         super(ItemGroup, self).__init__(appstruct)
         self.__children__ = PersistentList()
 
-    def to_data(self, lang=None):
+    def to_data(self, lang=None, with_children=False, children_shop_id=""):
         """"
         :return dictionary with all data
         """
@@ -135,25 +135,31 @@ class ItemGroup(Entity):
             data[key] = _add_inherited_attributes(self, key)
         if lang:
             data = _translate(data, lang)
-        data["children_vpe_types"] = {}
-        data["children_qualities"] = {}
-        data["children_grouped"] = {}
-        for child in self.__children__:
-            child_ = child.to_data(lang)
-            vpe = child_["vpe_type"]
-            vpe_id = vpe["id"]
-            quality = child_["quality"]
-            quality_id = quality["id"]
-            if vpe_id not in data["children_grouped"]:
-                data["children_grouped"][vpe_id] = {}
-                data["children_vpe_types"][vpe_id] = vpe
-            del(child_["vpe_type"])
-            if quality_id not in data["children_grouped"][vpe_id]:
-                data["children_grouped"][vpe_id][quality_id] = {}
-                data["children_qualities"][quality_id] = quality
-            del(child_["quality"])
-            data["children_grouped"][vpe_id][quality_id][child_["sku"]] =\
-                child_
+        children = deepcopy(self.__children__)
+        if children_shop_id:
+            children = [x for x in children \
+                        if (children_shop_id, True) in x["shops"]
+                        or [children_shop_id, True] in x["shops"]]
+        if with_children:
+            data["children_vpe_types"] = {}
+            data["children_qualities"] = {}
+            data["children_grouped"] = {}
+            for child in children:
+                child_ = child.to_data(lang)
+                vpe = child_["vpe_type"]
+                vpe_id = vpe["id"]
+                quality = child_["quality"]
+                quality_id = quality["id"]
+                if vpe_id not in data["children_grouped"]:
+                    data["children_grouped"][vpe_id] = {}
+                    data["children_vpe_types"][vpe_id] = vpe
+                del(child_["vpe_type"])
+                if quality_id not in data["children_grouped"][vpe_id]:
+                    data["children_grouped"][vpe_id][quality_id] = {}
+                    data["children_qualities"][quality_id] = quality
+                del(child_["quality"])
+                data["children_grouped"][vpe_id][quality_id][child_["sku"]] =\
+                    child_
         return data
 
 

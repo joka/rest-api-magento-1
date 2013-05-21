@@ -802,6 +802,35 @@ class ItemGroupsList(colander.MappingSchema):
 
 
 
+
+class ItemGroupGet(colander.MappingSchema):
+    """Get Webshop ItemGroup entity data
+
+       * lang: "default" | "fr" | "de" | "it" ... # default = "default"
+
+       * id: Identifier # Item id
+
+       * with_children: Bool # default False
+                    # adds the following fields to data:
+                    # "children_vpe_types", "children_qualities", "children_grouped"
+
+       * children_shop_id: String # default disabled ("")
+                    # only add children enabled in this shop
+                    # (shop == magentos store group)
+
+    """
+
+    lang = Identifier(default="default", missing="default", required=False,
+                      location="querystring")
+    id = Identifier(location="path")
+
+    with_children = Bool(default=False, missing=False, required=False,
+                         location="querystring")
+
+    children_shop_id = ShopID(default="", missing="", required=False,
+                              location="querystring")
+
+
 #########################
 # Items (shop products) #
 #########################
