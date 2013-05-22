@@ -49,7 +49,5 @@ to translated data we need to set the request parameter "lang"::
     u'carotte'
 
 
-TODO:
-      get category URL
-      suppport more search attributes
+TODO: suppport more search attributes
 
