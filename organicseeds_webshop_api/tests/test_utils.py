@@ -261,7 +261,7 @@ class TestUtilsGetEntitiesItemChildren(IntegrationTestCase):
         assert item_webshop_ids == items == []
 
 
-class TestUtilsGetUrlSlug(IntegrationTestCase):
+class TestUtilsGetUrl(IntegrationTestCase):
 
     def test_utils_get_url_slug(self):
         from organicseeds_webshop_api import utils

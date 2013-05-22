@@ -35,6 +35,25 @@ class Root(object):
 ######################################
 
 
+def _get_url_path(entity, lang=None):
+    path = u""
+    entities = [x for x in lineage(entity)]
+    entities.reverse()
+    if lang:
+        for x in entities:
+            slugs = x.get("url_slug", {})
+            if lang in slugs:
+                slug = slugs[lang]
+            else:
+                slug = slugs.get("default", "")
+            if slug:
+                path += "/" + slug
+            else:
+                path = ""
+                break
+    return path
+
+
 def _translate(data, lang):
     if not isinstance(data, dict):
         return data
@@ -92,6 +111,9 @@ class Data(PersistentMapping):
         data = deepcopy(self.data)
         if lang:
             data = _translate(data, lang)
+        url_path = _get_url_path(self, lang)
+        if url_path:
+            data["url_path"] = url_path
         return data
 
 
@@ -158,6 +180,9 @@ class ItemGroup(Entity):
                 del(child_["quality"])
                 data["children_grouped"][vpe_id][quality_id][child_["sku"]] =\
                     child_
+        url_path = _get_url_path(self, lang)
+        if url_path:
+            data["url_path"] = url_path
         return data
 
 
@@ -181,6 +206,9 @@ class Item(Entity):
             data["unit_of_measure"] = self.unit_of_measure.to_data(lang)
         if self.quality:
             data["quality"] = _translate(self.quality, lang)
+        url_path = _get_url_path(self, lang)
+        if url_path:
+            data["url_path"] = url_path
         return data
 
 

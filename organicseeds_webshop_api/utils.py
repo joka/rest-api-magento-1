@@ -31,7 +31,7 @@ def store(appstructs, itemtype, data_key, request):
         else:
             obj = folder[obj_id]
             obj.from_appstruct(appstruct)
-        # set url slugs
+        # set url_slug
         if not "url_slug" in obj:
             obj["url_slug"] = {}
         for lang in obj.get("title", {}):

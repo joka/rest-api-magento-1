@@ -6,6 +6,24 @@ from organicseeds_webshop_api.testing import (
 
 class TestModelsIntegration(IntegrationTestCase):
 
+    def test_models_get_url_path_with_parent(self):
+        from organicseeds_webshop_api import models
+        child = models.Item({"id": "child",
+                             "url_slug": {"default": "child_slug"}})
+        parent = models.ItemGroup({"id": "parent",
+                                   "url_slug": {"default": "parent_slug",
+                                                "fr": "parent_slug_fr"}})
+        child.__parent__ = parent
+        child_path = models._get_url_path(child, "fr")
+        assert child_path == "/parent_slug_fr/child_slug"
+
+    def test_models_get_url_path_no_parent(self):
+        from organicseeds_webshop_api import models
+        child = models.Item({"id": "child",
+                             "url_slug": {"default": "child_slug"}})
+        child_path = models._get_url_path(child, "default")
+        assert child_path == "/child_slug"
+
     def test_models_data_from_appstruct(self):
         from organicseeds_webshop_api import models
         data = models.Data()
@@ -63,6 +81,22 @@ class TestModelsIntegration(IntegrationTestCase):
                                            "ids": [{"value": [{"text": "text"}
                                                               ]}]}
 
+    def test_models_data_to_data_with_url_path(self):
+        from organicseeds_webshop_api import models
+
+        data = models.Data()
+        assert data.to_data() == {}
+
+        appstruct = {"url_slug": {"default": "slug"}}
+        data = models.Data(appstruct)
+        assert data.to_data("default")["url_path"] == u"/slug"
+        category = models.Category(appstruct)
+        assert category.to_data("default")["url_path"] == u"/slug"
+        item_group = models.ItemGroup(appstruct)
+        assert item_group.to_data("default")["url_path"] == u"/slug"
+        item = models.Item(appstruct)
+        assert item.to_data("default")["url_path"] == u"/slug"
+
     def test_models_item_group_to_data_inherited_attributes(self):
         from organicseeds_webshop_api import models
         child = models.ItemGroup()
@@ -84,7 +118,7 @@ class TestModelsIntegration(IntegrationTestCase):
         assert "children_qualities" not in data
         assert "children_grouped" not in data
 
-    def test_models_item_group_to_data_item_children_with_children(self):
+    def test_models_item_group_to_data_item_with_children(self):
         vpe, unit, item, group = create_all_testdata_items(self.request)
         data = group.to_data(with_children=True)
         quality = data["qualities"][0]
@@ -96,7 +130,7 @@ class TestModelsIntegration(IntegrationTestCase):
         assert quality_id in data["children_grouped"][vpe_id]
         assert item["sku"] in data["children_grouped"][vpe_id][quality_id]
 
-    def test_models_item_group_to_data_item_children_with_children_and_correct_shop_id(self):
+    def test_models_item_group_to_data_item_with_children_valid_shopid(self):
         vpe, unit, item, group = create_all_testdata_items(self.request)
         data = group.to_data(with_children=True, children_shop_id="ch_hobby")
         quality = data["qualities"][0]
@@ -108,7 +142,7 @@ class TestModelsIntegration(IntegrationTestCase):
         assert quality_id in data["children_grouped"][vpe_id]
         assert item["sku"] in data["children_grouped"][vpe_id][quality_id]
 
-    def test_models_item_group_to_data_item_children_with_children_and_wrong_shop_id(self):
+    def test_models_item_group_to_data_item_with_children_invalid_shopid(self):
         vpe, unit, item, group = create_all_testdata_items(self.request)
         data = group.to_data(with_children=True, children_shop_id="false")
         quality = data["qualities"][0]
