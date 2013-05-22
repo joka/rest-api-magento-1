@@ -100,11 +100,9 @@ class Entity(Data):
 
     __parent__ = None
     webshop_id = 0
-    url_slugs = {}
 
     def __init__(self, appstruct={}):
         super(Entity, self).__init__(appstruct)
-        self.url_slugs = PersistentMapping()
 
 
 class Category(Entity):
@@ -230,9 +228,9 @@ def get_quality_id(obj, default):
 
 def get_title_url_slugs(obj, default):
     keywords = default
-    title = obj.get("title", None)
-    if title:
-        keywords = [url_normalizer(t) for t in title.values()]
+    slugs = obj.get("url_slug", None)
+    if slugs:
+        keywords = [url_normalizer(t) for t in slugs.values()]
     return keywords
 
 

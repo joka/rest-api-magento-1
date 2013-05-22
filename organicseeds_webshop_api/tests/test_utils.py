@@ -13,32 +13,31 @@ class TestUtilsStoreEntitiesIntegration(IntegrationTestCase):
     def test_utils_store_entities(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
-        from organicseeds_webshop_api.url_normalizer import url_normalizer
         from repoze.catalog.query import Eq
         catalog = self.app_root["catalog"]
         self.testdata["items"][0]["title"] = {"default": "Aktuelle Aussaten"}
 
         items = utils.store(self.testdata["items"], models.Item,
                             "items", self.request)
-        assert len(items) == 1
+        assert len(items) == len(self.testdata["items"])
         results = catalog.query(Eq('id', 'itemka32'))[0]
         assert(results == 1)
-        results = catalog.query(Eq('title_url_slugs',
-                                   url_normalizer('Aktuelle Aussaten')))[0]
-        assert(results == 1)
 
-    def test_utils_store_entities_existing(self):
+    def test_utils_store_entities_with_url_slug(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
-
-        utils.store(self.testdata["items"], models.Item, "items", self.request)
-        itemsupdate = {"items": [{"id": "itemka32",
-                       "description": {'default': u'New Description'},
-                       "order": None}]}
-        utils.store(itemsupdate["items"], models.Item, "items", self.request)
-        item = self.app_root["items"]["itemka32"]
-        assert item["description"] == {'default': u'New Description'}
-        assert item["order"] is None
+        from organicseeds_webshop_api.url_normalizer import url_normalizer
+        from repoze.catalog.query import Eq
+        catalog = self.app_root["catalog"]
+        appstructs = [{"id": "1",
+                       "sku": "sku1",
+                       "title": {"default": "title", "fr": u"titlé fr"}}]
+        item = utils.store(appstructs, models.Item, "items", self.request)[0]
+        assert item["url_slug"]["default"] == url_normalizer('title' + "-1")
+        assert item["url_slug"]["fr"] == url_normalizer(u'titlé fr') + "-1-fr"
+        results = catalog.query(Eq('title_url_slugs',\
+                                   url_normalizer(u'titlé fr') + "-1-fr"))[0]
+        assert(results == 1)
 
     def test_utils_store_entities_with_parent(self):
         from organicseeds_webshop_api import utils
@@ -268,13 +267,11 @@ class TestUtilsGetUrlSlug(IntegrationTestCase):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
         appstructs = [{"id": "cat1",
-                       "title": {"default": u"existingÜ", "fr": "titlé_fr"}}]
+                       "title": {"default": u"newü", "fr": "titlé_fr"}}]
         utils.store(appstructs, models.Category,
                     "categories", self.request)
-        slug = utils.get_url_slug(u"newÜ", u"_cat2_default", self.request)
-        assert slug == u'newu'
-        slug = utils.get_url_slug(u"existingÜ", u"_cat2_default", self.request)
-        assert slug == u'existingu_cat2_default'
+        slug = utils.get_url_slug("cat1", "categories", "default", self.request)
+        assert slug == u'newu-cat1'
 
 
 class TestUtilsSearch(IntegrationTestCase):

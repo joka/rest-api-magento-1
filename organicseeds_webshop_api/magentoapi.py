@@ -331,10 +331,8 @@ class Items(MagentoCatalogAPI):
         """
 
         name = get_translation(appstruct, "title", lang)
-        url_key = None
-        if name:
-            slug_identifier = u"_%s_%s" % (appstruct["id"], lang)
-            url_key = utils.get_url_slug(name, slug_identifier, self.request)
+        url_key = utils.get_url_slug(appstruct["id"], self.entity_data_key,
+                                     lang, self.request)
         data_tuples = [
             ("name", name),
             ("url_key", url_key),
@@ -425,10 +423,8 @@ class Categories(MagentoCatalogAPI):
            returns only StringTranslation values
         """
         name = get_translation(appstruct, "title", lang)
-        url_key = None
-        if name:
-            slug_identifier = u"_%s_%s" % (appstruct["id"], lang)
-            url_key = utils.get_url_slug(name, slug_identifier, self.request)
+        url_key = utils.get_url_slug(appstruct["id"], self.entity_data_key,
+                                     lang, self.request)
         data_tuples = [("name", name),
                        ("url_key", url_key),
                        ("short_description",

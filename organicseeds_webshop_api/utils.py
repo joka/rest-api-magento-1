@@ -31,6 +31,16 @@ def store(appstructs, itemtype, data_key, request):
         else:
             obj = folder[obj_id]
             obj.from_appstruct(appstruct)
+        # set url slugs
+        if not "url_slug" in obj:
+            obj["url_slug"] = {}
+        for lang in obj.get("title", {}):
+            title = obj["title"][lang]
+            id_ = "-" + obj["id"]
+            slug = url_normalizer.url_normalizer(title + id_)
+            if lang != "default":
+                slug += "-" + lang
+            obj["url_slug"][lang] = slug
         # catalog object
         obj_path = "%s/%s" % (data_key, obj_id)
         catalog_id = document_map.add(obj_path)
@@ -159,13 +169,11 @@ def get_entities_item_children(entities, request):
     return items_webshop_ids, items
 
 
-def get_url_slug(title, unique_suffix, request):
-    catalog = request.root.app_root["catalog"]
-    url_slug = url_normalizer.url_normalizer(title)
-    existing = catalog.query(Eq('title_url_slugs', url_slug))[0]
-    if existing >= 1:
-        url_slug += unique_suffix
-    return url_slug
+def get_url_slug(id_, entity_data_key, lang, request):
+    entities = request.root.app_root[entity_data_key]
+    entity = entities[id_]
+    slug = entity["url_slug"][lang]
+    return slug
 
 
 def search(request, operator="AND", **kwargs):
