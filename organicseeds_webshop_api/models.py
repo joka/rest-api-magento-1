@@ -181,7 +181,6 @@ class Item(Entity):
             data["unit_of_measure"] = self.unit_of_measure.to_data(lang)
         if self.quality:
             data["quality"] = _translate(self.quality, lang)
-        data["webshop_id"] = self.webshop_id
         return data
 
 
