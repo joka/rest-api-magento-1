@@ -197,9 +197,9 @@ class TestServicesSalesOrdersIntegration(MagentoTestdatabaseIntegrationTestCase)
 
     def test_orders_get(self):
         from organicseeds_webshop_api.services import orders_get
-        self.request.validated = {}
+        self.request.validated = {"status": "pending"}
         response = orders_get(self.request)
-        assert isinstance(response["orders"], list)
+        assert len(response["orders"]) == 1
 
     def test_orders_put(self):
         from organicseeds_webshop_api.services import orders_put

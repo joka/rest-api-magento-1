@@ -1191,6 +1191,18 @@ class OrdersList(colander.MappingSchema):
 
     orders = Orders()
 
+
+class OrdersGet(colander.MappingSchema):
+    """Get Orders data
+
+       * status: pending | processing | complete
+
+    """
+
+    status = String(validator=OneOf(["pending", "processing", "complete"]),
+                                    location="querystring")
+
+
 class OrderUpdate(colander.MappingSchema):
     """ Add comment or new Status to order.
 

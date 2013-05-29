@@ -345,14 +345,17 @@ orders = Service(name='orders',
                  description="Service to get order data")
 
 
-@orders.get(schema=schemata.OrdersList)
+@orders.get(schema=schemata.OrdersGet)
 def orders_get(request):
-    """Get order data
+    """Get orders data
+
+       querystring: OrdersGet schema
     """
+    status = request.validated.get("status")
     orders = []
     with magentoapi.SalesOrders(request) as proxy:
         try:
-            orders = proxy.list()
+            orders = proxy.list(status=status)
         except exceptions.WebshopAPIErrors as e:
             raise exceptions._500(msg=e.errors)
     return {"orders": orders}

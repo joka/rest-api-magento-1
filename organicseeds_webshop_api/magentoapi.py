@@ -476,9 +476,10 @@ class MagentoSalesAPI(MagentoAPI):
 
 class SalesOrders(MagentoSalesAPI):
 
-    def list(self):
+    def list(self, status="pending"):
         orders = []
-        orders_data = self.single_call("sales_order.list")
+        filters = {"status": status}
+        orders_data = self.single_call("sales_order.list", [filters])
         for order_data in orders_data:
             increment_id = order_data["increment_id"]
             order_data = self.single_call("sales_order.info", [increment_id])
@@ -489,7 +490,7 @@ class SalesOrders(MagentoSalesAPI):
     def add_comment(self, order_increment_id, status, comment=u"",
                     notify=False):
         resut = self.single_call('sales_order.addComment',
-                                  [order_increment_id, status, comment, notify])
+                                 [order_increment_id, status, comment, notify])
         return resut
 
 # TODO docu inventory status

@@ -487,6 +487,10 @@ class TestMagentoAPISalesOrderUnit(MagentoTestdatabaseIntegrationTestCase):
         result = self.salesorders_proxy.add_comment(increment_id, "pending")
         assert result
 
+    def test_magentoapi_salesorders_list(self):
+        result = self.salesorders_proxy.list(status="pending")
+        assert len(result) == 1
+
 
 TESTDATA_ORDER_GUEST_CUSTOMER = \
     {"adjustment_negative": None,
