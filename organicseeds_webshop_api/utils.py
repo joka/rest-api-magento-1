@@ -35,12 +35,7 @@ def store(appstructs, itemtype, data_key, request):
         if not "url_slug" in obj:
             obj["url_slug"] = {}
         for lang in obj.get("title", {}):
-            title = obj["title"][lang]
-            id_ = "-" + obj["id"]
-            slug = url_normalizer.url_normalizer(title + id_)
-            if lang != "default":
-                slug += "-" + lang
-            obj["url_slug"][lang] = slug
+            obj["url_slug"][lang] = get_url_slug(obj, lang)
         # catalog object
         obj_path = "%s/%s" % (data_key, obj_id)
         catalog_id = document_map.add(obj_path)
@@ -169,10 +164,16 @@ def get_entities_item_children(entities, request):
     return items_webshop_ids, items
 
 
-def get_url_slug(id_, entity_data_key, lang, request):
-    entities = request.root.app_root[entity_data_key]
-    entity = entities[id_]
-    slug = entity["url_slug"][lang]
+def get_url_slug(appstruct, lang):
+    id_ = "-" + str(appstruct["id"])
+    title_ = appstruct["title"]
+    slug = u""
+    if lang == "default" or lang not in title_:
+        title = appstruct["title"]["default"]
+        slug = url_normalizer.url_normalizer(title + id_)
+    else:
+        title = appstruct["title"][lang]
+        slug = url_normalizer.url_normalizer(title + id_ + "-" + lang)
     return slug
 
 
@@ -182,7 +183,7 @@ def search(request, operator="AND", **kwargs):
     connector = And if operator == "AND" else Or
     queries = []
     results = []
-    for k,v in kwargs.items():
+    for k, v in kwargs.items():
         queries.append(Eq(k, v))
     if queries:
         result_set = catalog.query(connector(*queries))[1]

@@ -35,7 +35,7 @@ class TestUtilsStoreEntitiesIntegration(IntegrationTestCase):
         item = utils.store(appstructs, models.Item, "items", self.request)[0]
         assert item["url_slug"]["default"] == url_normalizer('title' + "-1")
         assert item["url_slug"]["fr"] == url_normalizer(u'titlé fr') + "-1-fr"
-        results = catalog.query(Eq('title_url_slugs',\
+        results = catalog.query(Eq('title_url_slugs',
                                    url_normalizer(u'titlé fr') + "-1-fr"))[0]
         assert(results == 1)
 
@@ -265,13 +265,23 @@ class TestUtilsGetUrl(IntegrationTestCase):
 
     def test_utils_get_url_slug(self):
         from organicseeds_webshop_api import utils
-        from organicseeds_webshop_api import models
-        appstructs = [{"id": "cat1",
-                       "title": {"default": u"newü", "fr": "titlé_fr"}}]
-        utils.store(appstructs, models.Category,
-                    "categories", self.request)
-        slug = utils.get_url_slug("cat1", "categories", "default", self.request)
-        assert slug == u'newu-cat1'
+        appstruct = {"id": "cat1",
+                     "title": {"default": u"testü.txt",
+                               "fr": "titlé_fr",
+                               "to_long": u"ddddddddddddddddddddddddddddddd"
+                                          u"ddi ?dddddddddddddddddddddddddd"
+                                          u"ddddddddddddddddddddddddddddddd"
+                                          u"ddddddddddddddddddddddddddddddd"
+                                          u"ddddddddddddddddddddddddddddddd"
+                                          u"ddddddddddddddddddddddddddddddd"
+                                          u"ddddddddddddddddddddddddddddddd"
+                                          u"ddddddddddddddddddddddddddddddd"
+                                          u"ddddddddddddddddddddddddddd.txt",
+                               }}
+        assert u'newu-cat1' == utils.get_url_slug(appstruct, "default")
+        assert u'newu-cat1' == utils.get_url_slug(appstruct, "wrong_lang")
+        assert u'titla-c-_fr-cat1-fr' == utils.get_url_slug(appstruct, "fr")
+        assert 34 == len(utils.get_url_slug(appstruct, "to_long"))
 
 
 class TestUtilsSearch(IntegrationTestCase):

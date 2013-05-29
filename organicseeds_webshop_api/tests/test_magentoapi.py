@@ -182,12 +182,12 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         data = proxy._to_update_shops_data(appstruct, "fr", "ch")
         assert data == {'name': 'titlefr',
                         'short_description': 'dscription',
-                        'url_key': u'titlefr',
+                        'url_key': u'titlefr-itemka32-fr',
                         'price': 2.0}
         data = proxy._to_update_shops_data(appstruct, "default", "default")
         assert data == {'name': 'title',
                         'short_description': 'kurzbeschreibung',
-                        'url_key': u'title',
+                        'url_key': u'title-itemka32',
                         'description': 'Ausfuehrliche Beschreibung'
                         }
 
@@ -195,7 +195,7 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         appstruct = self.testdata["items"][0]
         data = self.items_proxy._to_update_data(appstruct)
         assert ('weight', 0.25) in data.items()
-        assert ('url_key', u'title') in data.items()
+        assert ('url_key', u'title-itemka32') in data.items()
         assert ('tier_price', [{'customer_group_id': 0,
                                 'website': 'de_website',
                                 'qty': 100, 'price': 4.20}]) in data.items()
@@ -219,7 +219,7 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         appstruct = self.testdata["items"][0]
         webshop_id = proxy.create([appstruct])[0]
         result = proxy.single_call('catalog_product.info', [webshop_id])
-        assert result["websites"] == ['2', '3', '5']
+        assert result["websites"] == ['2', '3', '4']
         assert result["price"] is None
         assert result["status"] == '1'
         assert len(result["tier_price"]) == 1
@@ -227,7 +227,7 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         assert result['webshopapi_type'] == appstruct["__type__"]
         result = proxy.single_call("cataloginventory_stock_item.list",
                                    [webshop_id])[0]
-        assert result['is_in_stock'] is True
+        assert result['is_in_stock'] == '1'
         assert result['qty'] == '5.0000'
 
     def test_magentoapi_link_item_with_item_group_parents(self):
