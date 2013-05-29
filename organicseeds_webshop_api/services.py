@@ -393,9 +393,7 @@ item = Service(name='item',
 def item_get(request):
     """Get item data
 
-       url param :
-
-       * lang: language # default = "default"
+       querystring: ItemGet schema
     """
 
     item_id = request.validated["id"]
@@ -424,14 +422,12 @@ item_group = Service(name='item_group',
 def item_group_get(request):
     """Get item_group data
 
-       url parameters :
-
-       * lang: language # default = "default"
+       querystring: ItemGroupGet schema
     """
 
     item_group_id = request.validated["id"]
     lang = request.validated["lang"]
-    with_children =  request.validated["with_children"]
+    with_children = request.validated["with_children"]
     children_shop_id = request.validated["children_shop_id"]
     try:
         item_group = request.root.app_root["item_groups"][item_group_id]
@@ -447,29 +443,30 @@ def item_group_get(request):
 #################################
 
 search_ = Service(name='search',
-                        path='/search',
-                        description="Service to search for"\
-                                    "entities")
+                  path='/search',
+                  description="Service to search for entities")
 
 
 @search_.get(validators=validators.validate_search_parameters)
 def search_get(request):
     """Search for itemgroups
 
-       url parameters :
+       querystring:
 
        * lang: language # default = "default"
 
        * operator: "AND" | "OR", default "AND"
 
-       * multiple search key/value pairs, allowed search keys are: "shop_id" | "parent_id" | ...
+       * multiple search key/value pairs,
+         allowed search keys are: "shop_id" | "parent_id" | ...
 
     """
     lang = request.validated.pop("lang")
     operator = request.validated.pop("operator")
     search_parameters = request.validated
     result = []
-    search_result = utils.search(request, operator=operator, **search_parameters)
+    search_result = utils.search(request, operator=operator,
+                                 **search_parameters)
     for entity in search_result:
         entity_data = entity.to_data(lang=lang)
         result.append(entity_data)
