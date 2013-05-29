@@ -10,7 +10,7 @@ Setup
     >>> import pytest
     >>> from webtest import TestApp, AppError
     >>> from organicseeds_webshop_api import main
-    >>> from organicseeds_webshop_api.testing import get_file, testconfig
+    >>> from organicseeds_webshop_api.testing import get_file, testconfig, reset_database_without_testdata
     >>> app = TestApp(main(testconfig()))
 
 We also need some dictionaries to post test data::
@@ -23,9 +23,7 @@ We also need some dictionaries to post test data::
 
 And should start with an empty database::
 
-    >>> sink = app.delete_json('/categories', {})
-    >>> sink = app.delete_json('/item_groups', {})
-    >>> sink = app.delete_json('/items', {})
+    >>> reset_database_without_testdata()
 
 
 Add Items, ItemGroups, and Categories

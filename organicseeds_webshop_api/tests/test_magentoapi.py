@@ -52,17 +52,6 @@ class TestMagentoCatalogAPIHelpersIntegration(unittest.TestCase):
         appstruct = {}
         assert magentoapi.get_storeviews(appstruct) == []
 
-    def test_magentoapi_get_websites_ids_multiple(self):
-        from organicseeds_webshop_api import magentoapi
-        appstruct = {"id": "testitem",
-                     "shops": [("ch_hobby", True), ("ch_profi", True),
-                               ("fr_hobby", True),
-                               ("fr_profi", False),
-                               ("de_hobby", False)
-                               ]}
-        assert magentoapi.get_website_ids(appstruct) == \
-            [u"ch_website", u"fr_website"]
-
     def test_magentoapi_get_all_website_ids(self):
         from organicseeds_webshop_api import magentoapi
         websites = magentoapi.get_all_website_ids()

@@ -16,6 +16,16 @@ def reset_database_with_testdata():
     subprocess.check_output(["scripts/reset_database_with_testdata.sh"])
 
 
+def reset_database_without_testdata():
+    import subprocess
+    import os.path
+    import organicseeds_webshop_api
+    module_path = organicseeds_webshop_api.__path__[0]
+    buildout_path = os.path.join(module_path, "../", "../", "../")
+    os.chdir(buildout_path)
+    subprocess.check_output(["scripts/reset_database_without_testdata.sh"])
+
+
 def create_category(appstruct, request, categoriesproxy=None):
     from organicseeds_webshop_api.models import Category
     cat = Category()
@@ -159,9 +169,13 @@ class IntegrationTestCase(unittest.TestCase):
 
 class MagentoIntegrationTestCase(IntegrationTestCase):
 
+    def reset_database(self):
+        reset_database_without_testdata()
+
     def setUp(self):
-        super(MagentoIntegrationTestCase, self).setUp()
         from organicseeds_webshop_api import magentoapi
+        self.reset_database()
+        super(MagentoIntegrationTestCase, self).setUp()
         items_proxy = magentoapi.Items(self.request)
         items_proxy.__enter__()
         item_groups_proxy = magentoapi.ItemGroups(self.request)
@@ -179,25 +193,14 @@ class MagentoIntegrationTestCase(IntegrationTestCase):
         self.salesorders_proxy = salesorders_proxy
 
     def tearDown(self):
-        from xmlrpclib import Fault
-        try:
-            self.items_proxy.delete_all()
-            self.item_groups_proxy.delete_all()
-            self.categories_proxy.delete_all()
-        except Fault:
-            pass
         self.items_proxy.__exit__(None, None, None)
         super(MagentoIntegrationTestCase, self).tearDown()
 
 
 class MagentoTestdatabaseIntegrationTestCase(MagentoIntegrationTestCase):
 
-    def setUp(self):
+    def reset_database(self):
         reset_database_with_testdata()
-        super(MagentoTestdatabaseIntegrationTestCase, self).setUp()
-
-    def tearDown(self):
-        pass
 
 
 class FunctionalTestCase(unittest.TestCase):

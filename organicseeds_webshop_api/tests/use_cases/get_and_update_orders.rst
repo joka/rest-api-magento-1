@@ -5,9 +5,9 @@ Setup
 -----
 ::
 
-    >>> magento_url = "http://hobby.developlocal.sativa.jokasis.de/"
-    >>> from splinter import Browser
-    >>> browser = Browser(wait_time=5)
+..    >>> magento_url = "http://hobby.developlocal.sativa.jokasis.de/"
+..    >>> from splinter import Browser
+..    >>> browser = Browser(wait_time=5)
 
     >>> import yaml
     >>> import pytest
@@ -74,7 +74,24 @@ We start with a fresh database and testdata items/groups/categories::
 Get Orders:
 -----------
 
-Every checkout creates an new order. We can list all oder information::
+Every checkout creates an new order with status "pending". We can list all new orders:
 
-    >>> app.get('/orders')
-    <200 OK application/json body=...
+    >>> app.get('/orders', {"status": "pending"})
+    <200 OK application/json body='{"orders"...0}]...
+
+Now we can invoice and  capture the online payment
+
+
+The order is now in state "processing" is not listet anymore.
+
+    ..>>> app.get('/orders', {"status", "processing"})
+    ..<200 OK application/json body=...
+
+
+..If all is payed we add shipping information
+
+
+..The order is now in state "complete"
+
+    ..>>> app.get('/orders', {"status", "complete"})
+    ..<200 OK application/json body=...

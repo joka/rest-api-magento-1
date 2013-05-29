@@ -9,10 +9,10 @@ Setup
     >>> import pytest
     >>> from webtest import TestApp, AppError
     >>> from organicseeds_webshop_api import main
-    >>> from organicseeds_webshop_api.testing import get_file, testconfig
+    >>> from organicseeds_webshop_api.testing import get_file, testconfig, reset_database_without_testdata
     >>> app = TestApp(main(testconfig()))
 
-We also need some dictionaries to post test data::
+We need some dictionaries with test data::
 
     >>> itemstestdata = yaml.load(get_file("/testdata/items_post.yaml"))
     >>> categoriestestdata = yaml.load(get_file("/testdata/categories_post.yaml"))
@@ -20,19 +20,17 @@ We also need some dictionaries to post test data::
     >>> unitofmeasurestestdata = yaml.load(get_file("/testdata/unit_of_measures_post.yaml"))
     >>> vpestestdata = yaml.load(get_file("/testdata/vpe_types_post.yaml"))
 
-a clean database::
+so we can populate the webshop api and magento database::
 
-    >>> sink = app.delete_json('/categories', {})
-    >>> sink = app.delete_json('/item_groups', {})
-    >>> sink = app.delete_json('/items', {})
-
-and add some Items::
+    >>> reset_database_without_testdata()
 
     >>> sink = app.post_json('/categories', categoriestestdata)
     >>> sink = app.post_json('/item_groups', itemgroupstestdata)
     >>> sink = app.post_json('/vpe_types', vpestestdata)
     >>> sink = app.post_json('/unit_of_measures', unitofmeasurestestdata)
     >>> sink = app.post_json('/items', itemstestdata)
+
+TODO: sync magento ids: webshopapi <- magento database
 
 
 Update Items:
