@@ -801,8 +801,6 @@ class ItemGroupsList(colander.MappingSchema):
     save_in_webshop = Bool(default=False, missing=False, required=False)
 
 
-
-
 class ItemGroupGet(colander.MappingSchema):
     """Get Webshop ItemGroup entity data
 
@@ -811,8 +809,8 @@ class ItemGroupGet(colander.MappingSchema):
        * id: Identifier # Item id
 
        * with_children: Bool # default False
-                    # adds the following fields to data:
-                    # "children_vpe_types", "children_qualities", "children_grouped"
+               # adds the following fields to data:
+               # "children_vpe_types", "children_qualities", "children_grouped"
 
        * children_shop_id: String # default disabled ("")
                     # only add children enabled in this shop

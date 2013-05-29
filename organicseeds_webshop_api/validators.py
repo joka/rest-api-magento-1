@@ -324,7 +324,7 @@ def validate_item_unit_of_measure_id(request):
 
 
 def validate_search_parameters(request):
-    parameters =  request.GET
+    parameters = request.GET
     request.validated = {}
     catalog = request.root.app_root["catalog"]
     allowed_search_keywords = catalog.keys() + ["lang", "operator"]

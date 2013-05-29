@@ -157,7 +157,7 @@ class ItemGroup(Entity):
             data = _translate(data, lang)
         children = deepcopy(self.__children__)
         if children_shop_id:
-            children = [x for x in children \
+            children = [x for x in children
                         if (children_shop_id, True) in x["shops"]
                         or [children_shop_id, True] in x["shops"]]
         if with_children:
