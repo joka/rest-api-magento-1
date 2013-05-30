@@ -480,16 +480,73 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
         assert results == [category.webshop_id]
 
 
-class TestMagentoAPISalesOrderUnit(MagentoTestdatabaseIntegrationTestCase):
+class TestMagentoAPISalesOrder(MagentoTestdatabaseIntegrationTestCase):
 
-    def test_magentoapi_salesorders_add_comment(self):
-        increment_id = 200000001
-        result = self.salesorders_proxy.add_comment(increment_id, "pending")
-        assert result
+    def test_magentoapi_salesorder_can_capture_false(self):
+        assert self.salesinvoices_proxy.order_can_capture(200000001) == False
+
+    def test_magentoapi_salesorders_order_add_comment(self):
+        appstruct = {"order_increment_id": 200000001,
+                     "status": "processing",
+                     "comment": "Note",
+                     "notify": True,}
+        result = self.salesorders_proxy.order_add_comment([appstruct])
+        assert result == [True]
+        result = self.salesorders_proxy.single_call("sales_order.info",
+                                                    [200000001])
+        assert result["status"] == "processing"
 
     def test_magentoapi_salesorders_list(self):
         result = self.salesorders_proxy.list(status="pending")
-        assert len(result) == 1
+        assert len(result) > 1
+
+
+class TestMagentoAPISalesInvoice(MagentoTestdatabaseIntegrationTestCase):
+
+
+    def test_magentoapi_salesinvoices_create_arguments(self):
+        appstruct = {"order_increment_id": 200000001,
+                     "comment": "Invoice comment",
+                     "order_item_qtys": [{"order_item_id": 1,
+                                          "qty": 10.0000}],
+                     "notify": True}
+        wanted = [200000001, {'1': 10.0}, 'Invoice comment', True, True]
+        result = self.salesinvoices_proxy._create_arguments(appstruct)
+        assert wanted == result
+
+    def test_magentoapi_salesinvoices_create(self):
+        appstructs = [{"order_increment_id": 200000001,
+                       "comment": "Invoice comment",
+                       "order_item_qtys": [{"order_item_id": 1,
+                                            "qty": 1.0}],
+                       "notify": True}]
+        result = self.salesinvoices_proxy.create(appstructs)
+        assert result == [200000001]
+
+        result = self.salesorders_proxy.single_call("sales_order.info",
+                                                    [200000001])
+        assert result["items"][0]['qty_invoiced'] == '1.0000'
+        assert result["items"][0]['item_id'] == '1'
+        assert result["status"] == "pending"
+
+    def test_magentoapi_salesinvoices_create_wrong_item_ids(self):
+        appstructs = [{"order_increment_id": 200000001,
+                       "comment": "Invoice comment",
+                       "order_item_qtys": [{"order_item_id": 0,
+                                            "qty": 1.0}],
+                       "notify": True}]
+        result = self.salesinvoices_proxy.create(appstructs)
+        assert result == [200000001]
+
+    def test_magentoapi_sales_invoice_capture_offline_payment(self):
+        appstructs = [{"order_increment_id": 200000001,
+                       "order_item_qtys": [{"order_item_id": 1,
+                                            "qty": 1.0}],
+                       "comment": "", "notify": False
+                       }]
+        self.salesinvoices_proxy.create(appstructs)
+        result = self.salesinvoices_proxy.capture(200000001)
+        assert result == True
 
 
 TESTDATA_ORDER_GUEST_CUSTOMER = \
@@ -882,6 +939,90 @@ TESTDATA_ORDER_GUEST_CUSTOMER = \
      'weight': '2.5000',
      'x_forwarded_for': '127.0.0.1'}
 
+TESTDATA_ORDER_GUEST_PAYMENT_APPROVED = \
+    {'account_status': None,
+     'additional_data': None,
+     'additional_information': [],
+     'address_status': None,
+     'amount_authorized': '7.5600',
+     'amount_canceled': None,
+     'amount_ordered': '7.5600',
+     'amount_paid': None,
+     'amount_refunded': None,
+     'anet_trans_method': None,
+     'base_amount_authorized': '7.5600',
+     'base_amount_canceled': None,
+     'base_amount_ordered': '7.5600',
+     'base_amount_paid': None,
+     'base_amount_paid_online': None,
+     'base_amount_refunded': None,
+     'base_amount_refunded_online': None,
+     'base_shipping_amount': '5.0000',
+     'base_shipping_captured': None,
+     'base_shipping_refunded': None,
+     'cc_approval': None,
+     'cc_avs_status': None,
+     'cc_cid_status': None,
+     'cc_debug_request_body': None,
+     'cc_debug_response_body': None,
+     'cc_debug_response_serialized': None,
+     'cc_exp_month': '1',
+     'cc_exp_year': '2016',
+     'cc_last4': None,
+     'cc_number_enc': '411113xxxxxx1111',
+     'cc_owner': 'test test',
+     'cc_secure_verify': None,
+     'cc_ss_issue': None,
+     'cc_ss_start_month': '0',
+     'cc_ss_start_year': '0',
+     'cc_status': None,
+     'cc_status_description': None,
+     'cc_trans_id': None,
+     'cc_type': 'V',
+     'debit_iban': None,
+     'debit_swift': None,
+     'debit_type': None,
+     'echeck_account_name': None,
+     'echeck_account_type': None,
+     'echeck_bank_name': None,
+     'echeck_routing_number': None,
+     'echeck_type': None,
+     'last_trans_id': '108348291',
+     'method': 'payone_creditcard',
+     'parent_id': '2',
+     'paybox_request_number': None,
+    'payment_id': '2',
+    'payone_account_number': '0',
+    'payone_account_owner': '0',
+    'payone_bank_code': '0',
+    'payone_bank_country': '',
+    'payone_bank_group': '',
+    'payone_clearing_bank_account': '',
+    'payone_clearing_bank_accountholder': '',
+    'payone_clearing_bank_bic': '',
+    'payone_clearing_bank_city': '',
+    'payone_clearing_bank_code': '0',
+    'payone_clearing_bank_country': '',
+    'payone_clearing_bank_iban': '',
+    'payone_clearing_bank_name': '',
+    'payone_clearing_duedate': '',
+    'payone_clearing_instructionnote': '',
+    'payone_clearing_legalnote': '',
+    'payone_clearing_reference': '',
+    'payone_config_payment_method_id': '3',
+    'payone_financing_type': '',
+    'payone_onlinebanktransfer_type': '',
+    'payone_payment_method_name': '',
+    'payone_payment_method_type': '',
+    'payone_pseudocardpan': '4100000055203583',
+    'payone_safe_invoice_type': '',
+    'po_number': None,
+    'protection_eligibility': None,
+    'quote_payment_id': None,
+    'shipping_amount': '5.0000',
+    'shipping_captured': None,
+    'shipping_refunded': None}
+
 
 TESTDATA_ORDER_GUEST_CUSTOMER_EXPECTED = \
     {'billing_address': {'city': u'Z\xfcrich',
@@ -931,7 +1072,7 @@ TESTDATA_ORDER_GUEST_CUSTOMER_EXPECTED = \
                 'title': u'titlede',
                 'weight': Decimal('0.2500')}],
      'order_currency_code': u'CHF',
-     'order_increment_id': 1,
+     'order_increment_id': 200000001,
      'payment_id': 4,
      'payment_method': u'',
      'payone_account_number': 0,

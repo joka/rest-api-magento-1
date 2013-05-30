@@ -16,6 +16,16 @@ def reset_database_with_testdata():
     subprocess.check_output(["scripts/reset_database_with_testdata.sh"])
 
 
+def store_database_with_testdata():
+    import subprocess
+    import os.path
+    import organicseeds_webshop_api
+    module_path = organicseeds_webshop_api.__path__[0]
+    buildout_path = os.path.join(module_path, "../", "../", "../")
+    os.chdir(buildout_path)
+    subprocess.check_output(["scripts/store_database_with_testdata.sh"])
+
+
 def reset_database_without_testdata():
     import subprocess
     import os.path
@@ -181,16 +191,20 @@ class MagentoIntegrationTestCase(IntegrationTestCase):
         item_groups_proxy = magentoapi.ItemGroups(self.request)
         categories_proxy = magentoapi.Categories(self.request)
         salesorders_proxy = magentoapi.SalesOrders(self.request)
+        salesinvoices_proxy = magentoapi.SalesInvoices(self.request)
         item_groups_proxy.client = items_proxy.client
         item_groups_proxy.session = items_proxy.session
         categories_proxy.client = items_proxy.client
         categories_proxy.session = items_proxy.session
         salesorders_proxy.client = items_proxy.client
         salesorders_proxy.session = items_proxy.session
+        salesinvoices_proxy.client = items_proxy.client
+        salesinvoices_proxy.session = items_proxy.session
         self.items_proxy = items_proxy
         self.item_groups_proxy = item_groups_proxy
         self.categories_proxy = categories_proxy
         self.salesorders_proxy = salesorders_proxy
+        self.salesinvoices_proxy = salesinvoices_proxy
 
     def tearDown(self):
         self.items_proxy.__exit__(None, None, None)

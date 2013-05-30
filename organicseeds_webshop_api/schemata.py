@@ -1,4 +1,13 @@
 # -*- coding: utf-8 -*-
+# TODO
+#validate gewicht 0.0001
+#validate price:
+#vat nnumber zu addresse
+#alternativ sorte
+#wiederverkuafpreis
+#lieferdauer
+
+
 # vim: set ts=4 sw=4:
 import decimal
 import colander
@@ -1066,7 +1075,7 @@ class OrderItem(colander.MappingSchema):
     qty_invoice = Decimal(missing=decimal.Decimal(0))
     qty_backordered = Decimal(missing=decimal.Decimal(0))
     qty_shipped = Decimal(missing=decimal.Decimal(0))
-    qty_ordered = Decimal()
+    qty_ordered = Decimal()  # TODO better Float..
     weight = Decimal()
     tax_amount = Decimal(missing=decimal.Decimal(0))
     tax_percent = Decimal(missing=decimal.Decimal(0))
@@ -1152,34 +1161,56 @@ class Order(colander.MappingSchema):
 
     # Payment
     payment_id = IntegerGtNull()
+    #payment_last_trans_id
+
+    #method
     payment_method = Identifier(missing=u"")  # TODO define payment methods
-    payone_dunning_status = String(missing=u"")
     payone_payment_method_type = String(missing=u"")
+     #APPROVED / REDIRECT / ERROR
+
     payone_transaction_status = String(missing=u"")
-    payone_account_number = IntegerGtEqNull()
-    payone_account_owner = IntegerGtEqNull()
-    payone_bank_code = IntegerGtEqNull()
-    payone_bank_country = String(missing=u"")
-    payone_bank_group = String(missing=u"")
-    payone_clearing_bank_account = String(missing=u"")
-    payone_clearing_bank_accountholder = String(missing=u"")
-    payone_clearing_bank_bic = String(missing=u"")
-    payone_clearing_bank_city = String(missing=u"")
-    payone_clearing_bank_code = IntegerGtEqNull()
-    payone_clearing_bank_country = String(missing=u"")
-    payone_clearing_bank_iban = String(missing=u"")
-    payone_clearing_bank_name = String(missing=u"")
-    payone_clearing_duedate = String(missing=u"")
-    payone_clearing_instructionnote = String(missing=u"")
-    payone_clearing_legalnote = String(missing=u"")
-    payone_clearing_reference = String(missing=u"")
-    payone_config_payment_method_id = IntegerGtEqNull()
-    payone_financing_type = String(missing=u"")
-    payone_onlinebanktransfer_type = String(missing=u"")
-    payone_payment_method_name = String(missing=u"")
-    payone_payment_method_type = String(missing=u"")
-    payone_pseudocardpan = String(missing=u"")
-    payone_safe_invoice_type = String(missing=u"")
+    # approved, error,redirected
+
+     #'amount_authorized': '7.5600',
+     #'amount_canceled': None,
+     #'amount_ordered': '7.5600',
+     #'amount_paid': None,
+     #'amount_refunded': None,
+
+    #'debit_iban': None,
+    #'debit_swift': None,
+    #'debit_type': None,
+
+    #'cc_exp_month': '1',
+    #'cc_exp_year': '2016',
+    #'cc_last4': None,
+    #'cc_number_enc': '411113xxxxxx1111',
+
+    #payone_dunning_status = String(missing=u"")
+    #payone_account_number = IntegerGtEqNull()
+    #payone_account_owner = IntegerGtEqNull()
+    #payone_bank_code = IntegerGtEqNull()
+    #payone_bank_country = String(missing=u"")
+    #payone_bank_group = String(missing=u"")
+    #payone_clearing_bank_account = String(missing=u"")
+    #payone_clearing_bank_accountholder = String(missing=u"")
+    #payone_clearing_bank_bic = String(missing=u"")
+    #payone_clearing_bank_city = String(missing=u"")
+    #payone_clearing_bank_code = IntegerGtEqNull()
+    #payone_clearing_bank_country = String(missing=u"")
+    #payone_clearing_bank_iban = String(missing=u"")
+    #payone_clearing_bank_name = String(missing=u"")
+    #payone_clearing_duedate = String(missing=u"")
+    #payone_clearing_instructionnote = String(missing=u"")
+    #payone_clearing_legalnote = String(missing=u"")
+    #payone_clearing_reference = String(missing=u"")
+    #payone_config_payment_method_id = IntegerGtEqNull()
+    #payone_financing_type = String(missing=u"")
+    #payone_onlinebanktransfer_type = String(missing=u"")
+    #payone_payment_method_name = String(missing=u"")
+    #payone_payment_method_type = String(missing=u"")
+    #payone_pseudocardpan = String(missing=u"")
+    #payone_safe_invoice_type = String(missing=u"")
 
 
 class Orders(colander.SequenceSchema):
@@ -1200,7 +1231,7 @@ class OrdersGet(colander.MappingSchema):
     """
 
     status = String(validator=OneOf(["pending", "processing", "complete"]),
-                                    location="querystring")
+                    location="querystring")
 
 
 class OrderUpdate(colander.MappingSchema):
@@ -1234,3 +1265,66 @@ class OrderUpdates(colander.SequenceSchema):
 class OrderUpdatesList(colander.MappingSchema):
 
     orders = OrderUpdates()
+
+
+#############
+#  Invoice  #
+#############
+
+
+class OrderItemQty(colander.MappingSchema):
+
+    order_item_id = IntegerGtNull()
+    qty = Float()
+
+
+class OrderItemQtys(colander.SequenceSchema):
+
+    orderitemqty = OrderItemQty()
+
+
+class Invoice(colander.MappingSchema):
+    """Invoice of OrderItems
+
+       See source code for details.
+       #TODO error docu
+       OrderItemQty muss gesammte Order umfassen, solange Teilcapture nicht
+       aktiviert ist bei payone
+    """
+
+    order_increment_id = IntegerGtNull()
+    order_item_qtys = OrderItemQtys()
+    capture_online_payment = Bool(default=True, missing=True)
+    comment = String(default=u"", missing=u"", required=False)
+    notify = Bool(default=True, missing=True, required=False)
+
+
+class Invoices(colander.SequenceSchema):
+
+    invoice = Invoice()
+
+
+class InvoicesList(colander.MappingSchema):
+
+    invoices = Invoices()
+
+
+class InvoiceResult(colander.MappingSchema):
+
+    order_increment_id = IntegerGtNull()
+    invoice_increment_id = IntegerGtNull(default=None, missing=None)
+    capture_status = String(default="no_capture", missing="no_capture",
+                            validator=OneOf(["no_capture",
+                                             "captured",
+                                             "error"]))
+    capture_error = String(default=u"", missing=u"")
+
+
+class InvoiceResults(colander.SequenceSchema):
+
+    invoice_results = InvoiceResult()
+
+
+class InvoiceResultsList(colander.SequenceSchema):
+
+    invoice_results = InvoiceResults(default=[], missing=[])

@@ -4,6 +4,7 @@
 
 #from pyramid.security import Everyone, Authenticated, Allow
 from cornice import Service
+from xmlrpclib import Fault
 
 from organicseeds_webshop_api import exceptions
 from organicseeds_webshop_api import schemata
@@ -367,15 +368,59 @@ def orders_put(request):
     """
     appstructs = request.validated["orders"]
     with magentoapi.SalesOrders(request) as proxy:
-        for appstruct in appstructs:
-            try:
-                proxy.add_comment(appstruct["order_increment_id"],
-                                  appstruct["status"],
-                                  appstruct["comment"],
-                                  appstruct["notify"])
-            except exceptions.WebshopAPIErrors as e:
-                raise exceptions._500(msg=e.errors)
+        try:
+            proxy.order_add_comment(appstructs)
+        except exceptions.WebshopAPIErrors as e:
+            raise exceptions._500(msg=e.errors)
     return {"status": "succeeded"}
+
+
+#########################
+# /invoices service     #
+#########################
+
+
+invoices = Service(name='invoices',
+                 path='/invoices',
+                 description="Service to create and catpure invoices")
+
+
+
+@invoices.put(schema=schemata.InvoicesList)
+def invoices_put(request):
+    """Add and capture invoices
+    """
+    appstructs = request.validated["invoices"]
+    results = []
+    with magentoapi.SalesInvoices(request) as proxy:
+        try:
+            # create invoices
+            invoice_ids = proxy.create(appstructs)
+            for i, appstruct in zip(invoice_ids, appstructs):
+                # create result data
+                result = schemata.InvoiceResult().serialize()
+                result["invoice_increment_id"] = i
+                order_id = appstruct["order_increment_id"]
+                result["order_increment_id"] = order_id
+                # change order state to processing
+                appstruct_comment = {"order_increment_id": order_id,
+                                     "status": "processing"}
+                proxy.order_add_comment([appstruct_comment])
+                # capture invoice if possible
+                try:
+                    can_capture = appstruct["capture_online_payment"]\
+                        and proxy.order_can_capture(order_id)
+                    if can_capture:
+                        captured = proxy.capture(i)
+                        appstruct["capture_status"] = "captured" if captured else "no-capture"
+                except Fault as e:
+                    appstruct["capture_status"] = "error"
+                    appstruct["capture_error"] = str(e)
+                results.append(result)
+        except exceptions.WebshopAPIErrors as e:
+            raise exceptions._500(msg=e.errors)
+    return {"invoice_results": results}
+
 
 
 #######################

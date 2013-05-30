@@ -152,7 +152,6 @@ class TestServicesItemIntegration(IntegrationTestCase):
         assert response["vpe_type"] == vpe.to_data("default")
         assert response["unit_of_measure"] == unit.to_data("default")
         assert response["quality"] == group["qualities"][0]
-        assert response["webshop_id"] == group.webshop_id
 
     def test_item_get_missing(self):
         from organicseeds_webshop_api.services import item_get
@@ -199,7 +198,7 @@ class TestServicesSalesOrdersIntegration(MagentoTestdatabaseIntegrationTestCase)
         from organicseeds_webshop_api.services import orders_get
         self.request.validated = {"status": "pending"}
         response = orders_get(self.request)
-        assert len(response["orders"]) == 1
+        assert len(response["orders"]) > 1
 
     def test_orders_put(self):
         from organicseeds_webshop_api.services import orders_put
@@ -211,6 +210,30 @@ class TestServicesSalesOrdersIntegration(MagentoTestdatabaseIntegrationTestCase)
         self.request.validated = {"orders": [appstruct]}
         response = orders_put(self.request)
         assert(response == {'status': 'succeeded'})
+
+
+class TestServicesSalesInvoicesIntegration(MagentoTestdatabaseIntegrationTestCase):
+
+    def test_invoices_put_no_capture(self):
+        from organicseeds_webshop_api.services import invoices_put
+        appstruct = {"order_increment_id": 200000001,
+                     "order_item_qtys": [{"order_item_id": 1,
+                                          "qty": 1.0}],
+                     "capture_online_payment": False,
+                     "comment": "Custom Note",
+                     "notify": True,
+                     }
+        self.request.validated = {"invoices": [appstruct]}
+        result = invoices_put(self.request)
+        assert result == {'invoice_results': [{'capture_error': u'',
+                          'capture_status': u'no_capture',
+                          'invoice_increment_id': 200000001,
+                          'order_increment_id': 200000001,
+                          }]}
+
+        result = self.salesorders_proxy.single_call("sales_order.info",
+                                                    [200000001])
+        assert result["status"] == "processing"
 
 
 class TestServicesSearchIntegration(IntegrationTestCase):

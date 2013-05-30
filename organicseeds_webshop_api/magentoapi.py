@@ -442,7 +442,7 @@ def order_data_to_appstruct(data):
     data["website"] = data["store_name"].splitlines()[0]
     data["shop"] = data["store_name"].splitlines()[1]
     data["customer_is_guest"] = bool(int(data["customer_is_guest"]))
-    data["order_increment_id"] = bool(int(data["increment_id"]))
+    data["order_increment_id"] = int(data["increment_id"])
     for item in data["items"]:
         item["title"] = item["name"]
         item["free_shipping"] = bool(int(item["free_shipping"]))
@@ -461,17 +461,30 @@ class MagentoSalesAPI(MagentoAPI):
     magento_method = u""
     colander_schema = None
 
-    def create(self, appstructs):
-        """to be implemented in subclass"""
-        pass
 
     def list(self):
         """to be implemented in subclass"""
         pass
 
-    def update(self, appstructs):
-        """to be implemented in subclass"""
-        pass
+    def order_add_comment(self, appstructs):
+        calls = []
+        for appstruct in appstructs:
+            order_id = appstruct["order_increment_id"]
+            status = appstruct["status"]
+            comment= appstruct.get("comment", u"")
+            email = int(appstruct.get("notify", False))
+            include_comment = 1
+            calls.append(['sales_order.addComment',
+                          [order_id, status, comment, email, include_comment]])
+        return [bool(x) for x in self.multi_call(calls)]
+
+    def order_can_capture(self, order_id):
+        can_capture = False
+        order_data = self.single_call("sales_order.info", [order_id])
+        tx_status = order_data.get('payone_transaction_status', '')
+        if "APPROVED" in tx_status:
+            can_capture = True
+        return can_capture
 
 
 class SalesOrders(MagentoSalesAPI):
@@ -487,10 +500,38 @@ class SalesOrders(MagentoSalesAPI):
             orders.append(order)
         return orders
 
-    def add_comment(self, order_increment_id, status, comment=u"",
-                    notify=False):
-        resut = self.single_call('sales_order.addComment',
-                                 [order_increment_id, status, comment, notify])
-        return resut
+
+
+class SalesInvoices(MagentoSalesAPI):
+
+    magento_method = u"sales_order_invoice."
+
+    def create(self, appstructs):
+        calls = []
+        for appstruct in appstructs:
+            # create invoice
+            calls.append([self.magento_method + 'create',
+                          self._create_arguments(appstruct)])
+        invoice_ids = [int(x) for x in self.multi_call(calls)]
+        return invoice_ids
+
+    def _create_arguments(self, appstruct):
+        order_increment_id = appstruct["order_increment_id"]
+        comment = appstruct["comment"]
+        email = int(appstruct["notify"])
+        include_comment = 1
+        items_qty = {}
+        for i in appstruct["order_item_qtys"]:
+            order_item_id = str(i["order_item_id"])
+            qty = float(i["qty"])
+            items_qty[order_item_id] = qty
+        return [order_increment_id, items_qty, comment, email, include_comment]
+
+
+    def capture(self, invoice_id):
+        return bool(self.single_call(self.magento_method + "capture",
+                                     [invoice_id]))
+
+
 
 # TODO docu inventory status
