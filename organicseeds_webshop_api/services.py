@@ -4,7 +4,6 @@
 
 #from pyramid.security import Everyone, Authenticated, Allow
 from cornice import Service
-from xmlrpclib import Fault
 
 from organicseeds_webshop_api import exceptions
 from organicseeds_webshop_api import schemata
@@ -53,9 +52,9 @@ def categories_post(request):
                 item_webshop_ids, items = utils.get_entities_item_children(
                     categories, request)
                 proxy.link_category_parents(item_webshop_ids, items)
-            except exceptions.WebshopAPIErrors as e:
+            except exceptions._502 as e:
                 proxy.delete([x for x in e.success if isinstance(x, int)])
-                raise exceptions._500(msg=e.errors)
+                raise
         magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
@@ -128,9 +127,9 @@ def item_groups_post(request):
                 item_webshop_ids, items = utils.get_entities_item_children(
                     item_groups, request)
                 proxy.link_item_parents(item_webshop_ids, items)
-            except exceptions.WebshopAPIErrors as e:
+            except exceptions._502 as e:
                 proxy.delete([x for x in e.success if isinstance(x, int)])
-                raise exceptions._500(msg=e.errors)
+                raise
         magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
@@ -292,9 +291,9 @@ def items_post(request):
                 utils.set_webshop_ids(items, webshop_ids)
                 proxy.update_shops(webshop_ids, appstructs)
                 proxy.link_item_parents(webshop_ids, appstructs)
-            except exceptions.WebshopAPIErrors as e:
+            except exceptions._502 as e:
                 proxy.delete([x for x in e.success if isinstance(x, int)])
-                raise exceptions._500(msg=e.errors)
+                raise
         magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
@@ -315,16 +314,13 @@ def items_put(request):
     if save_in_webshop:
         magentoapi.indexing_enable_manual(request)
         with magentoapi.Items(request) as proxy:
-            try:
-                webshop_ids = []
-                for a in appstructs:
-                    webshop_id = items[a["id"]].webshop_id
-                    webshop_ids.append(webshop_id)
-                proxy.update(appstructs)
-                proxy.update_shops(webshop_ids, appstructs)
-                magentoapi.indexing_reindex(request)
-            except exceptions.WebshopAPIErrors as e:
-                raise exceptions._500(msg=e.errors)
+            webshop_ids = []
+            for a in appstructs:
+                webshop_id = items[a["id"]].webshop_id
+                webshop_ids.append(webshop_id)
+            proxy.update(appstructs)
+            proxy.update_shops(webshop_ids, appstructs)
+            magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
 
 
@@ -360,10 +356,7 @@ def orders_get(request):
     status = request.validated.get("status")
     orders = []
     with magentoapi.SalesOrders(request) as proxy:
-        try:
-            orders = proxy.list(status=status)
-        except exceptions.WebshopAPIErrors as e:
-            raise exceptions._500(msg=e.errors)
+        orders = proxy.list(status=status)
     return {"orders": orders}
 
 
@@ -373,10 +366,7 @@ def orders_put(request):
     """
     appstructs = request.validated["orders"]
     with magentoapi.SalesOrders(request) as proxy:
-        try:
-            proxy.order_add_comment(appstructs)
-        except exceptions.WebshopAPIErrors as e:
-            raise exceptions._500(msg=e.errors)
+        proxy.order_add_comment(appstructs)
     return {"status": "succeeded"}
 
 
@@ -397,33 +387,31 @@ def invoices_put(request):
     appstructs = request.validated["invoices"]
     results = []
     with magentoapi.SalesInvoices(request) as proxy:
-        try:
-            # create invoices
-            invoice_ids = proxy.create(appstructs)
-            for i, appstruct in zip(invoice_ids, appstructs):
-                # create result data
-                result = schemata.InvoiceResult().serialize()
-                result["invoice_increment_id"] = i
-                order_id = appstruct["order_increment_id"]
-                result["order_increment_id"] = order_id
-                # change order state to processing
-                appstruct_comment = {"order_increment_id": order_id,
-                                     "status": "processing"}
-                proxy.order_add_comment([appstruct_comment])
-                # capture invoice if possible
-                try:
-                    can_capture = appstruct["capture_online_payment"]\
-                        and proxy.order_can_capture(order_id)
-                    if can_capture:
-                        captured = proxy.capture(i)
-                        appstruct["capture_status"] = "captured" if captured\
-                            else "no-capture"
-                except Fault as e:
-                    appstruct["capture_status"] = "error"
-                    appstruct["capture_error"] = str(e)
-                results.append(result)
-        except exceptions.WebshopAPIErrors as e:
-            raise exceptions._500(msg=e.errors)
+        # create invoices
+        invoice_ids = proxy.create(appstructs)
+        for i, appstruct in zip(invoice_ids, appstructs):
+            # create result data
+            result = schemata.InvoiceResult().serialize()
+            result["invoice_increment_id"] = i
+            order_id = appstruct["order_increment_id"]
+            result["order_increment_id"] = order_id
+            # change order state to processing
+            appstruct_comment = {"order_increment_id": order_id,
+                                 "status": "processing"}
+            proxy.order_add_comment([appstruct_comment])
+            # capture invoice if possible
+            try:
+                can_capture = appstruct["capture_online_payment"]\
+                    and proxy.order_can_capture(order_id)
+                if can_capture:
+                    captured = proxy.capture(i)
+                    appstruct["capture_status"] = "captured" if captured\
+                        else "no-capture"
+            except exceptions._502 as e:
+                error = e.errors[0]
+                appstruct["capture_status"] = "error"
+                appstruct["capture_error"] = error[0] + ": " + error[1]
+            results.append(result)
     return {"invoice_results": results}
 
 
@@ -452,7 +440,7 @@ def item_get(request):
         data = item.to_data(lang)
     except KeyError:
         error = "%s does not exists"
-        raise exceptions._500(msg=error % (item_id))
+        raise exceptions._400(msgs=[("querystring", "id", error % (item_id))])
     return data
 
 
@@ -483,7 +471,7 @@ def item_group_get(request):
         data = item_group.to_data(lang, with_children, children_shop_id)
     except KeyError:
         error = "%s does not exists"
-        raise exceptions._500(msg=error % (item_group_id))
+        raise exceptions._400(msgs=[("querystring", "id", error % (item_group_id))])
     return data
 
 

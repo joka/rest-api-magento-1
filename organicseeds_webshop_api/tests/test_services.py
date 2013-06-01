@@ -1,6 +1,6 @@
 import pytest
 
-from organicseeds_webshop_api.exceptions import _500
+from organicseeds_webshop_api.exceptions import _400
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
     MagentoIntegrationTestCase,
@@ -157,7 +157,7 @@ class TestServicesItemIntegration(IntegrationTestCase):
         from organicseeds_webshop_api.services import item_get
 
         self.request.validated = {"id": "wrong_id", "lang": "default"}
-        with pytest.raises(_500):
+        with pytest.raises(_400):
             item_get(self.request)
 
 
@@ -190,7 +190,7 @@ class TestServicesItemGroupIntegration(IntegrationTestCase):
         self.request.validated = {"id": "wrong_id", "lang": "default",
                                   "with_children": False,
                                   "children_shop_id": ""}
-        with pytest.raises(_500):
+        with pytest.raises(_400):
             item_group_get(self.request)
 
 

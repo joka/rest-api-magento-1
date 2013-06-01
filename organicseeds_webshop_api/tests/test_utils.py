@@ -138,7 +138,7 @@ class TestUtilsStoreEntitiesIntegration(IntegrationTestCase):
     def test_utils_store_entities_with_quality_wrong_id(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
-        from organicseeds_webshop_api.exceptions import _500
+        from organicseeds_webshop_api.exceptions import _400
         quality = {"id": "quality"}
         parent = models.ItemGroup()
         parent.from_appstruct({"qualities": [quality]})
@@ -146,7 +146,7 @@ class TestUtilsStoreEntitiesIntegration(IntegrationTestCase):
 
         self.testdata["items"][0]["parent_id"] = "parent"
         self.testdata["items"][0]["wrong_quality_id"] = "quality"
-        with pytest.raises(_500):
+        with pytest.raises(_400):
             utils.store(self.testdata["items"], models.Item, "items",
                         self.request)
 
@@ -166,13 +166,13 @@ class TestUtilsStoreEntitiesIntegration(IntegrationTestCase):
     def test_utils_store_entities_update_item_quality_wrong_id(self):
         from organicseeds_webshop_api import utils
         from organicseeds_webshop_api import models
-        from organicseeds_webshop_api.exceptions import _500
+        from organicseeds_webshop_api.exceptions import _400
         quality = {"id": "quality"}
         child_appstruct = {"id": "child", "parent_id": "parent",
                            "quality_id": "wrong_id"}
         utils.store([child_appstruct], models.Item, "items", self.request)
 
-        with pytest.raises(_500):
+        with pytest.raises(_400):
             quality = {"id": "quality"}
             utils.store([{"id": "parent", "qualities": [quality]}],
                         models.ItemGroup, "item_groups", self.request)
@@ -278,7 +278,7 @@ class TestUtilsGetUrl(IntegrationTestCase):
                                           u"ddddddddddddddddddddddddddddddd"
                                           u"ddddddddddddddddddddddddddd.txt",
                                }}
-        assert u'newu-cat1' == utils.get_url_slug(appstruct, "default")
+        assert u'testu.txt-cat1' == utils.get_url_slug(appstruct, "default")
         assert u'newu-cat1' == utils.get_url_slug(appstruct, "wrong_lang")
         assert u'titla-c-_fr-cat1-fr' == utils.get_url_slug(appstruct, "fr")
         assert 34 == len(utils.get_url_slug(appstruct, "to_long"))

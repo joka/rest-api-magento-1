@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from decimal import Decimal
-import pytest
 import unittest
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
@@ -165,9 +164,34 @@ class TestMagentoAPIIntegration(MagentoIntegrationTestCase):
 
     #TODO test 100, 99, 101 calls
     def test_magentoapi_magentoapi_multi_call_error(self):
-        calls = [["wrong_metho"]]
-        with pytest.raises(Exception):
+        from organicseeds_webshop_api import exceptions
+        calls = [["store.list"],
+                 ["wrong_metho", 1, 3, 4]]
+        try:
             self.items_proxy.multi_call(calls)
+        except exceptions._502 as error:
+            assert len(error.success) == 1
+            assert error.errors == [("3", 'Invalid api path.')]
+            assert error.json_body == {u'status': u'errors', u'errors': [
+                {u'description': u'3: Invalid api path.',
+                 u'name': u"['wrong_metho', 1]",
+                 u'location': u'magento api'}]}
+
+    def test_magentoapi_magentoapi_single_call(self):
+        result = self.items_proxy.single_call("store.list")
+        assert "website_id" in result[0]
+
+    def test_magentoapi_magentoapi_single_call_error(self):
+        from organicseeds_webshop_api import exceptions
+        try:
+            self.items_proxy.single_call("wrong_metho", [1, 3, 4])
+        except exceptions._502 as error:
+            assert error.success == []
+            assert error.errors == [("3", 'Invalid api path.')]
+            assert error.json_body == {u'status': u'errors', u'errors': [
+                {u'description': u'3: Invalid api path.',
+                 u'name': u"['wrong_metho', 1]",
+                 u'location': u'magento api'}]}
 
 
 class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):

@@ -55,7 +55,13 @@ class MagentoAPI(magento.api.API):
 
     def single_call(self, resource_path, arguments=[]):
         """Send magento api v.1 call"""
-        return self.call(resource_path, arguments)
+        try:
+            return self.call(resource_path, arguments)
+        except Fault as fault:
+            call = [resource_path] + arguments
+            error = (str(fault.faultCode), str(fault.faultString))
+            msg = ("magento api", str(call[:2]), error[0] + ": " + error[1])
+            raise exceptions._502(msgs=[msg], errors=[error])
 
     def multi_call(self, calls, result_type=None):
         """Send magento api v.1 multiCall"""
@@ -66,15 +72,21 @@ class MagentoAPI(magento.api.API):
             results_chunk = self.multiCall(calls_chunk)
             results += results_chunk
         # raise error if something went wrong
+        msgs = []
         errors = []
         success = []
-        for x in results:
+        for i, x in enumerate(results):
             if isinstance(x, dict) and "faultCode" in x:
-                errors.append(x)
+                call = calls[i]
+                error = (x["faultCode"], x["faultMessage"])
+                msgs.append(("magento api",
+                             str(call[:2]),
+                             error[0] + ": " + error[1]))
+                errors.append(error)
             else:
                 success.append(x)
         if errors:
-            raise exceptions.WebshopAPIErrors(errors, success)
+            raise exceptions._502(msgs=msgs, errors=errors, success=success)
         # type cast and return results
         if result_type:
             success = [result_type(x) for x in success]
@@ -189,8 +201,9 @@ class MagentoCatalogAPI(MagentoAPI):
         for webshop_id in webshop_ids:
             try:
                 self.single_call(self.magento_method + "delete", [webshop_id])
-            except Fault as e:  # TODO catch only not exists errors
-                if e.faultCode == "101":  # we ignore "does not exists" errors
+            except exceptions._502 as e:  # TODO catch only not exists errors
+                error_code = e.errors[0][0]
+                if error_code == "101":  # we ignore "does not exists" errors
                     pass
             success.append(True)
         return success
@@ -461,7 +474,6 @@ class MagentoSalesAPI(MagentoAPI):
     magento_method = u""
     colander_schema = None
 
-
     def list(self):
         """to be implemented in subclass"""
         pass
@@ -471,7 +483,7 @@ class MagentoSalesAPI(MagentoAPI):
         for appstruct in appstructs:
             order_id = appstruct["order_increment_id"]
             status = appstruct["status"]
-            comment= appstruct.get("comment", u"")
+            comment = appstruct.get("comment", u"")
             email = int(appstruct.get("notify", False))
             include_comment = 1
             calls.append(['sales_order.addComment',
@@ -501,7 +513,6 @@ class SalesOrders(MagentoSalesAPI):
         return orders
 
 
-
 class SalesInvoices(MagentoSalesAPI):
 
     magento_method = u"sales_order_invoice."
@@ -524,7 +535,6 @@ class SalesInvoices(MagentoSalesAPI):
             qty = float(i["qty"])
             items_qty[order_item_id] = qty
         return [order_increment_id, items_qty, comment, email, include_comment]
-
 
     def capture(self, invoice_id):
         return bool(self.single_call(self.magento_method + "capture",

@@ -5,7 +5,7 @@ from repoze.catalog.query import (
 )
 
 from organicseeds_webshop_api import url_normalizer
-from organicseeds_webshop_api.exceptions import _500
+from organicseeds_webshop_api.exceptions import _400
 
 #####################################
 #  Helpers to create/delete models  #
@@ -78,7 +78,8 @@ def store(appstructs, itemtype, data_key, request):
                 quality = [q for q in qualities if q["id"] == quality_id][0]
             except IndexError:
                 error = "Item %s has non existing quality %s"
-                raise _500(msg=error % (obj["id"], quality_id))
+                raise _400(msgs=[("body", "quality_id", error % (obj["id"],
+                                                                 quality_id))])
             obj.quality = quality
         # update link item quality (parent -> child)
         qualities = obj.get("qualities", None)
@@ -90,7 +91,8 @@ def store(appstructs, itemtype, data_key, request):
                     i.quality = quality
                 except IndexError:
                     error = "Child %s of %s has non existing quality_id"
-                    raise _500(msg=error % (i["id"], obj["id"]))
+                    raise _400(msgs=[("body", "quality_id",
+                                      error % (i["id"], obj["id"]))])
     return entities
 
 
