@@ -471,7 +471,8 @@ def item_group_get(request):
         data = item_group.to_data(lang, with_children, children_shop_id)
     except KeyError:
         error = "%s does not exists"
-        raise exceptions._400(msgs=[("querystring", "id", error % (item_group_id))])
+        raise exceptions._400(msgs=[("querystring", "id",
+                                     error % (item_group_id))])
     return data
 
 

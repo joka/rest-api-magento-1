@@ -279,7 +279,7 @@ class TestUtilsGetUrl(IntegrationTestCase):
                                           u"ddddddddddddddddddddddddddd.txt",
                                }}
         assert u'testu.txt-cat1' == utils.get_url_slug(appstruct, "default")
-        assert u'newu-cat1' == utils.get_url_slug(appstruct, "wrong_lang")
+        assert u'testu.txt-cat1' == utils.get_url_slug(appstruct, "wrong_lang")
         assert u'titla-c-_fr-cat1-fr' == utils.get_url_slug(appstruct, "fr")
         assert 34 == len(utils.get_url_slug(appstruct, "to_long"))
 
