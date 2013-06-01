@@ -311,11 +311,16 @@ def items_put(request):
     save_in_webshop = request.validated.get("save_in_webshop", True)
     appstructs = utils.remove_none_values(request.validated["items"])
     utils.store(appstructs, models.Item, "items", request)
+    items = request.root.app_root["items"]
     if save_in_webshop:
         magentoapi.indexing_enable_manual(request)
         with magentoapi.Items(request) as proxy:
             try:
-                webshop_ids = proxy.update(appstructs)
+                webshop_ids = []
+                for a in appstructs:
+                    webshop_id = items[a["id"]].webshop_id
+                    webshop_ids.append(webshop_id)
+                proxy.update(appstructs)
                 proxy.update_shops(webshop_ids, appstructs)
                 magentoapi.indexing_reindex(request)
             except exceptions.WebshopAPIErrors as e:
@@ -381,9 +386,8 @@ def orders_put(request):
 
 
 invoices = Service(name='invoices',
-                 path='/invoices',
-                 description="Service to create and catpure invoices")
-
+                   path='/invoices',
+                   description="Service to create and catpure invoices")
 
 
 @invoices.put(schema=schemata.InvoicesList)
@@ -412,7 +416,8 @@ def invoices_put(request):
                         and proxy.order_can_capture(order_id)
                     if can_capture:
                         captured = proxy.capture(i)
-                        appstruct["capture_status"] = "captured" if captured else "no-capture"
+                        appstruct["capture_status"] = "captured" if captured\
+                            else "no-capture"
                 except Fault as e:
                     appstruct["capture_status"] = "error"
                     appstruct["capture_error"] = str(e)
@@ -420,7 +425,6 @@ def invoices_put(request):
         except exceptions.WebshopAPIErrors as e:
             raise exceptions._500(msg=e.errors)
     return {"invoice_results": results}
-
 
 
 #######################

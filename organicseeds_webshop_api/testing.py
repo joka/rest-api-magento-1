@@ -211,7 +211,7 @@ class MagentoIntegrationTestCase(IntegrationTestCase):
         super(MagentoIntegrationTestCase, self).tearDown()
 
 
-class MagentoTestdatabaseIntegrationTestCase(MagentoIntegrationTestCase):
+class MagentoTestdataIntegrationTestCase(MagentoIntegrationTestCase):
 
     def reset_database(self):
         reset_database_with_testdata()

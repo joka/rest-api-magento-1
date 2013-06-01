@@ -57,7 +57,7 @@ class MagentoAPI(magento.api.API):
         """Send magento api v.1 call"""
         return self.call(resource_path, arguments)
 
-    def multi_call(self, calls):
+    def multi_call(self, calls, result_type=None):
         """Send magento api v.1 multiCall"""
         # slice calls to make magento happy and send
         results = []
@@ -75,7 +75,9 @@ class MagentoAPI(magento.api.API):
                 success.append(x)
         if errors:
             raise exceptions.WebshopAPIErrors(errors, success)
-        # return results
+        # type cast and return results
+        if result_type:
+            success = [result_type(x) for x in success]
         return success
 
 
@@ -183,13 +185,15 @@ class MagentoCatalogAPI(MagentoAPI):
         self.entities = getattr(self, self.entity_data_key, [])
 
     def delete(self, webshop_ids):
+        success = []
         for webshop_id in webshop_ids:
             try:
                 self.single_call(self.magento_method + "delete", [webshop_id])
             except Fault as e:  # TODO catch only not exists errors
                 if e.faultCode == "101":  # we ignore "does not exists" errors
                     pass
-        return webshop_ids
+            success.append(True)
+        return success
 
     def delete_all(self):
         """to be implemented in subclass"""
@@ -200,8 +204,7 @@ class MagentoCatalogAPI(MagentoAPI):
         for appstruct in appstructs:
             calls.append([self.magento_method + 'create',
                           self._create_arguments(appstruct)])
-        webshop_ids = [int(x) for x in self.multi_call(calls)]
-        return webshop_ids
+        return self.multi_call(calls, int)
 
     def list(self):
         """to be implemented in subclass"""
@@ -209,19 +212,16 @@ class MagentoCatalogAPI(MagentoAPI):
 
     def update(self, appstructs):
         calls = []
-        webshop_ids = []
         for appstruct in appstructs:
             entity_id = appstruct["id"]
             webshop_id = self.entities[entity_id].webshop_id
-            webshop_ids.append(webshop_id)
             calls.append(
                 [self.magento_method + 'update',
                  [webshop_id,
                   self._to_update_data(appstruct),
                   ]
                  ])
-        self.multi_call(calls)
-        return webshop_ids
+        return self.multi_call(calls, bool)
 
     def update_shops(self, webshop_ids, appstructs):
         calls = []
@@ -236,7 +236,7 @@ class MagentoCatalogAPI(MagentoAPI):
                 if data:
                     calls.append([self.magento_method + 'update',
                                   [webshop_id, data, storeviewname]])
-        return self.multi_call(calls)
+        return self.multi_call(calls, bool)
 
     def link_item_parents(self, webshop_ids, appstructs):
         calls = []
@@ -250,7 +250,7 @@ class MagentoCatalogAPI(MagentoAPI):
                 parent_webshop_id = self.categories[parent_id].webshop_id
                 calls.append(['catalog_category.assignProduct',
                               [parent_webshop_id, webshop_id]])
-        self.multi_call(calls)
+        return self.multi_call(calls, bool)
 
     def link_category_parents(self, webshop_ids, appstructs):
         calls = []
@@ -263,7 +263,7 @@ class MagentoCatalogAPI(MagentoAPI):
             else:
                 calls.append([self.magento_method + "update",
                               [webshop_id, {"is_anchor": 1}]])
-        self.multi_call(calls)
+        return self.multi_call(calls, bool)
 
     def _create_arguments(self, appstruct):
         """to be implemented in subclass"""
@@ -390,7 +390,7 @@ class Categories(MagentoCatalogAPI):
                 if data:
                     calls.append([self.magento_method + 'update',
                                   [webshop_id, data, storeviewname]])
-        return self.multi_call(calls)
+        return self.multi_call(calls, bool)
 
     def _create_arguments(self, appstruct):
         return [2,  # set parent to default root category
@@ -476,7 +476,7 @@ class MagentoSalesAPI(MagentoAPI):
             include_comment = 1
             calls.append(['sales_order.addComment',
                           [order_id, status, comment, email, include_comment]])
-        return [bool(x) for x in self.multi_call(calls)]
+        return self.multi_call(calls, bool)
 
     def order_can_capture(self, order_id):
         can_capture = False
@@ -509,11 +509,9 @@ class SalesInvoices(MagentoSalesAPI):
     def create(self, appstructs):
         calls = []
         for appstruct in appstructs:
-            # create invoice
             calls.append([self.magento_method + 'create',
                           self._create_arguments(appstruct)])
-        invoice_ids = [int(x) for x in self.multi_call(calls)]
-        return invoice_ids
+        return self.multi_call(calls, int)
 
     def _create_arguments(self, appstruct):
         order_increment_id = appstruct["order_increment_id"]

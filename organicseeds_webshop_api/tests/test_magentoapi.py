@@ -5,7 +5,7 @@ import unittest
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
     MagentoIntegrationTestCase,
-    MagentoTestdatabaseIntegrationTestCase,
+    MagentoTestdataIntegrationTestCase,
     create_item,
     create_category,
     create_item_group,
@@ -145,27 +145,25 @@ class TestMagentoSalesAPIHelpersIntegration(unittest.TestCase):
 
 class TestMagentoAPIIntegration(MagentoIntegrationTestCase):
 
-    def test_magentoapi_magentoapi_multi_call(self):
+    def test_magentoapi_magentoapi_multi_call_empty_list(self):
         proxy = self.items_proxy
         calls = []
         response = proxy.multi_call(calls)
         assert response == []
-        for x in range(0, 2):
-            calls.append(["store.list"])
-        response = proxy.multi_call(calls)
-        assert 'website_id' in response[0][0]
-        response = proxy.multi_call(calls)
-        calls = []
-        for x in range(0, 11):
-            calls.append(['store.list'])
-        response = proxy.multi_call(calls)
-        assert 'website_id' in response[0][0]
-        calls = []
-        for x in range(0, 20):
-            calls.append(["store.list"])
+
+    def test_magentoapi_magentoapi_multi_call_no_typecast(self):
+        proxy = self.items_proxy
+        calls = [["store.list"]]
         response = proxy.multi_call(calls)
         assert 'website_id' in response[0][0]
 
+    def test_magentoapi_magentoapi_multi_call_with_typecast(self):
+        proxy = self.items_proxy
+        calls = [["store.list"]]
+        response = proxy.multi_call(calls, str)
+        assert isinstance(response[0], str)
+
+    #TODO test 100, 99, 101 calls
     def test_magentoapi_magentoapi_multi_call_error(self):
         calls = [["wrong_metho"]]
         with pytest.raises(Exception):
@@ -180,12 +178,12 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         proxy = self.items_proxy
         appstruct = self.testdata["items"][0]
         data = proxy._to_update_shops_data(appstruct, "fr", "ch")
-        assert data == {'name': 'titlefr',
+        assert data == {'name': u'titlefr',
                         'short_description': 'dscription',
                         'url_key': u'titlefr-itemka32-fr',
                         'price': 2.0}
         data = proxy._to_update_shops_data(appstruct, "default", "default")
-        assert data == {'name': 'title',
+        assert data == {'name': u'title',
                         'short_description': 'kurzbeschreibung',
                         'url_key': u'title-itemka32',
                         'description': 'Ausfuehrliche Beschreibung'
@@ -217,7 +215,9 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
     def test_magentoapi_create_items(self):
         proxy = self.items_proxy
         appstruct = self.testdata["items"][0]
-        webshop_id = proxy.create([appstruct])[0]
+        result = proxy.create([appstruct])
+        webshop_id = result[0]
+        assert isinstance(webshop_id, int)
         result = proxy.single_call('catalog_product.info', [webshop_id])
         assert result["websites"] == ['2', '3', '4']
         assert result["price"] is None
@@ -236,39 +236,34 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         item = create_item(appstruct, self.request, proxy)
         parent = create_item_group({"id": "parent"}, self.request,
                                    self.item_groups_proxy)
-        try:
-            proxy.link_item_parents([item.webshop_id], [appstruct])
-            children = proxy.single_call("catalog_product_link.list",
-                                         ["grouped", parent.webshop_id])
-            assert item.webshop_id in [int(x["product_id"]) for x in children]
-        finally:
-            proxy.single_call("catalog_product.delete", ["parent"])  # cleanup
+        proxy.link_item_parents([item.webshop_id], [appstruct])
+        children = proxy.single_call("catalog_product_link.list",
+                                     ["grouped", parent.webshop_id])
+        assert item.webshop_id in [int(x["product_id"]) for x in children]
 
     def test_magentoapi_link_items_with_category_parents(self):
         proxy = self.items_proxy
         appstruct = {"id": u"item", "sku": u"itemsku", "parent_id": "parent"}
         item = create_item(appstruct, self.request, proxy)
         parent = create_category(
-            {"id": "parent", "title": {"default": "parent"}}, self.request,
+            {"id": "parent", "title": {"default": u"parent"}}, self.request,
             self.categories_proxy)
-        try:
-            proxy.link_item_parents([item.webshop_id], [appstruct])
-            children = proxy.single_call("category.assignedProducts",
-                                         [parent.webshop_id])
-            assert item.webshop_id in [int(x["product_id"]) for x in children]
-        finally:
-            proxy.single_call("catalog_category.delete", [parent.webshop_id])
+        proxy.link_item_parents([item.webshop_id], [appstruct])
+        children = proxy.single_call("category.assignedProducts",
+                                     [parent.webshop_id])
+        assert item.webshop_id in [int(x["product_id"]) for x in children]
 
     def test_magentoapi_items_update(self):
         proxy = self.items_proxy
         appstruct = self.testdata["items"][0]
-        create_item(appstruct, self.request, proxy)
+        item = create_item(appstruct, self.request, proxy)
 
         update = {"id": appstruct["id"],
                   "title": {"default": u"New unique_name"}}
-        webshop_id = proxy.update([update])[0]
-        results = proxy.single_call('catalog_product.info', [webshop_id])
-        assert results["name"] == u"New unique_name"
+        result = proxy.update([update])
+        assert result == [True]
+        data = proxy.single_call('catalog_product.info', [item.webshop_id])
+        assert data["name"] == u"New unique_name"
 
     def test_magentoapi_items_update_shops(self):
         proxy = self.items_proxy
@@ -286,7 +281,8 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
                      }
         item = create_item(appstruct, self.request, proxy)
 
-        proxy.update_shops([item.webshop_id], [appstruct])
+        result = proxy.update_shops([item.webshop_id], [appstruct])
+        assert True in result
         fr_ch_hobby = proxy.single_call('catalog_product.info',
                                         [item.webshop_id, "fr_ch_hobby"])
         assert fr_ch_hobby["name"] == "fr title"
@@ -326,11 +322,11 @@ class TestMagentoAPIItemsIntegration(MagentoIntegrationTestCase):
         item = create_item(appstruct, self.request, proxy)
 
         results = proxy.delete([item.webshop_id])
-        assert results == [item.webshop_id]
+        assert results == [True]
         products = proxy.single_call('catalog_product.list')
         assert products == []
         results = proxy.delete(["wrongid"])
-        assert results == ["wrongid"]
+        assert results == [True]
 
 
 class TestMagentoAPIItemGroupsIntegration(MagentoIntegrationTestCase):
@@ -350,13 +346,14 @@ class TestMagentoAPIItemGroupsIntegration(MagentoIntegrationTestCase):
         appstruct = self.testdata["item_groups"][0]
         appstruct = self.testdata["item_groups"][0]
         appstruct["title"]["default"] = u"unique_name"
-        create_item_group(appstruct, self.request, proxy)
+        group = create_item_group(appstruct, self.request, proxy)
 
         update = {"id": appstruct["id"],
                   "title": {"default": u"New unique_name"}}
-        webshop_id = proxy.update([update])[0]
-        results = proxy.single_call('catalog_product.info', [webshop_id])
-        assert results["name"] == u"New unique_name"
+        result = proxy.update([update])
+        assert result == [True]
+        data = proxy.single_call('catalog_product.info', [group.webshop_id])
+        assert data["name"] == u"New unique_name"
 
     def test_magentoapi_delete_item_groups(self):
         proxy = self.item_groups_proxy
@@ -364,7 +361,7 @@ class TestMagentoAPIItemGroupsIntegration(MagentoIntegrationTestCase):
         item_group = create_item_group(appstruct, self.request, proxy)
 
         results = proxy.delete([item_group.webshop_id])
-        assert results == [item_group.webshop_id]
+        assert results == [True]
 
 
 class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
@@ -463,13 +460,15 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
         proxy = self.categories_proxy
         appstruct = self.testdata["categories"][0]
         appstruct["title"]["default"] = u"unique_name"
-        create_category(appstruct, self.request, proxy)
+        category = create_category(appstruct, self.request, proxy)
 
         update = {"id": appstruct["id"],
                   "title": {"default": u"New unique_name"}}
-        webshop_id = proxy.update([update])[0]
-        results = proxy.single_call('catalog_category.info', [webshop_id])
-        assert results["name"] == u"New unique_name"
+        result = proxy.update([update])
+        assert result == [True]
+        data = proxy.single_call('catalog_category.info',
+                                 [category.webshop_id])
+        assert data["name"] == u"New unique_name"
 
     def test_magentoapi_categories_delete_categories(self):
         proxy = self.categories_proxy
@@ -477,19 +476,19 @@ class TestMagentoAPICategoriesIntegration(MagentoIntegrationTestCase):
         category = create_category(appstruct, self.request, proxy)
 
         results = proxy.delete([category.webshop_id])
-        assert results == [category.webshop_id]
+        assert results == [True]
 
 
-class TestMagentoAPISalesOrder(MagentoTestdatabaseIntegrationTestCase):
+class TestMagentoAPISalesOrder(MagentoTestdataIntegrationTestCase):
 
     def test_magentoapi_salesorder_can_capture_false(self):
-        assert self.salesinvoices_proxy.order_can_capture(200000001) == False
+        assert self.salesinvoices_proxy.order_can_capture(200000001) is False
 
     def test_magentoapi_salesorders_order_add_comment(self):
         appstruct = {"order_increment_id": 200000001,
                      "status": "processing",
                      "comment": "Note",
-                     "notify": True,}
+                     "notify": True}
         result = self.salesorders_proxy.order_add_comment([appstruct])
         assert result == [True]
         result = self.salesorders_proxy.single_call("sales_order.info",
@@ -501,8 +500,7 @@ class TestMagentoAPISalesOrder(MagentoTestdatabaseIntegrationTestCase):
         assert len(result) > 1
 
 
-class TestMagentoAPISalesInvoice(MagentoTestdatabaseIntegrationTestCase):
-
+class TestMagentoAPISalesInvoice(MagentoTestdataIntegrationTestCase):
 
     def test_magentoapi_salesinvoices_create_arguments(self):
         appstruct = {"order_increment_id": 200000001,
@@ -546,7 +544,7 @@ class TestMagentoAPISalesInvoice(MagentoTestdatabaseIntegrationTestCase):
                        }]
         self.salesinvoices_proxy.create(appstructs)
         result = self.salesinvoices_proxy.capture(200000001)
-        assert result == True
+        assert result is True
 
 
 TESTDATA_ORDER_GUEST_CUSTOMER = \
@@ -991,37 +989,37 @@ TESTDATA_ORDER_GUEST_PAYMENT_APPROVED = \
      'method': 'payone_creditcard',
      'parent_id': '2',
      'paybox_request_number': None,
-    'payment_id': '2',
-    'payone_account_number': '0',
-    'payone_account_owner': '0',
-    'payone_bank_code': '0',
-    'payone_bank_country': '',
-    'payone_bank_group': '',
-    'payone_clearing_bank_account': '',
-    'payone_clearing_bank_accountholder': '',
-    'payone_clearing_bank_bic': '',
-    'payone_clearing_bank_city': '',
-    'payone_clearing_bank_code': '0',
-    'payone_clearing_bank_country': '',
-    'payone_clearing_bank_iban': '',
-    'payone_clearing_bank_name': '',
-    'payone_clearing_duedate': '',
-    'payone_clearing_instructionnote': '',
-    'payone_clearing_legalnote': '',
-    'payone_clearing_reference': '',
-    'payone_config_payment_method_id': '3',
-    'payone_financing_type': '',
-    'payone_onlinebanktransfer_type': '',
-    'payone_payment_method_name': '',
-    'payone_payment_method_type': '',
-    'payone_pseudocardpan': '4100000055203583',
-    'payone_safe_invoice_type': '',
-    'po_number': None,
-    'protection_eligibility': None,
-    'quote_payment_id': None,
-    'shipping_amount': '5.0000',
-    'shipping_captured': None,
-    'shipping_refunded': None}
+     'payment_id': '2',
+     'payone_account_number': '0',
+     'payone_account_owner': '0',
+     'payone_bank_code': '0',
+     'payone_bank_country': '',
+     'payone_bank_group': '',
+     'payone_clearing_bank_account': '',
+     'payone_clearing_bank_accountholder': '',
+     'payone_clearing_bank_bic': '',
+     'payone_clearing_bank_city': '',
+     'payone_clearing_bank_code': '0',
+     'payone_clearing_bank_country': '',
+     'payone_clearing_bank_iban': '',
+     'payone_clearing_bank_name': '',
+     'payone_clearing_duedate': '',
+     'payone_clearing_instructionnote': '',
+     'payone_clearing_legalnote': '',
+     'payone_clearing_reference': '',
+     'payone_config_payment_method_id': '3',
+     'payone_financing_type': '',
+     'payone_onlinebanktransfer_type': '',
+     'payone_payment_method_name': '',
+     'payone_payment_method_type': '',
+     'payone_pseudocardpan': '4100000055203583',
+     'payone_safe_invoice_type': '',
+     'po_number': None,
+     'protection_eligibility': None,
+     'quote_payment_id': None,
+     'shipping_amount': '5.0000',
+     'shipping_captured': None,
+     'shipping_refunded': None}
 
 
 TESTDATA_ORDER_GUEST_CUSTOMER_EXPECTED = \

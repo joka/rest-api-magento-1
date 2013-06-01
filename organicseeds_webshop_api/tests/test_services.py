@@ -4,7 +4,7 @@ from organicseeds_webshop_api.exceptions import _500
 from organicseeds_webshop_api.testing import (
     IntegrationTestCase,
     MagentoIntegrationTestCase,
-    MagentoTestdatabaseIntegrationTestCase,
+    MagentoTestdataIntegrationTestCase,
     create_all_testdata_items
 )
 
@@ -179,7 +179,8 @@ class TestServicesItemGroupIntegration(IntegrationTestCase):
         item_group = item_groups[0]
 
         self.request.validated = {"id": item_group["id"], "lang": "default",
-                                  "with_children": False, "children_shop_id": ""}
+                                  "with_children": False,
+                                  "children_shop_id": ""}
         response = item_group_get(self.request)
         assert response["title"] == item_group["title"]["default"]
 
@@ -187,12 +188,13 @@ class TestServicesItemGroupIntegration(IntegrationTestCase):
         from organicseeds_webshop_api.services import item_group_get
 
         self.request.validated = {"id": "wrong_id", "lang": "default",
-                                  "with_children": False, "children_shop_id": ""}
+                                  "with_children": False,
+                                  "children_shop_id": ""}
         with pytest.raises(_500):
             item_group_get(self.request)
 
 
-class TestServicesSalesOrdersIntegration(MagentoTestdatabaseIntegrationTestCase):
+class TestServicesSalesOrdersIntegration(MagentoTestdataIntegrationTestCase):
 
     def test_orders_get(self):
         from organicseeds_webshop_api.services import orders_get
@@ -212,7 +214,7 @@ class TestServicesSalesOrdersIntegration(MagentoTestdatabaseIntegrationTestCase)
         assert(response == {'status': 'succeeded'})
 
 
-class TestServicesSalesInvoicesIntegration(MagentoTestdatabaseIntegrationTestCase):
+class TestServicesSalesInvoicesIntegration(MagentoTestdataIntegrationTestCase):
 
     def test_invoices_put_no_capture(self):
         from organicseeds_webshop_api.services import invoices_put
@@ -228,8 +230,8 @@ class TestServicesSalesInvoicesIntegration(MagentoTestdatabaseIntegrationTestCas
         assert result == {'invoice_results': [{'capture_error': u'',
                           'capture_status': u'no_capture',
                           'invoice_increment_id': 200000001,
-                          'order_increment_id': 200000001,
-                          }]}
+                          'order_increment_id': 200000001}]
+                          }
 
         result = self.salesorders_proxy.single_call("sales_order.info",
                                                     [200000001])
