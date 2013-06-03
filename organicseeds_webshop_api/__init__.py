@@ -21,8 +21,7 @@ def includeme(config):
 
 # pyramid application main
 def main(global_config, **settings):
-    if settings:
-        global_config.update(settings)
+    global_config.update(settings or {})
     config = Configurator(settings=global_config)
     config.set_root_factory(root_factory)
     config.include("pyramid_zodbconn")
