@@ -2,6 +2,41 @@ import unittest
 import pytest
 
 
+class Test_Schemata_Validate_Float(unittest.TestCase):
+
+    def test_float_decimal_points_valid(self):
+        from organicseeds_webshop_api.schemata import \
+            float_decimal_points
+        node = object()
+        assert float_decimal_points(node, 1, 2) is None
+        assert float_decimal_points(node, 1.1, 2) is None
+        assert float_decimal_points(node, 1.11, 2) is None
+
+    def test_float_decimal_points_invalid(self):
+        from colander import Invalid
+        from organicseeds_webshop_api.schemata import \
+            float_decimal_points
+        node = object()
+        with pytest.raises(Invalid):
+            float_decimal_points(node, 1.111, 2)
+
+    def test_two_decimal_points_invalid(self):
+        from colander import Invalid
+        from organicseeds_webshop_api.schemata import \
+            two_decimal_points
+        node = object()
+        with pytest.raises(Invalid):
+            two_decimal_points(node, 1.111)
+
+    def test_four_decimal_points_invalid(self):
+        from colander import Invalid
+        from organicseeds_webshop_api.schemata import \
+            four_decimal_points
+        node = object()
+        with pytest.raises(Invalid):
+            four_decimal_points(node, 1.11111)
+
+
 class Test_Schemata_Validate_Identifier(unittest.TestCase):
 
     def test_valid_values(self):

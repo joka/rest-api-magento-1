@@ -4,6 +4,10 @@ Changelog
 0.2
 ---
 
+- Item schema weight_brutto/netto: allow only Floats with 4 decimal points
+
+- Item schema price: allow only Floats with 2 decimal points
+
 - Added service /invoices
 
 - Added service /search

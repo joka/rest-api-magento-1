@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 # TODO
-#validate gewicht 0.0001
-#validate price:
 #vat nnumber zu addresse
 #alternativ sorte
 #wiederverkuafpreis
@@ -17,7 +15,32 @@ from colander import (
     Regex,
     url,
     Length,
+    Invalid,
 )
+
+#######################
+#  Custom Validators  #
+#######################
+
+
+def float_decimal_points(node, value, allowed_decimal_points):
+    """ checks the allowed floating point decimal points"""
+
+    value_strgs = str(value).split(".")
+    decimal_points = value_strgs[1:]
+    if decimal_points and len(decimal_points[0]) > 2:
+        raise Invalid(
+            node,
+            '%r has more than %r decimal points' % (str(value),
+                                                  str(allowed_decimal_points)))
+
+
+def two_decimal_points(node, value):
+    float_decimal_points(node, value, 2)
+
+
+def four_decimal_points(node, value):
+    float_decimal_points(node, value, 4)
 
 
 ##############
@@ -37,6 +60,22 @@ class Float(colander.SchemaNode):
     """
 
     schema_type = colander.Float
+
+
+class Float2DecPoints(colander.SchemaNode):
+    """Float with only two decimal points
+    """
+
+    schema_type = colander.Float
+    validator=two_decimal_points
+
+
+class Float4DecPoints(colander.SchemaNode):
+    """Float with only four decimal points
+    """
+
+    schema_type = colander.Float
+    validator=four_decimal_points
 
 
 class Integer(colander.SchemaNode):
@@ -533,11 +572,11 @@ class WebsitePrice(colander.TupleSchema):
 
          websiteid : WebsiteID
 
-         price : Float
+         price : Float2DecPoints
     """
 
     websiteid = WebsiteID()
-    price = Float()
+    price = Float2DecPoints()
 
 
 class WebsitePrices(colander.SequenceSchema):
@@ -556,13 +595,13 @@ class TierPrice(colander.MappingSchema):
 
           qty : Integer
 
-          price : Float
+          price : Float2DecPoints
     """
 
     website = WebsiteID()
     customer_group_id = CustomerGroup()
     qty = Integer()
-    price = Float()
+    price = Float2DecPoints()
 
 
 class TierPrices(colander.SequenceSchema):
@@ -916,9 +955,9 @@ class Item(BasicNode):
 
            vpe_type_id = Identifier # reference to vpe_type
 
-           weight_brutto = Float
+           weight_brutto = Float4DecPoints
 
-           weight_netto = Float
+           weight_netto = Float4DecPoints
 
            unit_of_measure_id = Identifier # refernce to unit_of_measure
 
@@ -959,8 +998,8 @@ class Item(BasicNode):
     group = ItemTypeGroup()
     vpe_default = Bool()
     vpe_type_id = Identifier()
-    weight_brutto = Float()
-    weight_netto = Float()
+    weight_brutto = Float4DecPoints()
+    weight_netto = Float4DecPoints()
     unit_of_measure_id = Identifier()
     price = WebsitePrices()
     tierprices = TierPrices()
@@ -1014,8 +1053,8 @@ class ItemUpdate(colander.Schema):
     group = ItemTypeGroup(missing=None, required=False)
     vpe_default = Bool(missing=None, required=False)
     vpe_type_id = Identifier(missing=None, required=False)
-    weight_brutto = Float(missing=None, required=False)
-    weight_netto = Float(missing=None, required=False)
+    weight_brutto = Float4DecPoints(missing=None, required=False)
+    weight_netto = Float4DecPoints(missing=None, required=False)
     unit_of_measure_id = Identifier(missing=None, required=False)
     price = WebsitePrices(missing=None, required=False)
     tierprices = TierPrices(missing=None, required=False)
@@ -1075,7 +1114,7 @@ class OrderItem(colander.MappingSchema):
     qty_invoice = Decimal(missing=decimal.Decimal(0))
     qty_backordered = Decimal(missing=decimal.Decimal(0))
     qty_shipped = Decimal(missing=decimal.Decimal(0))
-    qty_ordered = Decimal()  # TODO better Float..
+    qty_ordered = Decimal()
     weight = Decimal()
     tax_amount = Decimal(missing=decimal.Decimal(0))
     tax_percent = Decimal(missing=decimal.Decimal(0))
@@ -1136,7 +1175,7 @@ class Order(colander.MappingSchema):
     items = OrderItems(missing=[])
     total_item_count = IntegerGtEqNull()
     total_qty_ordered = Decimal()
-    weight = Float()
+    weight = Decimal()
     discount_amount = Decimal(missing=decimal.Decimal(0))
     discount_invoiced = Decimal(missing=decimal.Decimal(0))
     tax_amount = Decimal()

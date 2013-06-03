@@ -5,6 +5,14 @@ from organicseeds_webshop_api.testing import (
 
 class TestValidatorsBasicIntegration(IntegrationTestCase):
 
+    def test_validate_float_decimal_points_valid(self):
+        from organicseeds_webshop_api.validators import \
+                validate_float_decimal_points
+        appstructs = {"entities": [{"price": 1}, {"price": 2}]}
+        self.request.validated = appstructs
+        validate_key_unique("entities", "id", self.request)
+        assert(len(self.request.errors) == 0)
+
     def test_validate_key_unique_valid(self):
         from organicseeds_webshop_api.validators import validate_key_unique
         appstructs = {"entities": [{"id": 1}, {"id": 2}]}

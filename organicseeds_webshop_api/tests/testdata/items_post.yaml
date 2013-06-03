@@ -28,19 +28,19 @@ items:
     group: pflanzgut # Identifier #  saatgut | pflanzgut | sonstiges 
     vpe_default: True # Bool
     vpe_type_id: saatscheibe # reference
-    weight_brutto: 0.25 # Float # kg
-    weight_netto: 0.15 # Float # kg
+    weight_brutto: 0.25 # Float4DecPoints # kg
+    weight_netto: 0.15 # Float4DecPoints # kg
     unit_of_measure_id: portion # reference
     price:
-        - [ch_website, 2.00] # SFR decimal
-        - [fr_website, 3.00] # EUR decimal
-        - [de_website, 4.00] # EUR decimal
+        - [ch_website, 2.00] # SFR Float2DecPoints
+        - [fr_website, 3.00] # EUR Float2DecPoints
+        - [de_website, 4.00] # EUR Float2DecPoints
     tierprices: # sequence of TierPrice # Staffelpreise
           -
             website: de_website # WebsiteID
             customer_group_id: 0 # CustomerGroup
             qty: 100 # integer ohne null
-            price: 4.20 # decimal
+            price: 4.20 # Float2DecPoints
     tax_class: 2 # TaxGroup, Magento berechnet Tax abhänging von tax_class, Kundengruppe, Lieferort, Website 
     quality_id: 1 # reference
     
