@@ -67,25 +67,25 @@ Choose shipping::
 
 Choose payone online payment::
 
-   ..>>> browser.is_element_present_by_id("checkout-step-payment")
-   ..True
-   ..>>> time.sleep(4)
-   ..>>> browser.find_by_css("#p_method_payone_creditcard").first.check()
-   ..>>> browser.is_element_present_by_id("payone_creditcard_cc_type_select")
-   ..True
-   ..>>> browser.select('payone_creditcard_cc_type_select', '3_V')
-   ..>>> browser.fill("payment[cc_number]", "4111111111111111")
-   ..>>> browser.select("payment[cc_exp_month]", "11")
-   ..>>> browser.select("payment[cc_exp_year]", "2015")
-   ..>>> browser.find_by_css("#payment-buttons-container .button").first.click()
-
-Choose offline payment::
-
    >>> browser.is_element_present_by_id("checkout-step-payment")
    True
    >>> time.sleep(4)
-   >>> browser.find_by_id("p_method_invoice").first.check()
+   >>> browser.find_by_css("#p_method_payone_creditcard").first.check()
+   >>> browser.is_element_present_by_id("payone_creditcard_cc_type_select")
+   True
+   >>> browser.select('payone_creditcard_cc_type_select', '3_V')
+   >>> browser.fill("payment[cc_number]", "4111111111111111")
+   >>> browser.select("payment[cc_exp_month]", "11")
+   >>> browser.select("payment[cc_exp_year]", "2015")
    >>> browser.find_by_css("#payment-buttons-container .button").first.click()
+
+..Choose offline payment::
+
+   ..>>> browser.is_element_present_by_id("checkout-step-payment")
+   ..True
+   ..>>> time.sleep(4)
+   ..>>> browser.find_by_id("p_method_invoice").first.check()
+   ..>>> browser.find_by_css("#payment-buttons-container .button").first.click()
 
 Review order::
 
@@ -148,9 +148,14 @@ The order is now in state "processing"::
     >>> order["order_increment_id"] == order_id
     True
 
-Order items are invoiced::
+All order items are invoiced::
 
     >>> order['total_invoiced']
+    7.56
+
+and paid::
+
+    >>> order['total_paid']
     7.56
 
 If all is payed and shipped we set the order status to "complete":
