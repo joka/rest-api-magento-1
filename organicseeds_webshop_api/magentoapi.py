@@ -456,6 +456,16 @@ def order_data_to_appstruct(data):
     data["shop"] = data["store_name"].splitlines()[1]
     data["customer_is_guest"] = bool(int(data["customer_is_guest"]))
     data["order_increment_id"] = int(data["increment_id"])
+    if data["billing_address"]['vat_is_valid']:
+        data["billing_address"]['vat_is_valid'] = \
+            bool(int(["billing_address"]['vat_is_valid']))
+    else:
+        data["billing_address"]['vat_is_valid'] = False
+    if data["shipping_address"]['vat_is_valid']:
+        data["shipping_address"]['vat_is_valid'] = \
+            bool(int(["shipping_address"]['vat_is_valid']))
+    else:
+        data["shipping_address"]['vat_is_valid'] = False
     for item in data["items"]:
         item["title"] = item["name"]
         item["free_shipping"] = bool(int(item["free_shipping"]))

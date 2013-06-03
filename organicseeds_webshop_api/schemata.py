@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # TODO
-#vat nnumber zu addresse
 #alternativ sorte
 #wiederverkuafpreis
 #lieferdauer
@@ -764,6 +763,10 @@ class Address(colander.MappingSchema):
            fax : String # optional
 
            telephone : String # optional
+
+           vat_id : String # optional
+
+           vat_is_valid: Bool # default False, optional
     """
 
     firstname = String(missing=u"", default=u"", required=False)
@@ -777,6 +780,8 @@ class Address(colander.MappingSchema):
     fax = String(missing=u"", default=u"", required=False)
     postcode = String(missing=u"", default=u"", required=False)
     telephone = String(missing=u"", default=u"", required=False)
+    vat_id =  String(missing=u"", default=u"", required=False)
+    vat_is_valid = Bool(missing=False, default=False, required=False)
 
 
 ##############################################
@@ -1145,7 +1150,6 @@ class Order(colander.MappingSchema):
     shop = ShopID()
     created_at = String()  # Format: '2013-05-14 12:29:03', not validated!
     updated_at = String()  # Format: '2013-05-14 12:29:03', not validated!
-    ext_order_id = Identifier(missing=u"")  # TODO usefull?
 
     # Customer
     customer_id = IntegerGtNull(),
@@ -1157,9 +1161,7 @@ class Order(colander.MappingSchema):
     customer_gender = Identifier(missing=u"", validator=OneOf(["Male",
                                                                "Female"]))
     customer_prefix = String(missing=u"")
-    customer_taxvat = String(missing=u"")  # TODO Validate VAT
     customer_dob = String(missing=u"")  # Format: '2013-05-14' not validated!
-    ext_customer_id = Identifier(missing=u"")  # TODO usefull?
 
     # billing address
     billing_address = Address()
@@ -1200,30 +1202,22 @@ class Order(colander.MappingSchema):
 
     # Payment
     payment_id = IntegerGtNull()
-    #payment_last_trans_id
 
     #method
     payment_method = Identifier(missing=u"")  # TODO define payment methods
-    payone_payment_method_type = String(missing=u"")
-     #APPROVED / REDIRECT / ERROR
 
-    payone_transaction_status = String(missing=u"")
-    # approved, error,redirected
-
-     #'amount_authorized': '7.5600',
-     #'amount_canceled': None,
-     #'amount_ordered': '7.5600',
-     #'amount_paid': None,
-     #'amount_refunded': None,
-
-    #'debit_iban': None,
-    #'debit_swift': None,
-    #'debit_type': None,
-
-    #'cc_exp_month': '1',
-    #'cc_exp_year': '2016',
-    #'cc_last4': None,
-    #'cc_number_enc': '411113xxxxxx1111',
+    # payone payment status
+    last_trans_id = IntegerGtNull(default=None, missing=None)
+    payone_payment_method_type = String(missing=u"", default="")
+    payone_transaction_status = String(missing=u"", default=u"",
+                                       validator=OneOf(["APPROVED",
+                                                       "REDIRECT",
+                                                       "ERROR"]))
+    amount_authorized = Decimal(missing=decimal.Decimal(0))
+    amount_canceled = Decimal(missing=decimal.Decimal(0))
+    amount_ordered = Decimal(missing=decimal.Decimal(0))
+    amount_paid = Decimal(missing=decimal.Decimal(0))
+    amount_refunded = Decimal(missing=decimal.Decimal(0))
 
     #payone_dunning_status = String(missing=u"")
     #payone_account_number = IntegerGtEqNull()
@@ -1250,6 +1244,17 @@ class Order(colander.MappingSchema):
     #payone_payment_method_type = String(missing=u"")
     #payone_pseudocardpan = String(missing=u"")
     #payone_safe_invoice_type = String(missing=u"")
+
+    #'debit_iban': None,
+    #'debit_swift': None,
+    #'debit_type': None,
+    #'cc_exp_month': '1',
+    #'cc_exp_year': '2016',
+    #'cc_last4': None,
+    #'cc_number_enc': '411113xxxxxx1111',
+
+    #ext_order_id = Identifier(missing=u"")  # TODO usefull?
+    #ext_customer_id = Identifier(missing=u"")  # TODO usefull?
 
 
 class Orders(colander.SequenceSchema):
