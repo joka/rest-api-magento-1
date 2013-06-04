@@ -33,7 +33,7 @@ def categories_post(request):
 
        request body :
 
-           * Sequence of Category
+           * categories: Sequence of Category
     """
 
     save_in_webshop = request.validated.get("save_in_webshop", True)
@@ -57,16 +57,6 @@ def categories_post(request):
                 raise
         magentoapi.indexing_reindex(request)
     return {"status": "succeeded"}
-
-
-@categories.get()
-def categories_get(request):
-    """Get all category webshop data
-    """
-
-    with magentoapi.Categories(request) as proxy:
-        result = proxy.list()
-        return {"categories": result}
 
 
 @categories.delete(accept="text/json",)
@@ -219,7 +209,7 @@ def vpe_types_post(request):
 
        request body :
 
-       * Sequence of VPEType
+       * vpe_types: Sequence of VPEType
     """
 
     utils.store(request.validated["vpe_types"], models.EntityData,
@@ -234,7 +224,7 @@ def vpe_types_put(request):
 
        request body :
 
-       * Sequence of VPEType
+       * vpe_types: Sequence of VPEType
     """
 
     utils.store(request.validated["vpe_types"], models.EntityData,
@@ -305,7 +295,7 @@ def items_put(request):
 
        request body :
 
-       * Sequence of ItemUpdate
+       * items: Sequence of ItemUpdate
     """
     save_in_webshop = request.validated.get("save_in_webshop", True)
     appstructs = utils.remove_none_values(request.validated["items"])
@@ -352,6 +342,10 @@ def orders_get(request):
     """Get orders data
 
        querystring: OrdersGet schema
+
+       response body:
+
+           * orders: sequence of Orders
     """
     status = request.validated.get("status")
     orders = []
@@ -363,6 +357,10 @@ def orders_get(request):
 @orders.put(schema=schemata.OrderUpdatesList)
 def orders_put(request):
     """Add comments or change status of orders
+
+       request body :
+
+        * orders: * Sequence of OrderUpdate
     """
     appstructs = request.validated["orders"]
     with magentoapi.SalesOrders(request) as proxy:
@@ -383,6 +381,15 @@ invoices = Service(name='invoices',
 @invoices.put(schema=schemata.InvoicesList)
 def invoices_put(request):
     """Add and capture invoices
+
+       request body:
+
+           * invoices: Sequence of Invoices
+
+       response body:
+
+           *  invoice_results: Sequence of InvoiceResults
+              (payment capture information)
     """
     appstructs = request.validated["invoices"]
     results = []

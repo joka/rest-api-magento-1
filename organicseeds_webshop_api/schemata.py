@@ -1330,10 +1330,23 @@ class OrderItemQtys(colander.SequenceSchema):
 class Invoice(colander.MappingSchema):
     """Invoice of OrderItems
 
-       See source code for details.
-       #TODO error docu
-       OrderItemQty muss gesammte Order umfassen, solange Teilcapture nicht
+       request body:
+
+        * order_increment_id: IntegerGtNull # (order id)
+
+        * order_item_qtys: Sequence of OrderItemQtys
+
+        * capture_online_payment: Bool # try to capture pre-authorized payment
+          # optional, default True
+
+        * comment: String # Extra comment text for the Invoice, # optional
+
+        * notify: Bool # send Invoice-Email to customer # optional # default True
+
+       NOTE: order_item_qtys muss gesammte Order umfassen, solange Teilcapture nicht
        aktiviert ist bei payone
+
+       TODO: validate order_item_qty
     """
 
     order_increment_id = IntegerGtNull()
@@ -1354,6 +1367,17 @@ class InvoicesList(colander.MappingSchema):
 
 
 class InvoiceResult(colander.MappingSchema):
+    """Basic Invoice data and payment capture information
+
+       * order_increment_id: IntegerGtNull (order id)
+
+       * invoice_increment_id: IntegerGtNull (invoice id)
+
+       * capture_status: String # "no_capture" | "captured" | "error"
+
+       * capture_error: String # error message if capture_status == "error"
+
+    """
 
     order_increment_id = IntegerGtNull()
     invoice_increment_id = IntegerGtNull(default=None, missing=None)
