@@ -210,7 +210,6 @@ class MagentoCatalogAPI(MagentoAPI):
 
     def delete_all(self):
         """to be implemented in subclass"""
-        pass
 
     def create(self, appstructs):
         calls = []
@@ -221,7 +220,6 @@ class MagentoCatalogAPI(MagentoAPI):
 
     def list(self):
         """to be implemented in subclass"""
-        pass
 
     def update(self, appstructs):
         calls = []
@@ -280,18 +278,15 @@ class MagentoCatalogAPI(MagentoAPI):
 
     def _create_arguments(self, appstruct):
         """to be implemented in subclass"""
-        pass
 
     def _to_update_data(self, appstruct):
         """to be implemented in subclass"""
-        pass
 
     def _to_update_shops_data(self, appstruct, lang, country="default"):
         """to be implemented in subclass"""
 
     def _to_create_data(self, appstruct):
         """to be implemented in subclass"""
-        pass
 
 
 class Items(MagentoCatalogAPI):
@@ -486,7 +481,6 @@ class MagentoSalesAPI(MagentoAPI):
 
     def list(self):
         """to be implemented in subclass"""
-        pass
 
     def order_add_comment(self, appstructs):
         calls = []

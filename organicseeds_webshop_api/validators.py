@@ -129,14 +129,6 @@ def validate_category_id_does_not_exists(request):
     validate_id_does_not_exists("categories", request)
 
 
-def validate_category_title_unique(request):
-    validate_title_unique("categories", request)
-
-
-def validate_category_title_does_not_exists(request):
-    validate_title_does_not_exists("categories", request)
-
-
 def validate_category_parent_id(request):
     categories = request.validated["categories"]
     new_ids = [i["id"] for i in categories]
